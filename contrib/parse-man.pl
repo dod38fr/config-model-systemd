@@ -60,7 +60,6 @@ sub variable  ($t, $elt) {
     my $desc = $elt->first_child('listitem')->trimmed_text;
     $desc =~ s/(\w+)=/C<$1>/g;
 
-    say "Storing class $config_class parameter $name";
     push $data{element}->@*, [$config_class => $name => $desc ];
 }
 
@@ -70,19 +69,34 @@ foreach my $subsystem (@list) {
     $twig->parsefile($file);
 }
 
-say "Storing class descriptions";
 foreach my $cdata ($data{class}->@*) {
     my ($config_class, $desc) = $cdata->@*;
     my $steps = "class:$config_class class_description";
+    say "Storing class $config_class descriptions";
     $meta_root->grab(step => $steps, autoadd => 1)->store($desc);
 }
 
-say "Storing class elements";
 foreach my $cdata ($data{element}->@*) {
     my ($config_class, $element, $desc) = $cdata->@*;
     my $steps_2_element = "class:$config_class element:$element";
 
-    $meta_root->grab(step => "$steps_2_element description", autoadd => 1)->store($desc);
+    my $obj = $meta_root->grab(step => "$steps_2_element", autoadd => 1);
+    if ($desc =~ /Takes a boolean/) {
+        say "Storing class element $element (boolean)";
+        # force boolean type
+        $obj->load("type=leaf value_type=boolean");
+    }
+    elsif (not $obj->fetch_element("type")->fetch(check => 'no') ) {
+        say "Storing new class element $element (uniline)";
+        # do not override an already defined type to enable manual corrections
+        $obj->load("type=leaf value_type=uniline");
+    }
+
+    my $old_desc = $obj->grab_value("description") // '';
+    if ($old_desc ne $desc) {
+        say "updating description of element $element";
+        $obj->fetch_element("description")->store($desc);
+    }
 }
 
 say "Saving model";
