@@ -36,7 +36,7 @@ $rw_obj -> read_all() ;
 my $meta_root = $rw_obj->meta_root;
 my $config_class;
 
-my %data = ( class => [], element =>[] );
+my %data = ( element => [] );
 
 sub desc ($t, $elt) {
     my $txt = $elt->trimmed_text;
@@ -45,7 +45,8 @@ sub desc ($t, $elt) {
     # explicitly before being sent upward
 
     # but it's easier to store data and handle it later outside of XML::Twig realm
-    push $data{class}->@* , [ $config_class => $txt ];
+    $data{class}{$config_class} //= [];
+    push $data{class}{$config_class}->@*, $txt;
 }
 
 sub manpage ($t, $elt) {
@@ -55,8 +56,9 @@ sub manpage ($t, $elt) {
 }
 
 sub variable  ($t, $elt) {
-    my $name = $elt->first_child('term')->first_child('varname')->text;
-    $name =~ s/=$//;
+    my $varname = $elt->first_child('term')->first_child('varname')->text;
+    my ($name, $trash) = split '=', $varname, 2;
+    say "class $config_class element $name, trashed $trash" if $trash;
     my $desc = $elt->first_child('listitem')->trimmed_text;
     $desc =~ s/(\w+)=/C<$1>/g;
 
@@ -69,11 +71,11 @@ foreach my $subsystem (@list) {
     $twig->parsefile($file);
 }
 
-foreach my $cdata ($data{class}->@*) {
-    my ($config_class, $desc) = $cdata->@*;
+foreach my $config_class (keys $data{class}->%*) {
+    my $desc = $data{class}{$config_class};
     my $steps = "class:$config_class class_description";
-    say "Storing class $config_class descriptions";
-    $meta_root->grab(step => $steps, autoadd => 1)->store($desc);
+    say "Storing class $config_class description";
+    $meta_root->grab(step => $steps, autoadd => 1)->store(join("\n\n",$desc->@*));
 }
 
 foreach my $cdata ($data{element}->@*) {
@@ -82,19 +84,19 @@ foreach my $cdata ($data{element}->@*) {
 
     my $obj = $meta_root->grab(step => "$steps_2_element", autoadd => 1);
     if ($desc =~ /Takes a boolean/) {
-        say "Storing class element $element (boolean)";
+        say "Storing class $config_class element $element (boolean)";
         # force boolean type
         $obj->load("type=leaf value_type=boolean");
     }
     elsif (not $obj->fetch_element("type")->fetch(check => 'no') ) {
-        say "Storing new class element $element (uniline)";
+        say "Storing new class $config_class element $element (uniline)";
         # do not override an already defined type to enable manual corrections
         $obj->load("type=leaf value_type=uniline");
     }
 
     my $old_desc = $obj->grab_value("description") // '';
     if ($old_desc ne $desc) {
-        say "updating description of element $element";
+        say "updating description of class $config_class element $element";
         $obj->fetch_element("description")->store($desc);
     }
 }
