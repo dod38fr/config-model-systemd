@@ -12,9 +12,11 @@ use experimental qw/postderef signatures/ ;
 
 my $systemd_path = path('/home/domi/debian-dev/systemd-228/man/');
 
-my @list = qw/exec/;
+my @list = qw/exec kill resource-control/;
 my %map = (
     'exec' => 'Common::Exec',
+    'kill' => 'Common::Kill',
+    'resource-control' => 'Common::ResourceControl',
 );
 
 
