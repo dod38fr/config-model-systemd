@@ -12,6 +12,8 @@ use experimental qw/postderef signatures/ ;
 
 my $systemd_path = path('/home/domi/debian-dev/systemd-228/man/');
 
+# If you change the mapped class names (i.e. the values of this hash),
+# be sure to rename the matching class with cme meta edit
 my @list = qw/exec kill resource-control/;
 my %map = (
     'exec' => 'Common::Exec',
