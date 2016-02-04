@@ -80,9 +80,14 @@ See the New Control Group Interfaces for an introduction on how to make use of r
       },
       'DevicePolicy',
       {
+        'choice' => [
+          'auto',
+          'closed',
+          'strict'
+        ],
         'description' => 'Control the policy for allowing device access: strictmeans to only allow types of access that are explicitly specified.closedin addition, allows access to standard pseudo devices including /dev/null, /dev/zero, /dev/full, /dev/random, and /dev/urandom. auto in addition, allows access to all devices if no explicit C<DeviceAllow> is present. This is the default.',
         'type' => 'leaf',
-        'value_type' => 'uniline'
+        'value_type' => 'enum'
       },
       'NetClass',
       {

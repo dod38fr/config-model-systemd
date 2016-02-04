@@ -32,25 +32,25 @@ This man page lists the configuration options shared by these four unit types. S
       {
         'description' => 'Sets the default nice level (scheduling priority) for executed processes. Takes an integer between -20 (highest priority) and 19 (lowest priority). See L<setpriority(2)> for details.',
         'type' => 'leaf',
-        'value_type' => 'uniline'
+        'value_type' => 'integer'
       },
       'OOMScoreAdjust',
       {
         'description' => 'Sets the adjustment level for the Out-Of-Memory killer for executed processes. Takes an integer between -1000 (to disable OOM killing for this process) and 1000 (to make killing of this process under memory pressure very likely). See proc.txt for details.',
         'type' => 'leaf',
-        'value_type' => 'uniline'
+        'value_type' => 'integer'
       },
       'IOSchedulingClass',
       {
         'description' => 'Sets the I/O scheduling class for executed processes. Takes an integer between 0 and 3 or one of the strings none, realtime, best-effort or idle. See L<ioprio_set(2)> for details.',
         'type' => 'leaf',
-        'value_type' => 'uniline'
+        'value_type' => 'integer'
       },
       'IOSchedulingPriority',
       {
         'description' => 'Sets the I/O scheduling priority for executed processes. Takes an integer between 0 (highest priority) and 7 (lowest priority). The available priorities depend on the selected I/O scheduling class (see above). See L<ioprio_set(2)> for details.',
         'type' => 'leaf',
-        'value_type' => 'uniline'
+        'value_type' => 'integer'
       },
       'CPUSchedulingPolicy',
       {
