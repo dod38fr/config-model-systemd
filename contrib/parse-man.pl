@@ -86,17 +86,30 @@ foreach my $cdata ($data{element}->@*) {
     my ($config_class, $element, $desc) = $cdata->@*;
     my $steps_2_element = "class:$config_class element:$element";
 
+    my $value_type ;
     my $obj = $meta_root->grab(step => "$steps_2_element", autoadd => 1);
-    if ($desc =~ /Takes a boolean/) {
-        say "Storing class $config_class element $element (boolean)";
-        # force boolean type
-        $obj->load("type=leaf value_type=boolean");
+    if ($desc =~ /Takes an? (boolean|integer)/) {
+        $value_type = $1;
     }
-    elsif (not $obj->fetch_element("type")->fetch(check => 'no') ) {
+    elsif ($desc =~ /Takes time \(in seconds\)/) {
+        $value_type = 'integer';
+    }
+
+    $obj->load("type=leaf"); # make sure that value_type is accessible
+
+    my $vt_obj = $obj->fetch_element("value_type");
+    my $old_vt = $vt_obj->fetch(check => 'no') // '';
+    if ($value_type and $value_type ne $old_vt) {
+        # force type
+        say "Storing class $config_class element $element ($value_type)";
+        $vt_obj->store($value_type);
+    }
+    elsif (not $old_vt) {
         say "Storing new class $config_class element $element (uniline)";
         # do not override an already defined type to enable manual corrections
-        $obj->load("type=leaf value_type=uniline");
+        $vt_obj->store("uniline");
     }
+
 
     my $old_desc = $obj->grab_value("description") // '';
     if ($old_desc ne $desc) {
