@@ -14,7 +14,7 @@ my $systemd_path = path('/home/domi/debian-dev/systemd-228/man/');
 
 # If you change the mapped class names (i.e. the values of this hash),
 # be sure to rename the matching class with cme meta edit
-my @list = qw/exec kill resource-control/;
+my @list = qw/exec kill resource-control service/;
 my %map = (
     'exec' => 'Common::Exec',
     'kill' => 'Common::Kill',
@@ -71,7 +71,7 @@ sub variable  ($t, $elt) {
 
 foreach my $subsystem (@list) {
     my $file = $systemd_path->child("systemd.$subsystem.xml");
-    $config_class = 'Systemd::'.( $map{$subsystem} || ucfirst($subsystem));
+    $config_class = 'Systemd::'.( $map{$subsystem} || 'Section::'.ucfirst($subsystem));
     $twig->parsefile($file);
 }
 
