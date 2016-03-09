@@ -25,7 +25,7 @@ sub read {
     my %args = @_ ;
 
     # args are:
-    # root       => './my_test',  # fake root directory, userd for tests
+    # root       => './my_test',  # fake root directory, used for tests
     # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf'
@@ -33,7 +33,7 @@ sub read {
     # check      => yes|no|skip
 
 
-    my $dir = path($args{config_dir});
+    my $dir = path($args{root}.$args{config_dir});
     die "Unknown directory $dir" unless $dir->is_dir;
 
     $self->config_dir($dir);
