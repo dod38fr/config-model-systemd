@@ -53,33 +53,48 @@ If a service is requested under a certain name but no unit configuration file is
       },
       'ExecStart',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Commands with their arguments that are executed when this service is started. The value is split into zero or more command lines according to the rules described below (see section "Command Lines" below). When C<Type> is not oneshot, only one command may and must be given. When C<Type>oneshot is used, zero or more commands may be specified. This can be specified by providing multiple command lines in the same directive, or alternatively, this directive may be specified more than once with the same effect. If the empty string is assigned to this option, the list of commands to start is reset, prior assignments of this option will have no effect. If no C<ExecStart> is specified, then the service must have C<RemainAfterExit>yes set.For each of the specified commands, the first argument must be an absolute path to an executable. Optionally, if this file name is prefixed with C<@>, the second token will be passed as C<argv[0]> to the executed process, followed by the further arguments specified. If the absolute filename is prefixed with C<->, an exit code of the command normally considered a failure (i.e. non-zero exit status or abnormal exit due to signal) is ignored and considered success. If both C<-> and C<@> are used, they can appear in either order.If more than one command is specified, the commands are invoked sequentially in the order they appear in the unit file. If one of the commands fails (and is not prefixed with C<->), other lines are not executed, and the unit is considered failed.Unless C<Type>forking is set, the process started via this command line will be considered the main process of the daemon.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ExecStartPre',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Additional commands that are executed before or after the command in C<ExecStart>, respectively. Syntax is the same as for C<ExecStart>, except that multiple command lines are allowed and the commands are executed one after the other, serially.If any of those commands (not prefixed with C<->) fail, the rest are not executed and the unit is considered failed.C<ExecStart> commands are only run after all C<ExecStartPre> commands that were not prefixed with a C<-> exit successfully.C<ExecStartPost> commands are only run after the service has started, as determined by C<Type> (i.e. the process has been started for C<Type>simple or C<Type>idle, the process exits successfully for C<Type>oneshot, the initial process exits successfully for C<Type>forking, C<C<READY>1> is sent for C<Type>notify, or the C<BusName> has been taken for C<Type>dbus).Note that C<ExecStartPre> may not be used to start long-running processes. All processes forked off by processes invoked via C<ExecStartPre> will be killed before the next service process is run.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ExecReload',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Commands to execute to trigger a configuration reload in the service. This argument takes multiple command lines, following the same scheme as described for C<ExecStart> above. Use of this setting is optional. Specifier and environment variable substitution is supported here following the same scheme as for C<ExecStart>.One additional, special environment variable is set: if known, $MAINPID is set to the main process of the daemon, and may be used for command lines like the following:/bin/kill -HUP $MAINPIDNote however that reloading a daemon by sending a signal (as with the example line above) is usually not a good choice, because this is an asynchronous operation and hence not suitable to order reloads of multiple services against each other. It is strongly recommended to set C<ExecReload> to a command that not only triggers a configuration reload of the daemon, but also synchronously waits for it to complete.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ExecStop',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Commands to execute to stop the service started via C<ExecStart>. This argument takes multiple command lines, following the same scheme as described for C<ExecStart> above. Use of this setting is optional. After the commands configured in this option are run, all processes remaining for a service are terminated according to the C<KillMode> setting (see L<systemd.kill(5)>). If this option is not specified, the process is terminated by sending the signal specified in C<KillSignal> when service stop is requested. Specifier and environment variable substitution is supported (including $MAINPID, see above).Note that it is usually not sufficient to specify a command for this setting that only asks the service to terminate (for example, by queuing some form of termination signal for it), but does not wait for it to do so. Since the remaining processes of the services are killed using SIGKILL immediately after the command exited, this would not result in a clean stop. The specified command should hence be a synchronous operation, not an asynchronous one.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ExecStopPost',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Additional commands that are executed after the service was stopped. This includes cases where the commands configured in C<ExecStop> were used, where the service does not have any C<ExecStop> defined, or where the service exited unexpectedly. This argument takes multiple command lines, following the same scheme as described for C<ExecStart>. Use of these settings is optional. Specifier and environment variable substitution is supported.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'RestartSec',
       {
