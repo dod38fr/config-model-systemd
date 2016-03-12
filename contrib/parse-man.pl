@@ -4,13 +4,18 @@ use strict;
 use warnings;
 use 5.22.0;
 
+use lib 'lib';
+
 use XML::Twig;
 use XXX;
 use Path::Tiny;
 use Config::Model::Itself;
+use Config::Model::Exception;
 use experimental qw/postderef signatures/ ;
 
 my $systemd_path = path('/home/domi/debian-dev/systemd-228/man/');
+
+Config::Model::Exception::Trace(1);
 
 # If you change the mapped class names (i.e. the values of this hash),
 # be sure to rename the matching class with cme meta edit
@@ -69,6 +74,46 @@ sub variable  ($t, $elt) {
     push $data{element}->@*, [$config_class => $name => $desc ];
 }
 
+sub setup_element ($meta_root, $element, $desc) {
+
+    my $value_type ;
+    my $obj = $meta_root->grab(
+        step => "class:$config_class element:$element",
+        autoadd => 1
+    );
+    if ($desc =~ /Takes an? (boolean|integer)/) {
+        $value_type = $1;
+    }
+    elsif ($desc =~ /Takes time \(in seconds\)/) {
+        $value_type = 'integer';
+    }
+
+    my $vt_obj;
+    if ($element =~ /^Exec/) {
+        $obj->load("type=list cargo type=leaf"); # make sure that value_type is accessible
+        $vt_obj = $obj->grab("cargo value_type");
+    }
+    else {
+        $obj->load("type=leaf"); # make sure that value_type is accessible
+        $vt_obj = $obj->fetch_element("value_type");
+    }
+
+    my $old_vt = $vt_obj->fetch(check => 'no') // '';
+    my $type = $obj->get_type;
+    if ($value_type and $value_type ne $old_vt) {
+        # force type
+        say "Storing class $config_class element $element ($type $value_type)";
+        $vt_obj->store($value_type);
+    }
+    elsif (not $old_vt) {
+        say "Storing new class $config_class element $element ($type uniline)";
+        # do not override an already defined type to enable manual corrections
+        $vt_obj->store("uniline");
+    }
+    return $obj;
+}
+
+
 foreach my $subsystem (@list) {
     my $file = $systemd_path->child("systemd.$subsystem.xml");
     $config_class = 'Systemd::'.( $map{$subsystem} || 'Section::'.ucfirst($subsystem));
@@ -84,32 +129,8 @@ foreach my $config_class (keys $data{class}->%*) {
 
 foreach my $cdata ($data{element}->@*) {
     my ($config_class, $element, $desc) = $cdata->@*;
-    my $steps_2_element = "class:$config_class element:$element";
 
-    my $value_type ;
-    my $obj = $meta_root->grab(step => "$steps_2_element", autoadd => 1);
-    if ($desc =~ /Takes an? (boolean|integer)/) {
-        $value_type = $1;
-    }
-    elsif ($desc =~ /Takes time \(in seconds\)/) {
-        $value_type = 'integer';
-    }
-
-    $obj->load("type=leaf"); # make sure that value_type is accessible
-
-    my $vt_obj = $obj->fetch_element("value_type");
-    my $old_vt = $vt_obj->fetch(check => 'no') // '';
-    if ($value_type and $value_type ne $old_vt) {
-        # force type
-        say "Storing class $config_class element $element ($value_type)";
-        $vt_obj->store($value_type);
-    }
-    elsif (not $old_vt) {
-        say "Storing new class $config_class element $element (uniline)";
-        # do not override an already defined type to enable manual corrections
-        $vt_obj->store("uniline");
-    }
-
+    my $obj = setup_element ($meta_root, $element, $desc);
 
     my $old_desc = $obj->grab_value("description") // '';
     if ($old_desc ne $desc) {
