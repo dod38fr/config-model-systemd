@@ -88,6 +88,8 @@ sub setup_element ($meta_root, $element, $desc) {
         $value_type = 'integer';
     }
 
+    my ($min, $max) = ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d+])/) ;
+
     my $vt_obj;
     if ($element =~ /^Exec/) {
         $obj->load("type=list cargo type=leaf"); # make sure that value_type is accessible
@@ -104,6 +106,8 @@ sub setup_element ($meta_root, $element, $desc) {
         # force type
         say "Storing class $config_class element $element ($type $value_type)";
         $vt_obj->store($value_type);
+        $obj->load("min=$min") if defined $min;
+        $obj->load("max=$max") if defined $max;
     }
     elsif (not $old_vt) {
         say "Storing new class $config_class element $element ($type uniline)";
