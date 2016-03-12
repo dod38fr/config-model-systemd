@@ -17,64 +17,58 @@ my $systemd_path = path('/home/domi/debian-dev/systemd-228/man/');
 
 Config::Model::Exception::Trace(1);
 
-# If you change the mapped class names (i.e. the values of this hash),
-# be sure to rename the matching class with cme meta edit
-my @list = qw/exec kill resource-control service/;
-my %map = (
-    'exec' => 'Common::Exec',
-    'kill' => 'Common::Kill',
-    'resource-control' => 'Common::ResourceControl',
-);
+sub parse_xml ($list, $map){
 
+    my %data = ( element => [] );
+    my $config_class;
 
-my $twig = XML::Twig->new ( 
-    twig_handlers => {
-        'refsect1[string(title)=~ /Description/]/para' => \&desc,
-        'citerefentry' => \&manpage,
-        'literal' => sub { my $t = $_->text(); $_->set_text("C<$t>");},
-        'refsect1[string(title)=~ /Options/]/variablelist/varlistentry' => \&variable,
+    my $desc = sub ($t, $elt) {
+        my $txt = $elt->trimmed_text;
+        # there's black magic in XML::Twig that trash error message
+        # contained in an error object.  So the error must be stringified
+        # explicitly before being sent upward
+
+        # but it's easier to store data and handle it later outside of XML::Twig realm
+        $data{class}{$config_class} //= [];
+        push $data{class}{$config_class}->@*, $txt;
+    };
+
+    my $manpage = sub ($t, $elt) {
+        my $man = $elt->first_child('refentrytitle')->text;
+        my $nb = $elt->first_child('manvolnum')->text;
+        $elt->set_text( "L<$man($nb)>");
+    };
+
+    my $variable = sub  ($t, $elt) {
+        my $varname = $elt->first_child('term')->first_child('varname')->text;
+        my ($name, $trash) = split '=', $varname, 2;
+        say "class $config_class element $name, trashed $trash" if $trash;
+        my $desc = $elt->first_child('listitem')->trimmed_text;
+        $desc =~ s/(\w+)=/C<$1>/g;
+
+        push $data{element}->@*, [$config_class => $name => $desc ];
+    };
+
+    my $twig = XML::Twig->new (
+        twig_handlers => {
+            'refsect1[string(title)=~ /Description/]/para' => $desc,
+            'citerefentry' => $manpage,
+            'literal' => sub { my $t = $_->text(); $_->set_text("C<$t>");},
+            'refsect1[string(title)=~ /Options/]/variablelist/varlistentry' => $variable,
+        }
+    );
+
+    foreach my $subsystem ($list->@*) {
+        my $file = $systemd_path->child("systemd.$subsystem.xml");
+        $config_class = 'Systemd::'.( $map->{$subsystem} || 'Section::'.ucfirst($subsystem));
+        $twig->parsefile($file);
     }
-);
 
-# Itself constructor returns an object to read or write the data
-# structure containing the model to be edited
-my $rw_obj = Config::Model::Itself -> new () ;
-
-# now load the existing model to be edited
-$rw_obj -> read_all() ;
-my $meta_root = $rw_obj->meta_root;
-my $config_class;
-
-my %data = ( element => [] );
-
-sub desc ($t, $elt) {
-    my $txt = $elt->trimmed_text;
-    # there's black magic in XML::Twig that trash error message
-    # contained in an error object.  So the error must be stringified
-    # explicitly before being sent upward
-
-    # but it's easier to store data and handle it later outside of XML::Twig realm
-    $data{class}{$config_class} //= [];
-    push $data{class}{$config_class}->@*, $txt;
+    return \%data;
 }
 
-sub manpage ($t, $elt) {
-    my $man = $elt->first_child('refentrytitle')->text;
-    my $nb = $elt->first_child('manvolnum')->text;
-    $elt->set_text( "L<$man($nb)>");
-}
 
-sub variable  ($t, $elt) {
-    my $varname = $elt->first_child('term')->first_child('varname')->text;
-    my ($name, $trash) = split '=', $varname, 2;
-    say "class $config_class element $name, trashed $trash" if $trash;
-    my $desc = $elt->first_child('listitem')->trimmed_text;
-    $desc =~ s/(\w+)=/C<$1>/g;
-
-    push $data{element}->@*, [$config_class => $name => $desc ];
-}
-
-sub setup_element ($meta_root, $element, $desc) {
+sub setup_element ($meta_root, $config_class, $element, $desc) {
 
     my $value_type ;
     my $obj = $meta_root->grab(
@@ -117,24 +111,36 @@ sub setup_element ($meta_root, $element, $desc) {
     return $obj;
 }
 
+# If you change the mapped class names (i.e. the values of this hash),
+# be sure to rename the matching class with cme meta edit
+my @list = qw/exec kill resource-control service/;
+my %map = (
+    'exec' => 'Common::Exec',
+    'kill' => 'Common::Kill',
+    'resource-control' => 'Common::ResourceControl',
+);
 
-foreach my $subsystem (@list) {
-    my $file = $systemd_path->child("systemd.$subsystem.xml");
-    $config_class = 'Systemd::'.( $map{$subsystem} || 'Section::'.ucfirst($subsystem));
-    $twig->parsefile($file);
-}
+my $data = parse_xml(\@list, \%map) ;
 
-foreach my $config_class (keys $data{class}->%*) {
-    my $desc = $data{class}{$config_class};
+# Itself constructor returns an object to read or write the data
+# structure containing the model to be edited
+my $rw_obj = Config::Model::Itself -> new () ;
+
+# now load the existing model to be edited
+$rw_obj -> read_all() ;
+my $meta_root = $rw_obj->meta_root;
+
+foreach my $config_class (keys $data->{class}->%*) {
+    my $desc = $data->{class}{$config_class};
     my $steps = "class:$config_class class_description";
     say "Storing class $config_class description";
     $meta_root->grab(step => $steps, autoadd => 1)->store(join("\n\n",$desc->@*));
 }
 
-foreach my $cdata ($data{element}->@*) {
+foreach my $cdata ($data->{element}->@*) {
     my ($config_class, $element, $desc) = $cdata->@*;
 
-    my $obj = setup_element ($meta_root, $element, $desc);
+    my $obj = setup_element ($meta_root, $config_class, $element, $desc);
 
     my $old_desc = $obj->grab_value("description") // '';
     if ($old_desc ne $desc) {
