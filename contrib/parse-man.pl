@@ -125,7 +125,8 @@ sub setup_element ($meta_root, $config_class, $element, $desc) {
 
 # If you change the mapped class names (i.e. the values of this hash),
 # be sure to rename the matching class with cme meta edit
-my @list = qw/exec kill resource-control service/;
+my @list = qw/exec kill resource-control service unit/;
+# default class name is Systemd::Section::ucfirst($item)
 my %map = (
     'exec' => 'Common::Exec',
     'kill' => 'Common::Kill',
