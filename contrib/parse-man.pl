@@ -49,8 +49,20 @@ sub parse_xml ($list, $map){
         push $data{element}->@*, [$config_class => $name => $desc ];
     };
 
+    my $set_config_class = sub ($name) {
+        $config_class = 'Systemd::'.( $map->{$name} || 'Section::'.ucfirst($name));
+        say "Parsing class $config_class";
+    };
+
+    my $parse_sub_title = sub {
+        my $t = $_->text();
+        if ($t =~ /\[(\w+)\] Section Options/ ) {
+            $set_config_class->($1) ;
+        }
+    };
     my $twig = XML::Twig->new (
         twig_handlers => {
+            'refsect1/title' => $parse_sub_title,
             'refsect1[string(title)=~ /Description/]/para' => $desc,
             'citerefentry' => $manpage,
             'literal' => sub { my $t = $_->text(); $_->set_text("C<$t>");},
@@ -60,7 +72,7 @@ sub parse_xml ($list, $map){
 
     foreach my $subsystem ($list->@*) {
         my $file = $systemd_path->child("systemd.$subsystem.xml");
-        $config_class = 'Systemd::'.( $map->{$subsystem} || 'Section::'.ucfirst($subsystem));
+        $set_config_class->($subsystem);
         $twig->parsefile($file);
     }
 
