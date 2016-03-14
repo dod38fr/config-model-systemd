@@ -143,11 +143,15 @@ my $rw_obj = Config::Model::Itself -> new () ;
 $rw_obj -> read_all() ;
 my $meta_root = $rw_obj->meta_root;
 
+my %old_elements;
+
 foreach my $config_class (keys $data->{class}->%*) {
     my $desc = $data->{class}{$config_class};
     my $steps = "class:$config_class class_description";
     say "Storing class $config_class description";
     $meta_root->grab(step => $steps, autoadd => 1)->store(join("\n\n",$desc->@*));
+
+    map {$old_elements{$config_class}{$_} = 1; } $meta_root->grab("class:$config_class element")->fetch_all_indexes;
 }
 
 foreach my $cdata ($data->{element}->@*) {
@@ -155,10 +159,19 @@ foreach my $cdata ($data->{element}->@*) {
 
     my $obj = setup_element ($meta_root, $config_class, $element, $desc);
 
+    delete $old_elements{$config_class}{$element};
+
     my $old_desc = $obj->grab_value("description") // '';
     if ($old_desc ne $desc) {
         say "updating description of class $config_class element $element";
         $obj->fetch_element("description")->store($desc);
+    }
+}
+
+foreach my $c (keys %old_elements) {
+    foreach my $e (keys $old_elements{$c}->%*) {
+        say "delete obsolete element $e from class $c";
+        $meta_root->load("class:$c element:-$e");
     }
 }
 
