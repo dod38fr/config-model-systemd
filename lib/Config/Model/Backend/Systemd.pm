@@ -38,12 +38,13 @@ sub read {
 
     $self->config_dir($dir);
     # TODO: accepts other systemd suffixes
-    my $filter = qr/\.service$/;
+    my $filter = qr/\.(service|socket)$/;
 
     foreach my $file ($dir->children($filter) ) {
-        say "reading file $file";
-        my $service_name = $file->basename($filter);
-        $self->node->load(step => "service:$service_name", check => $args{check} ) ;
+        my ($unit_type) = ($file =~ $filter);
+        my $unit_name = $file->basename($filter);
+        say "reading unit $unit_type name $unit_name from $file";
+        $self->node->load(step => "$unit_type:$unit_name", check => $args{check} ) ;
     }
     return 1 ;
 }
