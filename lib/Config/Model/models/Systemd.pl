@@ -9,6 +9,15 @@
         },
         'index_type' => 'string',
         'type' => 'hash'
+      },
+      'socket',
+      {
+        'cargo' => {
+          'config_class_name' => 'Systemd::Socket',
+          'type' => 'node'
+        },
+        'index_type' => 'string',
+        'type' => 'hash'
       }
     ],
     'name' => 'Systemd',
