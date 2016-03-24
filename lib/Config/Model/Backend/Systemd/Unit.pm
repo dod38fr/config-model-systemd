@@ -72,6 +72,51 @@ sub read {
     $self->SUPER::read(@_);
 }
 
+# overrides call to node->load_data
+sub load_data {
+    my $self = shift;
+    my %args = @_ ; # data, check, split_reg
+
+    my $data = $args{data} ;
+    # use ObjTreeScanner ?
+    my $disp_leaf = sub {
+        my ($scanner, $data, $node,$element_name,$index, $leaf_object) = @_ ;
+        $leaf_object->store($data);
+    } ;
+
+    my $unit_cb = sub {
+        my ($scanner, $data_ref,$node,@elements) = @_ ;
+
+        foreach my $elt (@elements) {
+            my $unit_data = $data_ref->{$elt};
+            next unless defined $unit_data;
+            $scanner->scan_element($unit_data, $node,$elt) ;
+        }
+    };
+
+    my $list_cb = sub {
+        my ($scanner, $data,$node,$element_name,@idx) = @_ ;
+        my $list_ref = ref($data) ? $data : [ $data ];
+        my $list_obj= $node->fetch_element($element_name);
+        foreach my $d (@$list_ref) {
+            if (length $d) {
+                $list_obj->push($d);
+            }
+            else {
+                $list_obj->clear;
+            }
+        }
+
+    };
+
+    my $scan = Config::Model::ObjTreeScanner-> new (
+        node_content_cb => $unit_cb,
+        list_element_cb => $list_cb,
+        leaf_cb => $disp_leaf,
+    ) ;
+
+    $scan->scan_node($data, $self->node) ;
+}
 
 
 no Mouse ;
