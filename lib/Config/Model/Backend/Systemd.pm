@@ -36,10 +36,38 @@ sub read {
     my $dir = path($args{root}.$args{config_dir});
     die "Unknown directory $dir" unless $dir->is_dir;
 
-    $self->config_dir($dir);
+    my $app = $self->node->instance->application;
+    my @layers ;
+    if ($app eq 'systemd-user') {
+        @layers = (
+            # paths documented by systemd-system.conf man page
+            '/etc/systemd/user.conf.d/',
+            '/run/systemd/user.conf.d/',
+            '/usr/lib/systemd/user.conf.d/',
+            # path found on Debian
+            '/usr/lib/systemd/user/'
+        );
+    }
+
     # TODO: accepts other systemd suffixes
     my $filter = qr/\.(service|socket)$/;
 
+    # load layers
+    foreach my $layer (@layers) {
+        my $dir = path ($args{root}.$layer);
+        next unless $dir->is_dir;
+
+        $self->config_dir($dir);
+        foreach my $file ($dir->children($filter) ) {
+            my $unit_name = $file->basename($filter);
+            my ($unit_type) = ($file =~ $filter);
+            say "reading user unit $unit_type name $unit_name from $file";
+            # force config_dir during init
+            $self->node->load(step => "$unit_type:$unit_name", check => $args{check} ) ;
+        }
+    }
+
+    $self->config_dir($dir);
     foreach my $file ($dir->children($filter) ) {
         my ($unit_type) = ($file =~ $filter);
         my $unit_name = $file->basename($filter);

@@ -29,7 +29,7 @@
     'read_config' => [
       {
         'auto_create' => '1',
-        'backend' => 'IniFile',
+        'backend' => 'Systemd::Unit',
         'file' => '&index.service'
       }
     ]
