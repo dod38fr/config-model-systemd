@@ -87,24 +87,30 @@ sub load_data {
     my $unit_cb = sub {
         my ($scanner, $data_ref,$node,@elements) = @_ ;
 
+        # read data in the model order
         foreach my $elt (@elements) {
-            my $unit_data = $data_ref->{$elt};
+            my $unit_data = $data_ref->{$elt}; # extract relevant data
             next unless defined $unit_data;
             $scanner->scan_element($unit_data, $node,$elt) ;
         }
     };
 
+    # this setup is required because IniFile backend cannot push value
+    # coming from several ini files on a single list element. (even
+    # though keys can be repeated in a single ini file and stored as
+    # list in a single config element, this is not possible if the
+    # list values come from several files)
     my $list_cb = sub {
         my ($scanner, $data,$node,$element_name,@idx) = @_ ;
         my $list_ref = ref($data) ? $data : [ $data ];
         my $list_obj= $node->fetch_element($element_name);
         foreach my $d (@$list_ref) {
-            if (length $d) {
-                $list_obj->push($d);
-            }
-            else {
-                $list_obj->clear;
-            }
+            #if (length $d) {
+            $list_obj->push($d); # push also empty values
+            #}
+            #else {
+            #    $list_obj->clear;
+            #}
         }
 
     };
