@@ -17,7 +17,7 @@ my $systemd_path = path('/home/domi/debian-dev/systemd-228/man/');
 
 Config::Model::Exception::Trace(1);
 
-sub parse_xml ($list, $map){
+sub parse_xml ($list, $map) {
 
     my %data = ( element => [] );
     my $config_class;
@@ -112,14 +112,16 @@ sub setup_element ($meta_root, $config_class, $element, $desc) {
         # force type
         say "Storing class $config_class element $element ($type $value_type)";
         $vt_obj->store($value_type);
-        $obj->load("min=$min") if defined $min;
-        $obj->load("max=$max") if defined $max;
     }
     elsif (not $old_vt) {
         say "Storing new class $config_class element $element ($type uniline)";
         # do not override an already defined type to enable manual corrections
         $vt_obj->store("uniline");
     }
+
+    $obj->load("min=$min") if defined $min;
+    $obj->load("max=$max") if defined $max;
+
     return $obj;
 }
 
