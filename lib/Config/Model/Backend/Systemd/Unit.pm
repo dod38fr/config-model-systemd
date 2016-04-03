@@ -42,29 +42,29 @@ sub read {
         );
     }
 
-    my @ccn = split '::', $self->node->config_class_name ;
-    my $unit_type = lc pop @ccn;
+    my $unit_type = $self->node->element_name;
+    my $unit_name   = $self->node->index_value;
 
     $self->node->instance->layered_start;
-    # load layers
+    # load layers for this service
     foreach my $layer (@layers) {
         my $dir = path ($args{root}.$layer);
         next unless $dir->is_dir;
 
-        foreach my $file ($dir->children(qr/\.$unit_type/) ) {
-            my $unit_name = $file->basename(qr/\.$unit_type/);
-            say "reading default layer from unit $unit_type name $unit_name from $file";
-            my $fh = new IO::File;
-            $fh->open($file);
-            $fh->binmode(":utf8");
+        my $file = $dir->child($unit_name.'.'.$unit_type);
+        next unless $file->exists;
 
-            my $res = $self->read(
-                io_handle => $fh,
-                check => $args{check},
-            );
-            $fh->close;
-            die "failed $file read " unless $res;
-        }
+        say "reading default layer from unit $unit_type name $unit_name from $file";
+        my $fh = new IO::File;
+        $fh->open($file);
+        $fh->binmode(":utf8");
+
+        my $res = $self->read(
+            io_handle => $fh,
+            check => $args{check},
+        );
+        $fh->close;
+        die "failed $file read " unless $res;
     }
     $self->node->instance->layered_stop;
 
