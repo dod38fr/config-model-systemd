@@ -81,47 +81,30 @@ sub parse_xml ($list, $map) {
 }
 
 
-sub setup_element ($meta_root, $config_class, $element, $desc) {
+sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
 
-    my $value_type ;
     my $obj = $meta_root->grab(
         step => "class:$config_class element:$element",
         autoadd => 1
     );
-    if ($desc =~ /Takes an? (boolean|integer)/) {
-        $value_type = $1;
-    }
-    elsif ($desc =~ /Takes time \(in seconds\)/) {
-        $value_type = 'integer';
-    }
+
+    my $value_type
+        = $desc =~ /Takes an? (boolean|integer)/ ? $1
+        : $desc =~ /Takes time \(in seconds\)/   ? 'integer'
+        :                                          'uniline';
 
     my ($min, $max) = ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d+])/) ;
 
-    my $vt_obj;
-    if ($element =~ /^Exec/) {
-        $obj->load("type=list cargo type=leaf"); # make sure that value_type is accessible
-        $vt_obj = $obj->grab("cargo value_type");
-    }
-    else {
-        $obj->load("type=leaf"); # make sure that value_type is accessible
-        $vt_obj = $obj->fetch_element("value_type");
-    }
+    my @load ;
 
-    my $old_vt = $vt_obj->fetch(check => 'no') // '';
-    my $type = $obj->get_type;
-    if ($value_type and $value_type ne $old_vt) {
-        # force type
-        say "Storing class $config_class element $element ($type $value_type)";
-        $vt_obj->store($value_type);
-    }
-    elsif (not $old_vt) {
-        say "Storing new class $config_class element $element ($type uniline)";
-        # do not override an already defined type to enable manual corrections
-        $vt_obj->store("uniline");
-    }
+    push @load, qw/type=list cargo/ if $element =~ /^Exec/;
 
-    $obj->load("min=$min") if defined $min;
-    $obj->load("max=$max") if defined $max;
+    push @load, 'type=leaf', "value_type=$value_type";
+
+    push @load, "min=$min" if defined $min;
+    push @load, "max=$max" if defined $max;
+
+    $obj->load(step => \@load);
 
     return $obj;
 }
@@ -146,37 +129,52 @@ my $rw_obj = Config::Model::Itself -> new () ;
 $rw_obj -> read_all() ;
 my $meta_root = $rw_obj->meta_root;
 
-my %old_elements;
+# remove old generated classes
+foreach my $config_class ($meta_root->fetch_element('class')->fetch_all_indexes) {
+    my $gen = $meta_root->grab_value(
+        step => qq!class:$config_class generated_by!,
+        mode => 'loose',
+    );
+    next unless $gen and $gen =~ /parse-man/;
+    $meta_root->load(qq!class:-$config_class!);
+}
+
+
+say "Creating systemd model...";
 
 foreach my $config_class (keys $data->{class}->%*) {
     my $desc = $data->{class}{$config_class};
     my $steps = "class:$config_class class_description";
-    say "Storing class $config_class description";
     $meta_root->grab(step => $steps, autoadd => 1)->store(join("\n\n",$desc->@*));
 
-    map {$old_elements{$config_class}{$_} = 1; } $meta_root->grab("class:$config_class element")->fetch_all_indexes;
+    # TODO: indicates systemd version
+    $meta_root->load( steps => [
+        qq!class:$config_class generated_by="systemd parse-man.pl"!,
+        qq!accept:".*" type=leaf value_type=uniline!,
+    ]);
+
 }
 
 foreach my $cdata ($data->{element}->@*) {
-    my ($config_class, $element, $desc) = $cdata->@*;
+    my ($config_class, $element, $desc, $extra_info) = $cdata->@*;
 
-    my $obj = setup_element ($meta_root, $config_class, $element, $desc);
+    my $obj = setup_element ($meta_root, $config_class, $element, $desc, $extra_info);
 
-    delete $old_elements{$config_class}{$element};
-
-    my $old_desc = $obj->grab_value("description") // '';
-    if ($old_desc ne $desc) {
-        say "updating description of class $config_class element $element";
-        $obj->fetch_element("description")->store($desc);
-    }
+    $obj->fetch_element("description")->store($desc);
 }
 
-foreach my $c (keys %old_elements) {
-    foreach my $e (keys $old_elements{$c}->%*) {
-        say "delete obsolete element $e from class $c";
-        $meta_root->load("class:$c element:-$e");
-    }
-}
+say "Tweaking systemd model...";
 
-say "Saving model";
+#! class:Systemd::Common::ResourceControl element:DevicePolicy value_type=enum choice=auto,closed,strict
+
+$meta_root->load( << "EOL"
+! class:Systemd::Section::Service
+      include:=Systemd::Common::ResourceControl,Systemd::Common::Exec,Systemd::Common::Kill
+
+EOL
+);
+
+say "Saving systemd model...";
 $rw_obj->write_all;
+
+say "Done.";
