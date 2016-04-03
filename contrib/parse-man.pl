@@ -21,6 +21,7 @@ sub parse_xml ($list, $map) {
 
     my %data = ( element => [] );
     my $config_class;
+    my $file ;
 
     my $desc = sub ($t, $elt) {
         my $txt = $elt->trimmed_text;
@@ -41,17 +42,17 @@ sub parse_xml ($list, $map) {
 
     my $variable = sub  ($t, $elt) {
         my $varname = $elt->first_child('term')->first_child('varname')->text;
-        my ($name, $trash) = split '=', $varname, 2;
-        say "class $config_class element $name, trashed $trash" if $trash;
+        my ($name, $extra_info) = split '=', $varname, 2;
+        say $file->basename(".xml").": class $config_class element $name, trashed $extra_info" if $extra_info;
         my $desc = $elt->first_child('listitem')->trimmed_text;
         $desc =~ s/(\w+)=/C<$1>/g;
 
-        push $data{element}->@*, [$config_class => $name => $desc ];
+        push $data{element}->@*, [$config_class => $name => $desc => $extra_info];
     };
 
     my $set_config_class = sub ($name) {
         $config_class = 'Systemd::'.( $map->{$name} || 'Section::'.ucfirst($name));
-        say "Parsing class $config_class";
+        say  $file->basename(".xml").": Parsing class $config_class";
     };
 
     my $parse_sub_title = sub {
@@ -71,7 +72,7 @@ sub parse_xml ($list, $map) {
     );
 
     foreach my $subsystem ($list->@*) {
-        my $file = $systemd_path->child("systemd.$subsystem.xml");
+        $file = $systemd_path->child("systemd.$subsystem.xml");
         $set_config_class->($subsystem);
         $twig->parsefile($file);
     }
