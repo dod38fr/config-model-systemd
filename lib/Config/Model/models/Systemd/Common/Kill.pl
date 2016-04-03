@@ -1,5 +1,12 @@
 [
   {
+    'accept' => [
+      '.*',
+      {
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      }
+    ],
     'class_description' => 'Unit configuration files for services, sockets, mount points, swap devices and scopes share a subset of configuration options which define the killing procedure of processes belonging to the unit.
 
 This man page lists the configuration options shared by these five unit types. See L<systemd.unit(5)> for the common options shared by all unit configuration files, and L<systemd.service(5)>, L<systemd.socket(5)>, L<systemd.swap(5)>, L<systemd.mount(5)> and L<systemd.scope(5)> for more information on the configuration file options specific to each unit type.
@@ -31,6 +38,7 @@ The kill procedure configuration options are configured in the [Service], [Socke
         'value_type' => 'boolean'
       }
     ],
+    'generated_by' => 'systemd parse-man.pl',
     'name' => 'Systemd::Common::Kill'
   }
 ]

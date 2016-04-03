@@ -1,5 +1,12 @@
 [
   {
+    'accept' => [
+      '.*',
+      {
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      }
+    ],
     'class_description' => 'A unit configuration file whose name ends in C<.socket> encodes information about an IPC or network socket or a file system FIFO controlled and supervised by systemd, for socket-based activation.
 
 This man page lists the configuration options specific to this unit type. See L<systemd.unit(5)> for the common options of all unit configuration files. The common configuration items are configured in the generic [Unit] and [Install] sections. The socket specific configuration options are configured in the [Socket] section.
@@ -287,6 +294,7 @@ Note that the daemon software configured for socket activation with socket units
         'value_type' => 'uniline'
       }
     ],
+    'generated_by' => 'systemd parse-man.pl',
     'name' => 'Systemd::Section::Socket'
   }
 ]

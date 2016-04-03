@@ -180,6 +180,7 @@ Additional units might be loaded into systemd ("linked") from directories not on
         'value_type' => 'uniline'
       }
     ],
+    'generated_by' => 'systemd parse-man.pl',
     'name' => 'Systemd::Section::Unit'
   }
 ]

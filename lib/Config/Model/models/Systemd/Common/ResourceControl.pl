@@ -1,5 +1,12 @@
 [
   {
+    'accept' => [
+      '.*',
+      {
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      }
+    ],
     'class_description' => 'Unit configuration files for services, slices, scopes, sockets, mount points, and swap devices share a subset of configuration options for resource control of spawned processes. Internally, this relies on the Control Groups kernel concept for organizing processes in a hierarchical tree of named groups for the purpose of resource management.
 
 This man page lists the configuration options shared by those six unit types. See L<systemd.unit(5)> for the common options of all unit configuration files, and L<systemd.slice(5)>, L<systemd.scope(5)>, L<systemd.service(5)>, L<systemd.socket(5)>, L<systemd.mount(5)>, and L<systemd.swap(5)> for more information on the specific unit configuration files. The resource control configuration options are configured in the [Slice], [Scope], [Service], [Socket], [Mount], or [Swap] sections, depending on the unit type.
@@ -108,6 +115,7 @@ See the New Control Group Interfaces for an introduction on how to make use of r
         'value_type' => 'uniline'
       }
     ],
+    'generated_by' => 'systemd parse-man.pl',
     'name' => 'Systemd::Common::ResourceControl'
   }
 ]

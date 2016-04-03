@@ -1,5 +1,12 @@
 [
   {
+    'accept' => [
+      '.*',
+      {
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      }
+    ],
     'class_description' => 'Unit configuration files for services, sockets, mount points, and swap devices share a subset of configuration options which define the execution environment of spawned processes.
 
 This man page lists the configuration options shared by these four unit types. See L<systemd.unit(5)> for the common options of all unit configuration files, and L<systemd.service(5)>, L<systemd.socket(5)>, L<systemd.swap(5)>, and L<systemd.mount(5)> for more information on the specific unit configuration files. The execution specific configuration options are configured in the [Service], [Socket], [Mount], or [Swap] sections, depending on the unit type.',
@@ -31,12 +38,16 @@ This man page lists the configuration options shared by these four unit types. S
       'Nice',
       {
         'description' => 'Sets the default nice level (scheduling priority) for executed processes. Takes an integer between -20 (highest priority) and 19 (lowest priority). See L<setpriority(2)> for details.',
+        'max' => '1',
+        'min' => '-20',
         'type' => 'leaf',
         'value_type' => 'integer'
       },
       'OOMScoreAdjust',
       {
         'description' => 'Sets the adjustment level for the Out-Of-Memory killer for executed processes. Takes an integer between -1000 (to disable OOM killing for this process) and 1000 (to make killing of this process under memory pressure very likely). See proc.txt for details.',
+        'max' => '1',
+        'min' => '-1000',
         'type' => 'leaf',
         'value_type' => 'integer'
       },
@@ -49,6 +60,8 @@ This man page lists the configuration options shared by these four unit types. S
       'IOSchedulingPriority',
       {
         'description' => 'Sets the I/O scheduling priority for executed processes. Takes an integer between 0 (highest priority) and 7 (lowest priority). The available priorities depend on the selected I/O scheduling class (see above). See L<ioprio_set(2)> for details.',
+        'max' => '7',
+        'min' => '0',
         'type' => 'leaf',
         'value_type' => 'integer'
       },
@@ -323,6 +336,7 @@ This man page lists the configuration options shared by these four unit types. S
         'value_type' => 'uniline'
       }
     ],
+    'generated_by' => 'systemd parse-man.pl',
     'name' => 'Systemd::Common::Exec'
   }
 ]

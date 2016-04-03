@@ -223,6 +223,7 @@ If a service is requested under a certain name but no unit configuration file is
         'value_type' => 'uniline'
       }
     ],
+    'generated_by' => 'systemd parse-man.pl',
     'include' => [
       'Systemd::Common::ResourceControl',
       'Systemd::Common::Exec',
