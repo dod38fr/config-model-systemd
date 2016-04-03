@@ -91,6 +91,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
     my $value_type
         = $desc =~ /Takes an? (boolean|integer)/ ? $1
         : $desc =~ /Takes time \(in seconds\)/   ? 'integer'
+        : $extra_info =~ /\w\|\w/                ? 'enum'
         :                                          'uniline';
 
     my ($min, $max) = ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d+])/) ;
@@ -100,6 +101,11 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
     push @load, qw/type=list cargo/ if $element =~ /^Exec/;
 
     push @load, 'type=leaf', "value_type=$value_type";
+
+    if ($value_type eq 'enum') {
+        $extra_info =~ s/\|/,/g;
+        push @load, "choice=$extra_info";
+    }
 
     push @load, "min=$min" if defined $min;
     push @load, "max=$max" if defined $max;
@@ -164,8 +170,6 @@ foreach my $cdata ($data->{element}->@*) {
 }
 
 say "Tweaking systemd model...";
-
-#! class:Systemd::Common::ResourceControl element:DevicePolicy value_type=enum choice=auto,closed,strict
 
 $meta_root->load( << "EOL"
 ! class:Systemd::Section::Service
