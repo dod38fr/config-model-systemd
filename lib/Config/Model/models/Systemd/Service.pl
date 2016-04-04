@@ -29,6 +29,7 @@
     'read_config' => [
       {
         'auto_create' => '1',
+        'auto_delete' => '1',
         'backend' => 'Systemd::Unit',
         'file' => '&index.service'
       }
