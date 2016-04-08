@@ -9,6 +9,8 @@ use Path::Tiny;
 
 extends 'Config::Model::Backend::IniFile';
 
+with 'Config::Model::Backend::Systemd::Layers';
+
 sub read {
     my $self = shift ;
     my %args = @_ ;
@@ -29,25 +31,12 @@ sub read {
     my $dir = path($args{root}.$args{config_dir});
     die "Unknown directory $dir" unless $dir->is_dir;
 
-    my $app = $self->node->instance->application;
-    my @layers ;
-    if ($app eq 'systemd-user') {
-        @layers = (
-            # paths documented by systemd-system.conf man page
-            '/etc/systemd/user.conf.d/',
-            '/run/systemd/user.conf.d/',
-            '/usr/lib/systemd/user.conf.d/',
-            # path found on Debian
-            '/usr/lib/systemd/user/'
-        );
-    }
-
     my $unit_type = $self->node->element_name;
     my $unit_name   = $self->node->index_value;
 
     $self->node->instance->layered_start;
     # load layers for this service
-    foreach my $layer (@layers) {
+    foreach my $layer ($self->default_directories) {
         my $dir = path ($args{root}.$layer);
         next unless $dir->is_dir;
 

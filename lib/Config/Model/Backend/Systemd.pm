@@ -8,6 +8,7 @@ use Log::Log4perl qw(get_logger :levels);
 use Path::Tiny;
 
 extends 'Config::Model::Backend::Any';
+with 'Config::Model::Backend::Systemd::Layers';
 
 has config_dir => (
     is => 'rw',
@@ -36,24 +37,11 @@ sub read {
     my $dir = path($args{root}.$args{config_dir});
     die "Unknown directory $dir" unless $dir->is_dir;
 
-    my $app = $self->node->instance->application;
-    my @layers ;
-    if ($app eq 'systemd-user') {
-        @layers = (
-            # paths documented by systemd-system.conf man page
-            '/etc/systemd/user.conf.d/',
-            '/run/systemd/user.conf.d/',
-            '/usr/lib/systemd/user.conf.d/',
-            # path found on Debian
-            '/usr/lib/systemd/user/'
-        );
-    }
-
     # TODO: accepts other systemd suffixes
     my $filter = qr/\.(service|socket)$/;
 
     # load layers
-    foreach my $layer (@layers) {
+    foreach my $layer ($self->default_directories) {
         my $dir = path ($args{root}.$layer);
         next unless $dir->is_dir;
 
