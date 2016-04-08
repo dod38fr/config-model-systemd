@@ -5,7 +5,7 @@ use warnings;
 use 5.010;
 use Mouse ;
 use Log::Log4perl qw(get_logger :levels);
-use Path::Tiny;
+use Path::Tiny 0.086;
 
 extends 'Config::Model::Backend::Any';
 with 'Config::Model::Backend::Systemd::Layers';
@@ -49,7 +49,7 @@ sub read {
         foreach my $file ($dir->children($filter) ) {
             my $unit_name = $file->basename($filter);
             my ($unit_type) = ($file =~ $filter);
-            say "reading user unit $unit_type name $unit_name from $file";
+            say "registering unit $unit_type name $unit_name from $file (layered mode))";
             # force config_dir during init
             $self->node->load(step => "$unit_type:$unit_name", check => $args{check} ) ;
         }
@@ -59,8 +59,14 @@ sub read {
     foreach my $file ($dir->children($filter) ) {
         my ($unit_type) = ($file =~ $filter);
         my $unit_name = $file->basename($filter);
-        say "reading unit $unit_type name $unit_name from $file";
-        $self->node->load(step => "$unit_type:$unit_name", check => $args{check} ) ;
+        if ($file->realpath eq '/dev/null') {
+            say "unit $unit_type name $unit_name from $file is disabled";
+            $self->node->load(step => "$unit_type:$unit_name disable=1", check => $args{check} ) ;
+        }
+        else {
+            say "registering unit $unit_type name $unit_name from $file";
+            $self->node->load(step => "$unit_type:$unit_name", check => $args{check} ) ;
+        }
     }
     return 1 ;
 }

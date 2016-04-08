@@ -57,8 +57,15 @@ sub read {
     }
     $self->node->instance->layered_stop;
 
-    # mouse super() does not work...
-    $self->SUPER::read(@_);
+    if (path($args{file_path})->realpath eq '/dev/null') {
+        say "skipping  unit $unit_type name $unit_name from ".$args{config_dir};
+    }
+    else {
+        say "reading unit $unit_type name $unit_name from ".$args{config_dir};
+
+        # mouse super() does not work...
+        $self->SUPER::read(@_);
+    }
 }
 
 # overrides call to node->load_data
