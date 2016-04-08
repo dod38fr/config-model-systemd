@@ -9,21 +9,23 @@
       }
     ],
     'element' => [
-      'Unit',
-      {
-        'config_class_name' => 'Systemd::Section::Unit',
-        'type' => 'node'
-      },
       'Socket',
       {
         'config_class_name' => 'Systemd::Section::Socket',
-        'type' => 'node'
-      },
-      'Install',
-      {
-        'config_class_name' => 'Systemd::Section::Install',
-        'type' => 'node'
+        'follow' => {
+          'disable' => '- disable'
+        },
+        'rules' => [
+          '$disable',
+          {
+            'level' => 'hidden'
+          }
+        ],
+        'type' => 'warped_node'
       }
+    ],
+    'include' => [
+      'Systemd::CommonElements'
     ],
     'name' => 'Systemd::Socket',
     'read_config' => [
