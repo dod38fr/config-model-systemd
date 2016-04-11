@@ -25,9 +25,12 @@ Note that the daemon software configured for socket activation with socket units
     'element' => [
       'ListenStream',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Specifies an address to listen on for a stream (SOCK_STREAM), datagram (SOCK_DGRAM), or sequential packet (SOCK_SEQPACKET) socket, respectively. The address can be written in various formats:If the address starts with a slash (C</>), it is read as file system socket in the AF_UNIX socket family.If the address starts with an at symbol (C<@>), it is read as abstract namespace socket in the AF_UNIX family. The C<@> is replaced with a NUL character before binding. For details, see L<unix(7)>.If the address string is a single number, it is read as port number to listen on via IPv6. Depending on the value of C<BindIPv6Only> (see below) this might result in the service being available via both IPv6 and IPv4 (default) or just via IPv6. If the address string is a string in the format v.w.x.y:z, it is read as IPv4 specifier for listening on an address v.w.x.y on a port z.If the address string is a string in the format [x]:y, it is read as IPv6 address x on a port y. Note that this might make the service available via IPv4, too, depending on the C<BindIPv6Only> setting (see below). Note that SOCK_SEQPACKET (i.e. C<ListenSequentialPacket>) is only available for AF_UNIX sockets. SOCK_STREAM (i.e. C<ListenStream>) when used for IP sockets refers to TCP sockets, SOCK_DGRAM (i.e. C<ListenDatagram>) to UDP.These options may be specified more than once, in which case incoming traffic on any of the sockets will trigger service activation, and all listed sockets will be passed to the service, regardless of whether there is incoming traffic on them or not. If the empty string is assigned to any of these options, the list of addresses to listen on is reset, all prior uses of any of these options will have no effect.It is also possible to have more than one socket unit for the same service when using C<Service>, and the service will receive all the sockets configured in all the socket units. Sockets configured in one unit are passed in the order of configuration, but no ordering between socket units is specified.If an IP address is used here, it is often desirable to listen on it before the interface it is configured on is up and running, and even regardless of whether it will be up and running at any point. To deal with this, it is recommended to set the C<FreeBind> option described below.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ListenFIFO',
       {

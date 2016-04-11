@@ -49,15 +49,21 @@ Additional units might be loaded into systemd ("linked") from directories not on
       },
       'Documentation',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'A space-separated list of URIs referencing documentation for this unit or its configuration. Accepted are only URIs of the types C<http://>, C<https://>, C<file:>, C<info:>, C<man:>. For more information about the syntax of these URIs, see L<uri(7)>. The URIs should be listed in order of relevance, starting with the most relevant. It is a good idea to first reference documentation that explains what the unit\'s purpose is, followed by how it is configured, followed by any other related documentation. This option may be specified more than once, in which case the specified list of URIs is merged. If the empty string is assigned to this option, the list is reset and all prior assignments will have no effect.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'Requires',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Configures requirement dependencies on other units. If this unit gets activated, the units listed here will be activated as well. If one of the other units gets deactivated or its activation fails, this unit will be deactivated. This option may be specified more than once or multiple space-separated units may be specified in one option in which case requirement dependencies for all listed names will be created. Note that requirement dependencies do not influence the order in which services are started or stopped. This has to be configured independently with the C<After> or C<Before> options. If a unit foo.service requires a unit bar.service as configured with C<Requires> and no ordering is configured with C<After> or C<Before>, then both units will be started simultaneously and without any delay between them if foo.service is activated. Often, it is a better choice to use C<Wants> instead of C<Requires> in order to achieve a system that is more robust when dealing with failing services.Note that dependencies of this type may also be configured outside of the unit configuration file by adding a symlink to a .requires/ directory accompanying the unit file. For details, see above.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'Requisite',
       {
@@ -91,9 +97,12 @@ Additional units might be loaded into systemd ("linked") from directories not on
       },
       'Before',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'A space-separated list of unit names. Configures ordering dependencies between units. If a unit foo.service contains a setting C<Before>bar.service and both units are being started, bar.service\'s start-up is delayed until foo.service is started up. Note that this setting is independent of and orthogonal to the requirement dependencies as configured by C<Requires>. It is a common pattern to include a unit name in both the C<After> and C<Requires> option, in which case the unit listed will be started before the unit that is configured with these options. This option may be specified more than once, in which case ordering dependencies for all listed names are created. C<After> is the inverse of C<Before>, i.e. while C<After> ensures that the configured unit is started after the listed unit finished starting up, C<Before> ensures the opposite, i.e. that the configured unit is fully started up before the listed unit is started. Note that when two units with an ordering dependency between them are shut down, the inverse of the start-up order is applied. i.e. if a unit is configured with C<After> on another unit, the former is stopped before the latter if both are shut down. If one unit with an ordering dependency on another unit is shut down while the latter is started up, the shut down is ordered before the start-up regardless of whether the ordering dependency is actually of type C<After> or C<Before>. If two units have no ordering dependencies between them, they are shut down or started up simultaneously, and no ordering takes place.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'OnFailure',
       {

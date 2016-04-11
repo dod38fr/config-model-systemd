@@ -31,9 +31,12 @@ This man page lists the configuration options shared by these four unit types. S
       },
       'SupplementaryGroups',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Sets the supplementary Unix groups the processes are executed as. This takes a space-separated list of group names or IDs. This option may be specified more than once, in which case all listed groups are set as supplementary groups. When the empty string is assigned, the list of supplementary groups is reset, and all assignments prior to this one will have no effect. In any way, this option does not override, but extends the list of supplementary groups configured in the system group database for the user.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'Nice',
       {
@@ -85,9 +88,12 @@ This man page lists the configuration options shared by these four unit types. S
       },
       'CPUAffinity',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Controls the CPU affinity of the executed processes. Takes a list of CPU indices or ranges separated by either whitespace or commas. CPU ranges are specified by the lower and upper CPU indices separated by a dash. This option may be specified more than once, in which case the specified CPU affinity masks are merged. If the empty string is assigned, the mask is reset, all assignments prior to this will have no effect. See L<sched_setaffinity(2)> for details.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'UMask',
       {
@@ -97,21 +103,30 @@ This man page lists the configuration options shared by these four unit types. S
       },
       'Environment',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Sets environment variables for executed processes. Takes a space-separated list of variable assignments. This option may be specified more than once, in which case all listed variables will be set. If the same variable is set twice, the later setting will override the earlier setting. If the empty string is assigned to this option, the list of environment variables is reset, all prior assignments have no effect. Variable expansion is not performed inside the strings, however, specifier expansion is possible. The $ character has no special meaning. If you need to assign a value containing spaces to a variable, use double quotes (") for the assignment.Example: C<Environment>"C<VAR1>word1 word2" C<VAR2>word3 "C<VAR3>$word 5 6" gives three variables C<VAR1>, C<VAR2>, C<VAR3> with the values C<word1 word2>, C<word3>, C<$word 5 6>. See L<environ(7)> for details about environment variables.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'EnvironmentFile',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Similar to C<Environment> but reads the environment variables from a text file. The text file should contain new-line-separated variable assignments. Empty lines, lines without an C<=> separator, or lines starting with ; or # will be ignored, which may be used for commenting. A line ending with a backslash will be concatenated with the following one, allowing multiline variable definitions. The parser strips leading and trailing whitespace from the values of assignments, unless you use double quotes (").The argument passed should be an absolute filename or wildcard expression, optionally prefixed with C<->, which indicates that if the file does not exist, it will not be read and no error or warning message is logged. This option may be specified more than once in which case all specified files are read. If the empty string is assigned to this option, the list of file to read is reset, all prior assignments have no effect.The files listed with this directive will be read shortly before the process is executed (more specifically, after all processes from a previous unit state terminated. This means you can generate these files in one unit state, and read it with this option in the next).Settings from these files override settings made with C<Environment>. If the same variable is set twice from these files, the files will be read in the order they are specified and the later setting will override the earlier setting.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'PassEnvironment',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Pass environment variables from the systemd system manager to executed processes. Takes a space-separated list of variable names. This option may be specified more than once, in which case all listed variables will be set. If the empty string is assigned to this option, the list of environment variables is reset, all prior assignments have no effect. Variables that are not set in the system manager will not be passed and will be silently ignored.Variables passed from this setting are overridden by those passed from C<Environment> or C<EnvironmentFile>.Example: C<PassEnvironment>VAR1 VAR2 VAR3 passes three variables C<VAR1>, C<VAR2>, C<VAR3> with the values set for those variables in PID1. See L<environ(7)> for details about environment variables.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'StandardInput',
       {
@@ -217,9 +232,12 @@ This man page lists the configuration options shared by these four unit types. S
       },
       'ReadWriteDirectories',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Sets up a new file system namespace for executed processes. These options may be used to limit access a process might have to the main file system hierarchy. Each setting takes a space-separated list of absolute directory paths. Directories listed in C<ReadWriteDirectories> are accessible from within the namespace with the same access rights as from outside. Directories listed in C<ReadOnlyDirectories> are accessible for reading only, writing will be refused even if the usual file access controls would permit this. Directories listed in C<InaccessibleDirectories> will be made inaccessible for processes inside the namespace. Note that restricting access with these options does not extend to submounts of a directory that are created later on. These options may be specified more than once, in which case all directories listed will have limited access from within the namespace. If the empty string is assigned to this option, the specific list is reset, and all prior assignments have no effect.Paths in C<ReadOnlyDirectories> and C<InaccessibleDirectories> may be prefixed with C<->, in which case they will be ignored when they do not exist. Note that using this setting will disconnect propagation of mounts from the service to the host (propagation in the opposite direction continues to work). This means that this setting may not be used for services which shall be able to install mount points in the main mount namespace.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'PrivateTmp',
       {
@@ -301,9 +319,12 @@ This man page lists the configuration options shared by these four unit types. S
       },
       'SystemCallFilter',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Takes a space-separated list of system call names. If this setting is used, all system calls executed by the unit processes except for the listed ones will result in immediate process termination with the SIGSYS signal (whitelisting). If the first character of the list is C<~>, the effect is inverted: only the listed system calls will result in immediate process termination (blacklisting). If running in user mode and this option is used, C<NoNewPrivileges>yes is implied. This feature makes use of the Secure Computing Mode 2 interfaces of the kernel (\'seccomp filtering\') and is useful for enforcing a minimal sandboxing environment. Note that the execve, rt_sigreturn, sigreturn, exit_group, exit system calls are implicitly whitelisted and do not need to be listed explicitly. This option may be specified more than once, in which case the filter masks are merged. If the empty string is assigned, the filter is reset, all prior assignments will have no effect.If you specify both types of this option (i.e. whitelisting and blacklisting), the first encountered will take precedence and will dictate the default action (termination or approval of a system call). Then the next occurrences of this option will add or delete the listed system calls from the set of the filtered system calls, depending of its type and the default action. (For example, if you have started with a whitelisting of read and write, and right after it add a blacklisting of write, then write will be removed from the set.)',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'SystemCallErrorNumber',
       {
