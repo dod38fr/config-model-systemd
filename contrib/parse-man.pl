@@ -98,7 +98,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
 
     my @load ;
 
-    push @load, qw/type=list cargo/ if $element =~ /^Exec/;
+    push @load, qw/type=list cargo/ if $element =~ /^Exec/ or $desc =~ /may be specified more than once/;
 
     push @load, 'type=leaf', "value_type=$value_type";
 
