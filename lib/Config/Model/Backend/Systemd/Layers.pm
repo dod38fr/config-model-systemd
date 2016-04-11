@@ -19,12 +19,14 @@ sub default_directories {
         );
     }
     elsif ($app eq 'systemd') {
-        # paths documented by systemd-system.conf man page
-        @layers = qw!
-                        /etc/systemd/system.conf.d/
-                        /run/systemd/system.conf.d/
-                        /lib/systemd/system.conf.d/
-                    !;
+        @layers = (
+            # paths documented by systemd-system.conf man page
+            '/etc/systemd/system.conf.d/',
+            '/run/systemd/system.conf.d/',
+            '/lib/systemd/system.conf.d/',
+            # path found on Debian
+            '/lib/systemd/system/',
+        );
     }
 
     return @layers;
