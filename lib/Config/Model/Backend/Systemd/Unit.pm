@@ -120,6 +120,31 @@ sub load_data {
     $scan->scan_node($data, $self->node) ;
 }
 
+sub write {
+    my $self = shift ;
+    my %args = @_ ;
+
+    # args are:
+    # root       => './my_test',  # fake root directory, userd for tests
+    # config_dir => /etc/foo',    # absolute path
+    # file       => 'foo.conf',   # file name
+    # file_path  => './my_test/etc/foo/foo.conf'
+    # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
+
+    if ($self->node->grab_value('disable')) {
+        my $fp = path($args{file_path});
+        if ($fp->realpath ne '/dev/null') {
+            say "symlinking file $fp to /dev/null";
+            $fp->remove;
+            symlink ('/dev/null', $fp->stringify);
+        }
+    }
+    else {
+        # mouse super() does not work...
+        $self->SUPER::write(@_);
+    }
+}
 
 no Mouse ;
 __PACKAGE__->meta->make_immutable ;
