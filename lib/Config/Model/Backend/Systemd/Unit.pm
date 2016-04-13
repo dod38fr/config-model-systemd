@@ -146,5 +146,15 @@ sub write {
     }
 }
 
+sub _write_leaf{
+    my ($self, $args, $node, $elt)  = @_ ;
+    # must skip disable element which cannot be hidden :-(
+    if ($elt eq 'disable') {
+        return '';
+    } else {
+        return $self->SUPER::_write_leaf($args, $node, $elt);
+    }
+}
+
 no Mouse ;
 __PACKAGE__->meta->make_immutable ;
