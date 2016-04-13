@@ -21,6 +21,9 @@ sub config_file_override {
     return $self->config_dir->child($basename);
 }
 
+# TODO: accepts other systemd suffixes
+my $filter = qr/\.(service|socket)$/;
+
 sub read {
     my $self = shift ;
     my %args = @_ ;
@@ -36,9 +39,6 @@ sub read {
 
     my $dir = path($args{root}.$args{config_dir});
     die "Unknown directory $dir" unless $dir->is_dir;
-
-    # TODO: accepts other systemd suffixes
-    my $filter = qr/\.(service|socket)$/;
 
     # load layers
     foreach my $layer ($self->default_directories) {
@@ -83,7 +83,20 @@ sub write {
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
-    # TODO: delete files for non-existing elements (deleted services)
+    my $dir = path($args{root}.$args{config_dir});
+    die "Unknown directory $dir" unless $dir->is_dir;
+
+    # delete files for non-existing elements (deleted services)
+    foreach my $file ($dir->children($filter) ) {
+        my ($unit_type) = ($file =~ $filter);
+        my $unit_name = $file->basename($filter);
+
+        my $unit_collection = $self->node->fetch_element($unit_type);
+        if (not $unit_collection->defined($unit_name)) {
+            say "removing file $file of deleted service";
+            $file->remove;
+        }
+    }
 
     return 1;
 }
