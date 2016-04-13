@@ -41,13 +41,16 @@ sub parse_xml ($list, $map) {
     };
 
     my $variable = sub  ($t, $elt) {
-        my $varname = $elt->first_child('term')->first_child('varname')->text;
-        my ($name, $extra_info) = split '=', $varname, 2;
-        say $file->basename(".xml").": class $config_class element $name, trashed $extra_info" if $extra_info;
         my $desc = $elt->first_child('listitem')->trimmed_text;
         $desc =~ s/(\w+)=/C<$1>/g;
 
-        push $data{element}->@*, [$config_class => $name => $desc => $extra_info];
+        foreach my $term_elt ($elt->children('term')) {
+            my $varname = $term_elt->first_child('varname')->text;
+            my ($name, $extra_info) = split '=', $varname, 2;
+            say $file->basename(".xml").": class $config_class element $name, trashed $extra_info" if $extra_info;
+
+            push $data{element}->@*, [$config_class => $name => $desc => $extra_info];
+        }
     };
 
     my $set_config_class = sub ($name) {
