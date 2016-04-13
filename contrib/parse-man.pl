@@ -7,7 +7,6 @@ use 5.22.0;
 use lib 'lib';
 
 use XML::Twig;
-use XXX;
 use Path::Tiny;
 use Config::Model::Itself;
 use Config::Model::Exception;
