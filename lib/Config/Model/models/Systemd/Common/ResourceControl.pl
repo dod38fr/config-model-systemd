@@ -25,6 +25,12 @@ See the New Control Group Interfaces for an introduction on how to make use of r
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
+      'StartupCPUShares',
+      {
+        'description' => 'Assign the specified CPU time share weight to the processes executed. These options take an integer value and control the C<cpu.shares> control group attribute. The allowed range is 2 to 262144. Defaults to 1024. For details about this control group attribute, see sched-design-CFS.txt. The available CPU time is split up among all units within one slice relative to their CPU time share weight.While C<StartupCPUShares> only applies to the startup phase of the system, C<CPUShares> applies to normal runtime of the system, and if the former is not set also to the startup phase. Using C<StartupCPUShares> allows prioritizing specific services at boot-up differently than during normal runtime.These options imply C<C<CPUAccounting>true>.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'CPUQuota',
       {
         'description' => 'Assign the specified CPU time quota to the processes executed. Takes a percentage value, suffixed with "%". The percentage specifies how much CPU time the unit shall get at maximum, relative to the total CPU time available on one CPU. Use values > 100% for allotting CPU time on more than one CPU. This controls the C<cpu.cfs_quota_us> control group attribute. For details about this control group attribute, see sched-design-CFS.txt.Example: C<CPUQuota>20% ensures that the executed processes will never get more than 20% CPU time on one CPU.Implies C<C<CPUAccounting>true>.',
@@ -67,6 +73,12 @@ See the New Control Group Interfaces for an introduction on how to make use of r
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
+      'StartupBlockIOWeight',
+      {
+        'description' => 'Set the default overall block I/O weight for the executed processes. Takes a single weight value (between 10 and 1000) to set the default block I/O weight. This controls the C<blkio.weight> control group attribute, which defaults to 500. For details about this control group attribute, see blkio-controller.txt. The available I/O bandwidth is split up among all units within one slice relative to their block I/O weight.While C<StartupBlockIOWeight> only applies to the startup phase of the system, C<BlockIOWeight> applies to the later runtime of the system, and if the former is not set also to the startup phase. This allows prioritizing specific services at boot-up differently than during runtime.Implies C<C<BlockIOAccounting>true>.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'BlockIODeviceWeight',
       {
         'description' => 'Set the per-device overall block I/O weight for the executed processes. Takes a space-separated pair of a file path and a weight value to specify the device specific weight value, between 10 and 1000. (Example: "/dev/sda 500"). The file path may be specified as path to a block device node or as any other file, in which case the backing block device of the file system of the file is determined. This controls the C<blkio.weight_device> control group attribute, which defaults to 1000. Use this option multiple times to set weights for multiple devices. For details about this control group attribute, see blkio-controller.txt.Implies C<C<BlockIOAccounting>true>.',
@@ -74,6 +86,12 @@ See the New Control Group Interfaces for an introduction on how to make use of r
         'value_type' => 'uniline'
       },
       'BlockIOReadBandwidth',
+      {
+        'description' => 'Set the per-device overall block I/O bandwidth limit for the executed processes. Takes a space-separated pair of a file path and a bandwidth value (in bytes per second) to specify the device specific bandwidth. The file path may be a path to a block device node, or as any other file in which case the backing block device of the file system of the file is used. If the bandwidth is suffixed with K, M, G, or T, the specified bandwidth is parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes, respectively, to the base of 1000. (Example: "/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This controls the C<blkio.read_bps_device> and C<blkio.write_bps_device> control group attributes. Use this option multiple times to set bandwidth limits for multiple devices. For details about these control group attributes, see blkio-controller.txt. Implies C<C<BlockIOAccounting>true>.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'BlockIOWriteBandwidth',
       {
         'description' => 'Set the per-device overall block I/O bandwidth limit for the executed processes. Takes a space-separated pair of a file path and a bandwidth value (in bytes per second) to specify the device specific bandwidth. The file path may be a path to a block device node, or as any other file in which case the backing block device of the file system of the file is used. If the bandwidth is suffixed with K, M, G, or T, the specified bandwidth is parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes, respectively, to the base of 1000. (Example: "/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This controls the C<blkio.read_bps_device> and C<blkio.write_bps_device> control group attributes. Use this option multiple times to set bandwidth limits for multiple devices. For details about these control group attributes, see blkio-controller.txt. Implies C<C<BlockIOAccounting>true>.',
         'type' => 'leaf',

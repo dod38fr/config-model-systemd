@@ -69,6 +69,15 @@ If a service is requested under a certain name but no unit configuration file is
         'description' => 'Additional commands that are executed before or after the command in C<ExecStart>, respectively. Syntax is the same as for C<ExecStart>, except that multiple command lines are allowed and the commands are executed one after the other, serially.If any of those commands (not prefixed with C<->) fail, the rest are not executed and the unit is considered failed.C<ExecStart> commands are only run after all C<ExecStartPre> commands that were not prefixed with a C<-> exit successfully.C<ExecStartPost> commands are only run after the service has started, as determined by C<Type> (i.e. the process has been started for C<Type>simple or C<Type>idle, the process exits successfully for C<Type>oneshot, the initial process exits successfully for C<Type>forking, C<C<READY>1> is sent for C<Type>notify, or the C<BusName> has been taken for C<Type>dbus).Note that C<ExecStartPre> may not be used to start long-running processes. All processes forked off by processes invoked via C<ExecStartPre> will be killed before the next service process is run.',
         'type' => 'list'
       },
+      'ExecStartPost',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => 'Additional commands that are executed before or after the command in C<ExecStart>, respectively. Syntax is the same as for C<ExecStart>, except that multiple command lines are allowed and the commands are executed one after the other, serially.If any of those commands (not prefixed with C<->) fail, the rest are not executed and the unit is considered failed.C<ExecStart> commands are only run after all C<ExecStartPre> commands that were not prefixed with a C<-> exit successfully.C<ExecStartPost> commands are only run after the service has started, as determined by C<Type> (i.e. the process has been started for C<Type>simple or C<Type>idle, the process exits successfully for C<Type>oneshot, the initial process exits successfully for C<Type>forking, C<C<READY>1> is sent for C<Type>notify, or the C<BusName> has been taken for C<Type>dbus).Note that C<ExecStartPre> may not be used to start long-running processes. All processes forked off by processes invoked via C<ExecStartPre> will be killed before the next service process is run.',
+        'type' => 'list'
+      },
       'ExecReload',
       {
         'cargo' => {
@@ -181,6 +190,12 @@ If a service is requested under a certain name but no unit configuration file is
         'value_type' => 'uniline'
       },
       'StartLimitInterval',
+      {
+        'description' => 'Configure service start rate limiting. By default, services which are started more than 5 times within 10 seconds are not permitted to start any more times until the 10 second interval ends. With these two options, this rate limiting may be modified. Use C<StartLimitInterval> to configure the checking interval (defaults to C<DefaultStartLimitInterval> in manager configuration file, set to 0 to disable any kind of rate limiting). Use C<StartLimitBurst> to configure how many starts per interval are allowed (defaults to C<DefaultStartLimitBurst> in manager configuration file). These configuration options are particularly useful in conjunction with C<Restart>; however, they apply to all kinds of starts (including manual), not just those triggered by the C<Restart> logic. Note that units which are configured for C<Restart> and which reach the start limit are not attempted to be restarted anymore; however, they may still be restarted manually at a later point, from which point on, the restart logic is again activated. Note that systemctl reset-failed will cause the restart rate counter for a service to be flushed, which is useful if the administrator wants to manually start a service and the start limit interferes with that.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'StartLimitBurst',
       {
         'description' => 'Configure service start rate limiting. By default, services which are started more than 5 times within 10 seconds are not permitted to start any more times until the 10 second interval ends. With these two options, this rate limiting may be modified. Use C<StartLimitInterval> to configure the checking interval (defaults to C<DefaultStartLimitInterval> in manager configuration file, set to 0 to disable any kind of rate limiting). Use C<StartLimitBurst> to configure how many starts per interval are allowed (defaults to C<DefaultStartLimitBurst> in manager configuration file). These configuration options are particularly useful in conjunction with C<Restart>; however, they apply to all kinds of starts (including manual), not just those triggered by the C<Restart> logic. Note that units which are configured for C<Restart> and which reach the start limit are not attempted to be restarted anymore; however, they may still be restarted manually at a later point, from which point on, the restart logic is again activated. Note that systemctl reset-failed will cause the restart rate counter for a service to be flushed, which is useful if the administrator wants to manually start a service and the start limit interferes with that.',
         'type' => 'leaf',

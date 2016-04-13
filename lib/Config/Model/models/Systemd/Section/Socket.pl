@@ -32,6 +32,24 @@ Note that the daemon software configured for socket activation with socket units
         'description' => 'Specifies an address to listen on for a stream (SOCK_STREAM), datagram (SOCK_DGRAM), or sequential packet (SOCK_SEQPACKET) socket, respectively. The address can be written in various formats:If the address starts with a slash (C</>), it is read as file system socket in the AF_UNIX socket family.If the address starts with an at symbol (C<@>), it is read as abstract namespace socket in the AF_UNIX family. The C<@> is replaced with a NUL character before binding. For details, see L<unix(7)>.If the address string is a single number, it is read as port number to listen on via IPv6. Depending on the value of C<BindIPv6Only> (see below) this might result in the service being available via both IPv6 and IPv4 (default) or just via IPv6. If the address string is a string in the format v.w.x.y:z, it is read as IPv4 specifier for listening on an address v.w.x.y on a port z.If the address string is a string in the format [x]:y, it is read as IPv6 address x on a port y. Note that this might make the service available via IPv4, too, depending on the C<BindIPv6Only> setting (see below). Note that SOCK_SEQPACKET (i.e. C<ListenSequentialPacket>) is only available for AF_UNIX sockets. SOCK_STREAM (i.e. C<ListenStream>) when used for IP sockets refers to TCP sockets, SOCK_DGRAM (i.e. C<ListenDatagram>) to UDP.These options may be specified more than once, in which case incoming traffic on any of the sockets will trigger service activation, and all listed sockets will be passed to the service, regardless of whether there is incoming traffic on them or not. If the empty string is assigned to any of these options, the list of addresses to listen on is reset, all prior uses of any of these options will have no effect.It is also possible to have more than one socket unit for the same service when using C<Service>, and the service will receive all the sockets configured in all the socket units. Sockets configured in one unit are passed in the order of configuration, but no ordering between socket units is specified.If an IP address is used here, it is often desirable to listen on it before the interface it is configured on is up and running, and even regardless of whether it will be up and running at any point. To deal with this, it is recommended to set the C<FreeBind> option described below.',
         'type' => 'list'
       },
+      'ListenDatagram',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => 'Specifies an address to listen on for a stream (SOCK_STREAM), datagram (SOCK_DGRAM), or sequential packet (SOCK_SEQPACKET) socket, respectively. The address can be written in various formats:If the address starts with a slash (C</>), it is read as file system socket in the AF_UNIX socket family.If the address starts with an at symbol (C<@>), it is read as abstract namespace socket in the AF_UNIX family. The C<@> is replaced with a NUL character before binding. For details, see L<unix(7)>.If the address string is a single number, it is read as port number to listen on via IPv6. Depending on the value of C<BindIPv6Only> (see below) this might result in the service being available via both IPv6 and IPv4 (default) or just via IPv6. If the address string is a string in the format v.w.x.y:z, it is read as IPv4 specifier for listening on an address v.w.x.y on a port z.If the address string is a string in the format [x]:y, it is read as IPv6 address x on a port y. Note that this might make the service available via IPv4, too, depending on the C<BindIPv6Only> setting (see below). Note that SOCK_SEQPACKET (i.e. C<ListenSequentialPacket>) is only available for AF_UNIX sockets. SOCK_STREAM (i.e. C<ListenStream>) when used for IP sockets refers to TCP sockets, SOCK_DGRAM (i.e. C<ListenDatagram>) to UDP.These options may be specified more than once, in which case incoming traffic on any of the sockets will trigger service activation, and all listed sockets will be passed to the service, regardless of whether there is incoming traffic on them or not. If the empty string is assigned to any of these options, the list of addresses to listen on is reset, all prior uses of any of these options will have no effect.It is also possible to have more than one socket unit for the same service when using C<Service>, and the service will receive all the sockets configured in all the socket units. Sockets configured in one unit are passed in the order of configuration, but no ordering between socket units is specified.If an IP address is used here, it is often desirable to listen on it before the interface it is configured on is up and running, and even regardless of whether it will be up and running at any point. To deal with this, it is recommended to set the C<FreeBind> option described below.',
+        'type' => 'list'
+      },
+      'ListenSequentialPacket',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => 'Specifies an address to listen on for a stream (SOCK_STREAM), datagram (SOCK_DGRAM), or sequential packet (SOCK_SEQPACKET) socket, respectively. The address can be written in various formats:If the address starts with a slash (C</>), it is read as file system socket in the AF_UNIX socket family.If the address starts with an at symbol (C<@>), it is read as abstract namespace socket in the AF_UNIX family. The C<@> is replaced with a NUL character before binding. For details, see L<unix(7)>.If the address string is a single number, it is read as port number to listen on via IPv6. Depending on the value of C<BindIPv6Only> (see below) this might result in the service being available via both IPv6 and IPv4 (default) or just via IPv6. If the address string is a string in the format v.w.x.y:z, it is read as IPv4 specifier for listening on an address v.w.x.y on a port z.If the address string is a string in the format [x]:y, it is read as IPv6 address x on a port y. Note that this might make the service available via IPv4, too, depending on the C<BindIPv6Only> setting (see below). Note that SOCK_SEQPACKET (i.e. C<ListenSequentialPacket>) is only available for AF_UNIX sockets. SOCK_STREAM (i.e. C<ListenStream>) when used for IP sockets refers to TCP sockets, SOCK_DGRAM (i.e. C<ListenDatagram>) to UDP.These options may be specified more than once, in which case incoming traffic on any of the sockets will trigger service activation, and all listed sockets will be passed to the service, regardless of whether there is incoming traffic on them or not. If the empty string is assigned to any of these options, the list of addresses to listen on is reset, all prior uses of any of these options will have no effect.It is also possible to have more than one socket unit for the same service when using C<Service>, and the service will receive all the sockets configured in all the socket units. Sockets configured in one unit are passed in the order of configuration, but no ordering between socket units is specified.If an IP address is used here, it is often desirable to listen on it before the interface it is configured on is up and running, and even regardless of whether it will be up and running at any point. To deal with this, it is recommended to set the C<FreeBind> option described below.',
+        'type' => 'list'
+      },
       'ListenFIFO',
       {
         'description' => 'Specifies a file system FIFO to listen on. This expects an absolute file system path as argument. Behavior otherwise is very similar to the C<ListenDatagram> directive above.',
@@ -81,6 +99,12 @@ Note that the daemon software configured for socket activation with socket units
         'value_type' => 'uniline'
       },
       'SocketUser',
+      {
+        'description' => 'Takes a UNIX user/group name. When specified, all AF_UNIX sockets and FIFO nodes in the file system are owned by the specified user and group. If unset (the default), the nodes are owned by the root user/group (if run in system context) or the invoking user/group (if run in user context). If only a user is specified but no group, then the group is derived from the user\'s default group.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'SocketGroup',
       {
         'description' => 'Takes a UNIX user/group name. When specified, all AF_UNIX sockets and FIFO nodes in the file system are owned by the specified user and group. If unset (the default), the nodes are owned by the root user/group (if run in system context) or the invoking user/group (if run in user context). If only a user is specified but no group, then the group is derived from the user\'s default group.',
         'type' => 'leaf',
@@ -164,6 +188,12 @@ Note that the daemon software configured for socket activation with socket units
         'type' => 'leaf',
         'value_type' => 'integer'
       },
+      'SendBuffer',
+      {
+        'description' => 'Takes an integer argument controlling the receive or send buffer sizes of this socket, respectively. This controls the SO_RCVBUF and SO_SNDBUF socket options (see L<socket(7)> for details.). The usual suffixes K, M, G are supported and are understood to the base of 1024.',
+        'type' => 'leaf',
+        'value_type' => 'integer'
+      },
       'IPTOS',
       {
         'description' => 'Takes an integer argument controlling the IP Type-Of-Service field for packets generated from this socket. This controls the IP_TOS socket option (see L<ip(7)> for details.). Either a numeric string or one of low-delay, throughput, reliability or low-cost may be specified.',
@@ -189,6 +219,18 @@ Note that the daemon software configured for socket activation with socket units
         'value_type' => 'boolean'
       },
       'SmackLabel',
+      {
+        'description' => 'Takes a string value. Controls the extended attributes C<security.SMACK64>, C<security.SMACK64IPIN> and C<security.SMACK64IPOUT>, respectively, i.e. the security label of the FIFO, or the security label for the incoming or outgoing connections of the socket, respectively. See Smack.txt for details.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'SmackLabelIPIn',
+      {
+        'description' => 'Takes a string value. Controls the extended attributes C<security.SMACK64>, C<security.SMACK64IPIN> and C<security.SMACK64IPOUT>, respectively, i.e. the security label of the FIFO, or the security label for the incoming or outgoing connections of the socket, respectively. See Smack.txt for details.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'SmackLabelIPOut',
       {
         'description' => 'Takes a string value. Controls the extended attributes C<security.SMACK64>, C<security.SMACK64IPIN> and C<security.SMACK64IPOUT>, respectively, i.e. the security label of the FIFO, or the security label for the incoming or outgoing connections of the socket, respectively. See Smack.txt for details.',
         'type' => 'leaf',
@@ -257,7 +299,25 @@ Note that the daemon software configured for socket activation with socket units
         'description' => 'Takes one or more command lines, which are executed before or after the listening sockets/FIFOs are created and bound, respectively. The first token of the command line must be an absolute filename, then followed by arguments for the process. Multiple command lines may be specified following the same scheme as used for C<ExecStartPre> of service unit files.',
         'type' => 'list'
       },
+      'ExecStartPost',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => 'Takes one or more command lines, which are executed before or after the listening sockets/FIFOs are created and bound, respectively. The first token of the command line must be an absolute filename, then followed by arguments for the process. Multiple command lines may be specified following the same scheme as used for C<ExecStartPre> of service unit files.',
+        'type' => 'list'
+      },
       'ExecStopPre',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => 'Additional commands that are executed before or after the listening sockets/FIFOs are closed and removed, respectively. Multiple command lines may be specified following the same scheme as used for C<ExecStartPre> of service unit files.',
+        'type' => 'list'
+      },
+      'ExecStopPost',
       {
         'cargo' => {
           'type' => 'leaf',
