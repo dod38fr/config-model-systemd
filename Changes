@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+0.002 2016-04-26
+
+  Bug fixes:
+  * Updated dependency versions:
+    * Config::Model::Tester 2.054
+    * Config::Model 2.083
+
 0.001 2016-04-23
 
   Initial release
