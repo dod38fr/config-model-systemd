@@ -19,6 +19,5 @@ nytprof.out
 *.bs
 /_eumm/
 *~
-wr_root/
 Config-Model-Systemd-*
 lib/Config/Model/models/**/*.pod
