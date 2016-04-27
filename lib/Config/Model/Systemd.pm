@@ -50,7 +50,7 @@ You can also use L<cme> to run sanity checks on the configuration file:
  cme check systemd-user
  cme check systemd
 
-=comment
+=begin :comment
 
 =head2 Fix warnings
 
@@ -59,7 +59,7 @@ You can choose to  fix (most of) these warnings with the command:
 
  cme fix systemd-user
 
-=end comment
+=end :comment
 
 =head1 BUGS
 
