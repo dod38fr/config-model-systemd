@@ -85,7 +85,7 @@ Additional units might be loaded into systemd ("linked") from directories not on
       },
       'PartOf',
       {
-        'description' => "Configures dependencies similar to C<Requires>, but limited to stopping and restarting of units. When systemd stops or restarts the units listed here, the action is propagated to this unit. Note that this is a one-way dependency \x{2014} changes to this unit do not affect the listed units.",
+        'description' => 'Configures dependencies similar to C<Requires>, but limited to stopping and restarting of units. When systemd stops or restarts the units listed here, the action is propagated to this unit. Note that this is a one-way dependency -- changes to this unit do not affect the listed units.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
