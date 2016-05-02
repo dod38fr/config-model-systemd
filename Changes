@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+0.003 2016-05-02
+
+  Fix utf-8 issues in pod documentation:
+    * removed utf8 chars from generated model
+    * parse_man: remove utf8 chars from systemd doc...
+    * added test to check pod syntax
+
 0.002 2016-04-26
 
   Bug fixes:
