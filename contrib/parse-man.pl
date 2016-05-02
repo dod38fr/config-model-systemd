@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use 5.22.0;
+use utf8;
 
 use lib 'lib';
 
@@ -167,6 +168,10 @@ foreach my $cdata ($data->{element}->@*) {
     my ($config_class, $element, $desc, $extra_info) = $cdata->@*;
 
     my $obj = setup_element ($meta_root, $config_class, $element, $desc, $extra_info);
+
+    # cleanup one utf8 characters (aka \x{2014}). This can be removed once Config::Model 2.084
+    # is released: generated pod will declare utf8 encoding
+    $desc =~ s/—/--/g;
 
     $obj->fetch_element("description")->store($desc);
 }
