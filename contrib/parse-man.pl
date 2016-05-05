@@ -24,7 +24,7 @@ sub parse_xml ($list, $map) {
     my $file ;
 
     my $desc = sub ($t, $elt) {
-        my $txt = $elt->trimmed_text;
+        my $txt = $elt->text;
         # there's black magic in XML::Twig that trash error message
         # contained in an error object.  So the error must be stringified
         # explicitly before being sent upward
@@ -41,7 +41,7 @@ sub parse_xml ($list, $map) {
     };
 
     my $variable = sub  ($t, $elt) {
-        my $desc = $elt->first_child('listitem')->trimmed_text;
+        my $desc = $elt->first_child('listitem')->text;
         $desc =~ s/(\w+)=/C<$1>/g;
 
         foreach my $term_elt ($elt->children('term')) {
@@ -90,6 +90,10 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
         step => "class:$config_class element:$element",
         autoadd => 1
     );
+
+    # trim description (which is not saved in this sub) to simplify
+    # the regexp below
+    $desc =~ s/[\s\n]+/ /g;
 
     my $value_type
         = $desc =~ /Takes an? (boolean|integer)/ ? $1
@@ -152,9 +156,12 @@ foreach my $config_class ($meta_root->fetch_element('class')->fetch_all_indexes)
 say "Creating systemd model...";
 
 foreach my $config_class (keys $data->{class}->%*) {
-    my $desc = $data->{class}{$config_class};
+    my $desc_ref = $data->{class}{$config_class};
+    my $desc_text = join("\n\n",$desc_ref->@*);
+    $desc_text =~ s/^\s+//gm;
+
     my $steps = "class:$config_class class_description";
-    $meta_root->grab(step => $steps, autoadd => 1)->store(join("\n\n",$desc->@*));
+    $meta_root->grab(step => $steps, autoadd => 1)->store($desc_text);
 
     # TODO: indicates systemd version
     $meta_root->load( steps => [
@@ -172,6 +179,10 @@ foreach my $cdata ($data->{element}->@*) {
     # cleanup one utf8 characters (aka \x{2014}). This can be removed once Config::Model 2.084
     # is released: generated pod will declare utf8 encoding
     $desc =~ s/—/--/g;
+    $desc =~ s/ / /g; # not exactly an underscore
+
+    # cleanup empty lines
+    $desc =~ s/^\s+//gm;
 
     $obj->fetch_element("description")->store($desc);
 }
