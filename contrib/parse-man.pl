@@ -11,9 +11,16 @@ use XML::Twig;
 use Path::Tiny;
 use Config::Model::Itself;
 use Config::Model::Exception;
+use Getopt::Long;
 use experimental qw/postderef signatures/ ;
 
-my $systemd_path = path('/home/domi/debian-dev/systemd-228/man/');
+my %opt;
+GetOptions (\%opt, "from=s") or die("Error in command line arguments\n");
+
+my $systemd_path = path($opt{from});
+die "Can't open directory ".$opt{from}."\n" unless $systemd_path->is_dir;
+
+my $systemd_man_path = $systemd_path->child('man');
 
 Config::Model::Exception::Trace(1);
 
@@ -76,7 +83,7 @@ sub parse_xml ($list, $map) {
     );
 
     foreach my $subsystem ($list->@*) {
-        $file = $systemd_path->child("systemd.$subsystem.xml");
+        $file = $systemd_man_path->child("systemd.$subsystem.xml");
         $set_config_class->($subsystem);
         $twig->parsefile($file);
     }
