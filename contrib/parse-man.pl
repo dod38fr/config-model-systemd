@@ -161,12 +161,17 @@ foreach my $config_class (keys $data->{class}->%*) {
     my $desc_text = join("\n\n",$desc_ref->@*);
     $desc_text =~ s/^\s+//gm;
 
+    $desc_text.="\nThis configuration class was generated from systemd documentation.\n"
+        ."by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>\n";
     my $steps = "class:$config_class class_description";
     $meta_root->grab(step => $steps, autoadd => 1)->store($desc_text);
 
     # TODO: indicates systemd version
     $meta_root->load( steps => [
         qq!class:$config_class generated_by="systemd parse-man.pl"!,
+        qq!copyright:0="2010-2016 Lennart Poettering and others"!,
+        qq!copyright:1="2016 Dominique Dumont"!,
+        qq!license="LGPLv2.1+"!,
         qq!accept:".*" type=leaf value_type=uniline!,
     ]);
 
