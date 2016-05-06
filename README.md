@@ -42,6 +42,21 @@ You can also install this project from CPAN (soon):
 
 Please follow these [instructions](README.build-from-git) to build from git.
 
+## Re-generate systemd model files
+
+The files in `lib/Config/Model/models/Systemd/Section` and
+`lib/Config/Model/models/Systemd/Common` are generated from systemd
+documentation in xml format.
+
+To regenerate the model files, you must retrieve systemd sources. For instance, you
+can retrieve Debian source package:
+
+    apt-get source systemd
+
+Then, from `config-model-systemd`, run:
+
+    perl contrib/parse-man.pl -from <path to systemd source>
+
 ## More information
 
 * [Using cme](https://github.com/dod38fr/config-model/wiki/Using-cme)
