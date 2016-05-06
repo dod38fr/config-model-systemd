@@ -37,7 +37,8 @@ sub parse_xml ($list, $map) {
     my $manpage = sub ($t, $elt) {
         my $man = $elt->first_child('refentrytitle')->text;
         my $nb = $elt->first_child('manvolnum')->text;
-        $elt->set_text( "L<$man($nb)>");
+        my $url = "https://manpages.debian.org/cgi-bin/man.cgi?query=$man&sektion=$nb&manpath=Debian+unstable+sid";
+        $elt->set_text( qq!L<$man($nb)|"$url">!);
     };
 
     my $variable = sub  ($t, $elt) {
