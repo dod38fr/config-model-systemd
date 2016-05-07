@@ -1,5 +1,17 @@
 {{$NEXT}}
 
+0.004 2016-05-07
+
+    Improved model generation from systemd doc:
+    * parse_man:
+      * infer enum (some? most?) from doc
+      * handles Condition* variables..
+      * added -from parameter
+      * added copyright and license info...
+      * use debian service for man pages
+      * preserve upstream doc formatting..
+    * regenerated model from systemd 228 with the changes above
+
 0.003 2016-05-02
 
   Fix utf-8 issues in pod documentation:
