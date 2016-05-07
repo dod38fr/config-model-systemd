@@ -11,6 +11,8 @@ extends 'Config::Model::Backend::IniFile';
 
 with 'Config::Model::Backend::Systemd::Layers';
 
+my $logger = get_logger("Backend::Systemd::Unit");
+
 sub read {
     my $self = shift ;
     my %args = @_ ;
@@ -43,7 +45,7 @@ sub read {
         my $file = $dir->child($unit_name.'.'.$unit_type);
         next unless $file->exists;
 
-        say "reading default layer from unit $unit_type name $unit_name from $file";
+        $logger->debug("reading default layer from unit $unit_type name $unit_name from $file");
         my $fh = new IO::File;
         $fh->open($file);
         $fh->binmode(":utf8");
@@ -58,10 +60,10 @@ sub read {
     $self->node->instance->layered_stop;
 
     if (path($args{file_path})->realpath eq '/dev/null') {
-        say "skipping  unit $unit_type name $unit_name from ".$args{config_dir};
+        $logger->debug("skipping  unit $unit_type name $unit_name from ".$args{config_dir});
     }
     else {
-        say "reading unit $unit_type name $unit_name from ".$args{config_dir};
+        $logger->debug("reading unit $unit_type name $unit_name from ".$args{config_dir});
 
         # mouse super() does not work...
         $self->SUPER::read(@_);
@@ -135,7 +137,7 @@ sub write {
     if ($self->node->grab_value('disable')) {
         my $fp = path($args{file_path});
         if ($fp->realpath ne '/dev/null') {
-            say "symlinking file $fp to /dev/null";
+            $logger->warn("symlinking file $fp to /dev/null");
             $fp->remove;
             symlink ('/dev/null', $fp->stringify);
         }

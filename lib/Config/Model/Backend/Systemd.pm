@@ -10,6 +10,8 @@ use Path::Tiny 0.086;
 extends 'Config::Model::Backend::Any';
 with 'Config::Model::Backend::Systemd::Layers';
 
+my $logger = get_logger("Backend::Systemd");
+
 has config_dir => (
     is => 'rw',
     isa => 'Path::Tiny'
@@ -49,7 +51,7 @@ sub read {
         foreach my $file ($dir->children($filter) ) {
             my $unit_name = $file->basename($filter);
             my ($unit_type) = ($file =~ $filter);
-            say "registering unit $unit_type name $unit_name from $file (layered mode))";
+            $logger->debug( "registering unit $unit_type name $unit_name from $file (layered mode))");
             # force config_dir during init
             $self->node->load(step => "$unit_type:$unit_name", check => $args{check} ) ;
         }
@@ -60,11 +62,11 @@ sub read {
         my ($unit_type) = ($file =~ $filter);
         my $unit_name = $file->basename($filter);
         if ($file->realpath eq '/dev/null') {
-            say "unit $unit_type name $unit_name from $file is disabled";
+            $logger->debug("unit $unit_type name $unit_name from $file is disabled");
             $self->node->load(step => "$unit_type:$unit_name disable=1", check => $args{check} ) ;
         }
         else {
-            say "registering unit $unit_type name $unit_name from $file";
+            $logger->debug("registering unit $unit_type name $unit_name from $file");
             $self->node->load(step => "$unit_type:$unit_name", check => $args{check} ) ;
         }
     }
@@ -93,7 +95,7 @@ sub write {
 
         my $unit_collection = $self->node->fetch_element($unit_type);
         if (not $unit_collection->defined($unit_name)) {
-            say "removing file $file of deleted service";
+            $logger->warn("removing file $file of deleted service");
             $file->remove;
         }
     }
