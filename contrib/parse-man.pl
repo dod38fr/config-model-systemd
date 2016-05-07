@@ -48,7 +48,24 @@ sub parse_xml ($list, $map) {
         $elt->set_text( qq!L<$man($nb)|"$url">!);
     };
 
+    my $condition_variable = sub  ($t, $elt) {
+        my @var_list = $elt->children('term') ;
+        my $listitem = $elt->first_child('listitem');
+        my $pre_doc = $listitem->first_child_text('para');
+        my $post_doc = $listitem->last_child_text('para');
+        foreach my $var_elt (@var_list) {
+            my $var_name = $var_elt->text;
+            my ($var_doc_elt) = $listitem->get_xpath(qq!./para/varname[string()="$var_name"]!);
+            #say "condition_variable $var_name found at ",$var_doc_elt->path;
+            my ($name, $extra_info) = split '=', $var_name, 2;
+            say $file->basename(".xml").": class $config_class element $name, trashed $extra_info" if $extra_info;
+            my $desc = join ("\n\n", $pre_doc, $var_doc_elt->parent->text, $post_doc);
+            push $data{element}->@*, [$config_class => $name => $desc => $extra_info];
+        }
+    };
+
     my $variable = sub  ($t, $elt) {
+        return $condition_variable->($t, $elt) if $elt->first_child_text('term') =~ /^Condition/;
         my $desc = $elt->first_child('listitem')->text;
         $desc =~ s/(\w+)=/C<$1>/g;
 
