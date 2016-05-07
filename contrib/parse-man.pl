@@ -123,6 +123,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
     my $value_type
         = $desc =~ /Takes an? (boolean|integer)/ ? $1
         : $desc =~ /Takes time \(in seconds\)/   ? 'integer'
+        : $desc =~ /Takes one of/                ? 'enum'
         : $extra_info =~ /\w\|\w/                ? 'enum'
         :                                          'uniline';
 
@@ -134,9 +135,20 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
 
     push @load, 'type=leaf', "value_type=$value_type";
 
-    if ($value_type eq 'enum') {
+    if ($extra_info =~ /\w\|\w/) {
         $extra_info =~ s/\|/,/g;
         push @load, "choice=$extra_info";
+    }
+    elsif ($desc =~ /Takes one of/) {
+        my ($choices) = ($desc =~ /Takes one of ([^.]+?)(?:\.|to test)/);
+        say "$element found ->$choices<-";
+        $choices =~ s/\(the default\)//g;
+        $choices =~ s/\b(or|and)\b/,/g;
+        $choices =~ s/\s//g;
+        $choices =~ s/C<(\w+)>/$1/g;
+        $choices =~ s/,+/,/g;
+        say "set choice $choices";
+        push @load, qq!choice=$choices!;
     }
 
     push @load, "min=$min" if defined $min;
