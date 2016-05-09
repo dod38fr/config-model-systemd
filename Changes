@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+0.005 2016-05-09
+
+    * Added doc to the classes reading and writing systemd
+      files
+
 0.004 2016-05-07
 
     Improved model generation from systemd doc:
