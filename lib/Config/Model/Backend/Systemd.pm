@@ -17,12 +17,6 @@ has config_dir => (
     isa => 'Path::Tiny'
 );
 
-sub config_file_override {
-    my $self = shift ;
-    my $basename = $self->node->index_value.'.'.$self->node->element_name;
-    return $self->config_dir->child($basename);
-}
-
 # TODO: accepts other systemd suffixes
 my $filter = qr/\.(service|socket)$/;
 
