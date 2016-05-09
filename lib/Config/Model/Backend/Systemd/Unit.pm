@@ -160,3 +160,46 @@ sub _write_leaf{
 
 no Mouse ;
 __PACKAGE__->meta->make_immutable ;
+
+1;
+
+# ABSTRACT: R/W backend for systemd unit files
+
+__END__
+
+=pod
+
+=head1 SYNOPSIS
+
+ # in systemd service or socket model
+ read_config => [
+   {
+     'auto_create' => '1',
+     'auto_delete' => '1',
+     'backend' => 'Systemd::Unit',
+     'file' => '&index.service'
+   }
+ ]
+
+=head1 DESCRIPTION
+
+C<Config::Model::Backend::Systemd::Unit> provides a plugin class to enable
+L<Config::Model> to read and write systemd configuration files. This
+class inherits L<Config::Model::Backend::IniFile> is designed to be used
+by L<Config::Model::BackendMgr>.
+
+=head1 Methods
+
+=head2 read
+
+This method read config data from  systemd default file to get default
+values and read config data.
+
+=head2 write
+
+This method write systemd configuration data.
+
+When the service is disabled, the target configuration file is
+replaced by a link to C</dev/null>.
+
+=cut

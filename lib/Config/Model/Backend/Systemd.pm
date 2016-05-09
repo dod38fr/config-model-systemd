@@ -99,3 +99,47 @@ sub write {
 
 no Mouse ;
 __PACKAGE__->meta->make_immutable ;
+
+1;
+
+# ABSTRACT: R/W backend for systemd configurations files
+
+__END__
+
+=pod
+
+=head1 SYNOPSIS
+
+ # in systemd model
+ read_config => [
+      {
+        'backend' => 'Systemd'
+      }
+    ]
+
+=head1 DESCRIPTION
+
+Config::Model::Backend::Systemd provides a plugin class to enable
+L<Config::Model> to read and write systemd configuration files. This
+class inherits L<Config::Model::Backend::Any> is designed to be used
+by L<Config::Model::BackendMgr>.
+
+=head1 Methods
+
+=head2 read
+
+This method scans systemd default directory and systemd config
+directory to create all units in L<Config::Model> tree. The actual
+configuration parameters are read by
+L<Config::Model::Backend::Systemd::Unit>.
+
+=head2 write
+
+This method is a bit of a misnomer. It deletes configuration files of
+deleted service.
+
+The actual configuration parameters are written by
+L<Config::Model::Backend::Systemd::Unit>.
+
+=cut
+
