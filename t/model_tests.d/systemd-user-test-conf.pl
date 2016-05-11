@@ -6,9 +6,19 @@ $conf_dir = '~/.config/systemd/user/';
 # list of tests. This modules looks for @tests global variable
 @tests = (
     {
-        # test name
         name => 'basic-service',
-        # add optional specification here for t0 test
+        file_contents_unlike => {
+            "home/joe/.config/systemd/user/gmail-imap-tunnel@.service" 
+            => qr/disable/ ,
+        },
+    },
+
+    {
+        name => 'basic-socket',
+        file_contents_unlike => {
+            "home/joe/.config/systemd/user/gmail-imap-tunnel.socket" 
+            => qr/disable/ ,
+        }
     },
 
     {
