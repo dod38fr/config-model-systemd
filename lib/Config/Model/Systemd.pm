@@ -6,7 +6,7 @@ use Config::Model 2.083;
 
 1;
 
-# ABSTRACT: Edit and validate Systemd configuration files
+# ABSTRACT: Editor and validator for systemd configuration files
 
 __END__
 
@@ -23,7 +23,7 @@ __END__
 =head1 DESCRIPTION
 
 This module provides a configuration editor for the configuration file
-of Systemd, i.e. all files in C<~/.config/systemd/user/> or all files
+of systemd, i.e. all files in C<~/.config/systemd/user/> or all files
 in C</etc/systemd/system/>
 
 Ok. I simplified. Actually, this module provides the configuration
