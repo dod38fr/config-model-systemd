@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+0.006 2016-05-11
+
+  Bug fix:
+    * do not write 'disable' param in systemd file
+
+  Usability improvements:
+    * dist.ini: recommends App::Cme and Config::Model::TkUI
+    * improved abstract and description of Config::Model::Systemd
+
 0.005 2016-05-09
 
     * Added doc to the classes reading and writing systemd
