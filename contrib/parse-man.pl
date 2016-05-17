@@ -17,6 +17,8 @@ use experimental qw/postderef signatures/ ;
 my %opt;
 GetOptions (\%opt, "from=s") or die("Error in command line arguments\n");
 
+die "Missing '-from' option " unless $opt{from};
+
 my $systemd_path = path($opt{from});
 die "Can't open directory ".$opt{from}."\n" unless $systemd_path->is_dir;
 
