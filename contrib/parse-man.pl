@@ -123,7 +123,8 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
     $desc =~ s/[\s\n]+/ /g;
 
     my $value_type
-        = $desc =~ /Takes an? (boolean|integer)/ ? $1
+        = $desc =~ /Takes a boolean argument or/ ? 'enum'
+        : $desc =~ /Takes an? (boolean|integer)/ ? $1
         : $desc =~ /Takes time \(in seconds\)/   ? 'integer'
         : $desc =~ /Takes one of/                ? 'enum'
         : $extra_info =~ /\w\|\w/                ? 'enum'
@@ -131,27 +132,36 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
 
     my ($min, $max) = ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d+])/) ;
 
-    my @load ;
+    my @choices
+        = $desc =~ /Takes a boolean argument or (?:C<)?([\w-]+)/ ? ('no','yes',$1)
+        : $extra_info =~ /\w\|\w/ ? split /\|/, $extra_info
+        : ();
 
-    push @load, qw/type=list cargo/ if $element =~ /^Exec/ or $desc =~ /may be specified more than once/;
-
-    push @load, 'type=leaf', "value_type=$value_type";
-
-    if ($extra_info =~ /\w\|\w/) {
-        $extra_info =~ s/\|/,/g;
-        push @load, "choice=$extra_info";
-    }
-    elsif ($desc =~ /Takes one of/) {
+    if ($desc =~ /Takes one of/) {
         my ($choices) = ($desc =~ /Takes one of ([^.]+?)(?:\.|to test)/);
-        say "$element found ->$choices<-";
         $choices =~ s/\(the default\)//g;
         $choices =~ s/\b(or|and)\b/,/g;
         $choices =~ s/\s//g;
         $choices =~ s/C<(\w+)>/$1/g;
         $choices =~ s/,+/,/g;
         say "set choice $choices";
-        push @load, qq!choice=$choices!;
+        @choices = split /,/, $choices;
     }
+
+    my @load ;
+
+    push @load, qw/type=list cargo/ if $element =~ /^Exec/ or $desc =~ /may be specified more than once/;
+
+    push @load, 'type=leaf', "value_type=$value_type";
+
+    push @load, 'write_as=no,yes' if $value_type eq 'boolean';
+
+    if ($value_type eq 'enum') {
+        die "Error in $config_class: cannot find the values of $element enum type\n"
+            unless @choices;
+        push @load, 'choice='.join(',',@choices);
+    }
+
 
     push @load, "min=$min" if defined $min;
     push @load, "max=$max" if defined $max;
