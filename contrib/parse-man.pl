@@ -247,12 +247,19 @@ foreach my $cdata ($data->{element}->@*) {
 
 say "Tweaking systemd model...";
 
-$meta_root->load( << "EOL"
-! class:Systemd::Section::Service
-      include:=Systemd::Common::ResourceControl,Systemd::Common::Exec,Systemd::Common::Kill
-
-EOL
+$meta_root->load(
+    'class:Systemd::Section::Service
+     include:=Systemd::Common::ResourceControl,Systemd::Common::Exec,Systemd::Common::Kill'
 );
+
+# doc for IOSchedulingClass is too complicated to parse,
+$meta_root->load(
+    '! class:Systemd::Common::Exec
+       element:IOSchedulingClass value_type:=enum
+                                 choice:=0,1,2,3,none,realtime,best-effort,idle'
+);
+
+
 
 say "Saving systemd model...";
 $rw_obj->write_all;
