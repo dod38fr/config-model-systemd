@@ -124,6 +124,16 @@ for details.',
       },
       'IOSchedulingClass',
       {
+        'choice' => [
+          '0',
+          '1',
+          '2',
+          '3',
+          'none',
+          'realtime',
+          'best-effort',
+          'idle'
+        ],
         'description' => 'Sets the I/O scheduling class for executed
 processes. Takes an integer between 0 and 3 or one of the
 strings none, realtime,
@@ -131,7 +141,7 @@ best-effort or idle. See
 L<ioprio_set(2)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>ioprio_set&C<sektion>2&C<manpath>Debian+unstable+sid">
 for details.',
         'type' => 'leaf',
-        'value_type' => 'integer'
+        'value_type' => 'enum'
       },
       'IOSchedulingPriority',
       {
@@ -188,7 +198,11 @@ processes. See
 L<sched_setscheduler(2)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>sched_setscheduler&C<sektion>2&C<manpath>Debian+unstable+sid">
 for details. Defaults to false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'CPUAffinity',
       {
@@ -546,7 +560,11 @@ this prefixing see
 L<sd-daemon(3)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>sd-daemon&C<sektion>3&C<manpath>Debian+unstable+sid">.
 Defaults to true.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'TimerSlackNSec',
       {
@@ -1352,7 +1370,11 @@ This means that this setting may not be used for services
 which shall be able to install mount points in the main mount
 namespace.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'PrivateDevices',
       {
@@ -1376,7 +1398,11 @@ This means that this setting may not be used for services
 which shall be able to install mount points in the main mount
 namespace.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'PrivateNetwork',
       {
@@ -1397,10 +1423,19 @@ socket namespace will become unavailable to the processes
 (however, those located in the file system will continue to be
 accessible).',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'ProtectSystem',
       {
+        'choice' => [
+          'no',
+          'yes',
+          'full'
+        ],
         'description' => 'Takes a boolean argument or
 C<full>. If true, mounts the
 /usr and /boot
@@ -1417,11 +1452,22 @@ the effect of this setting. This setting is hence particularly
 useful for daemons which have this capability removed, for
 example with C<CapabilityBoundingSet>.
 Defaults to off.',
+        'replace' => {
+          '0' => 'no',
+          '1' => 'yes',
+          'false' => 'no',
+          'true' => 'yes'
+        },
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'enum'
       },
       'ProtectHome',
       {
+        'choice' => [
+          'no',
+          'yes',
+          'read-only'
+        ],
         'description' => 'Takes a boolean argument or
 C<read-only>. If true, the directories
 /home, /root and
@@ -1438,8 +1484,14 @@ effect of this setting. This setting is hence particularly
 useful for daemons which have this capability removed, for
 example with C<CapabilityBoundingSet>.
 Defaults to off.',
+        'replace' => {
+          '0' => 'no',
+          '1' => 'yes',
+          'false' => 'no',
+          'true' => 'yes'
+        },
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'enum'
       },
       'MountFlags',
       {
@@ -1571,7 +1623,11 @@ SIGPIPE to be ignored in the executed
 process. Defaults to true because SIGPIPE
 generally is useful only in shell pipelines.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'NoNewPrivileges',
       {
@@ -1583,7 +1639,11 @@ UID changes of any kind. This is the simplest, most effective
 way to ensure that a process and its children can never
 elevate privileges again.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'SystemCallFilter',
       {

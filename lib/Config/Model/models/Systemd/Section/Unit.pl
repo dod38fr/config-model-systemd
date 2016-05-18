@@ -475,7 +475,11 @@ true, this unit will not be stopped when
 isolating another unit. Defaults to
 false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'StopWhenUnneeded',
       {
@@ -488,7 +492,11 @@ requested their shut down. If this option is set, a unit will
 be automatically cleaned up if no other active unit requires
 it. Defaults to false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'RefuseManualStart',
       {
@@ -504,7 +512,11 @@ accidentally deactivate units that are not intended to be
 deactivated. These options default to
 false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'RefuseManualStop',
       {
@@ -520,7 +532,11 @@ accidentally deactivate units that are not intended to be
 deactivated. These options default to
 false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'AllowIsolate',
       {
@@ -533,7 +549,11 @@ runlevels in SysV init systems, just as a precaution to avoid
 unusable system states. This option defaults to
 false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'DefaultDependencies',
       {
@@ -552,7 +572,11 @@ set to false, this option does not disable
 all implicit dependencies, just non-essential
 ones.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'JobTimeoutSec',
       {

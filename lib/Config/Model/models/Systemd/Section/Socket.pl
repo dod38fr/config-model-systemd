@@ -431,7 +431,11 @@ environment variable will contain the remote IP address, and REMOTE_PORT
 will contain the remote port. This is the same as the format used by CGI.
 For SOCK_RAW, the port is the IP protocol.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'Writable',
       {
@@ -440,7 +444,11 @@ conjunction with C<ListenSpecial>. If true,
 the specified special file is opened in read-write mode, if
 false, in read-only mode. Defaults to false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'MaxConnections',
       {
@@ -468,7 +476,11 @@ and the TCP
 Keepalive HOWTO for details.) Defaults to
 false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'KeepAliveTimeSec',
       {
@@ -517,7 +529,11 @@ TCP_NODELAY socket option (see
 L<tcp(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>tcp&C<sektion>7&C<manpath>Debian+unstable+sid">
 Defaults to false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'Priority',
       {
@@ -623,7 +639,11 @@ option. See
 L<socket(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>socket&C<sektion>7&C<manpath>Debian+unstable+sid">
 for details.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'SmackLabel',
       {
@@ -680,7 +700,11 @@ C<true>. Also note that this option is useful
 only when MLS/MCS SELinux policy is deployed. Defaults to
 C<false>. ',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'PipeSize',
       {
@@ -714,7 +738,11 @@ robustness reasons it is recommended to use this option
 whenever you bind a socket to a specific IP address. Defaults
 to false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'Transparent',
       {
@@ -722,7 +750,11 @@ to false.',
 IP_TRANSPARENT socket option. Defaults to
 false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'Broadcast',
       {
@@ -731,7 +763,11 @@ SO_BROADCAST socket option, which allows broadcast datagrams
 to be sent from this socket. Defaults to
 false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'PassCredentials',
       {
@@ -741,7 +777,11 @@ AF_UNIX sockets to receive the
 credentials of the sending process in an ancillary message.
 Defaults to false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'PassSecurity',
       {
@@ -751,7 +791,11 @@ AF_UNIX sockets to receive the security
 context of the sending process in an ancillary message.
 Defaults to false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'TCPCongestion',
       {
@@ -873,7 +917,11 @@ unit has been terminated and it should still be possible to
 communicate with them via their file system node. Defaults to
 off.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'Symlinks',
       {

@@ -96,7 +96,11 @@ shells and shell-like programs that their connection has been
 severed. Takes a boolean value. Defaults to "no".
 ',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'SendSIGKILL',
       {
@@ -106,7 +110,11 @@ timeout, if the normal shutdown procedure left processes of
 the service around. Takes a boolean value. Defaults to "yes".
 ',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       }
     ],
     'generated_by' => 'systemd parse-man.pl',

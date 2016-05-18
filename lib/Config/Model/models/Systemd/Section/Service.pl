@@ -113,7 +113,11 @@ with the status output on the console.',
 the service shall be considered active even when all its
 processes exited. Defaults to no.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'GuessMainPID',
       {
@@ -129,7 +133,11 @@ the main PID cannot be determined, failure detection and
 automatic restarting of a service will not work reliably.
 Defaults to yes.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'PIDFile',
       {
@@ -588,7 +596,11 @@ C<ExecStopPost>
 commands. If false, the setting is applied to all configured
 commands the same way. Defaults to false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'RootDirectoryStartOnly',
       {
@@ -605,7 +617,11 @@ and C<ExecStopPost> commands. If false, the
 setting is applied to all configured commands the same way.
 Defaults to false.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'NonBlocking',
       {

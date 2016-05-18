@@ -50,7 +50,11 @@ setting may be controlled with
 C<DefaultCPUAccounting> in
 L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd-system.conf&C<sektion>5&C<manpath>Debian+unstable+sid">.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'CPUShares',
       {
@@ -119,7 +123,11 @@ for this setting may be controlled with
 C<DefaultMemoryAccounting> in
 L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd-system.conf&C<sektion>5&C<manpath>Debian+unstable+sid">.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'MemoryLimit',
       {
@@ -152,7 +160,11 @@ may be controlled with
 C<DefaultTasksAccounting> in
 L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd-system.conf&C<sektion>5&C<manpath>Debian+unstable+sid">.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'TasksMax',
       {
@@ -181,7 +193,11 @@ setting may be controlled with
 C<DefaultBlockIOAccounting> in
 L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd-system.conf&C<sektion>5&C<manpath>Debian+unstable+sid">.',
         'type' => 'leaf',
-        'value_type' => 'boolean'
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'BlockIOWeight',
       {
