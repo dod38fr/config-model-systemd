@@ -132,22 +132,6 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
 
     my ($min, $max) = ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d+])/) ;
 
-    my @choices
-        = $desc =~ /Takes a boolean argument or (?:C<)?([\w-]+)/ ? ('no','yes',$1)
-        : $extra_info =~ /\w\|\w/ ? split /\|/, $extra_info
-        : ();
-
-    if ($desc =~ /Takes one of/) {
-        my ($choices) = ($desc =~ /Takes one of ([^.]+?)(?:\.|to test)/);
-        $choices =~ s/\(the default\)//g;
-        $choices =~ s/\b(or|and)\b/,/g;
-        $choices =~ s/\s//g;
-        $choices =~ s/C<(\w+)>/$1/g;
-        $choices =~ s/,+/,/g;
-        say "set choice $choices";
-        @choices = split /,/, $choices;
-    }
-
     my @load ;
 
     push @load, qw/type=list cargo/ if $element =~ /^Exec/ or $desc =~ /may be specified more than once/;
@@ -157,6 +141,26 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
     push @load, 'write_as=no,yes' if $value_type eq 'boolean';
 
     if ($value_type eq 'enum') {
+        my @choices;
+        if ($extra_info =~ /\w\|\w/) {
+            @choices = split /\|/, $extra_info ;
+        }
+        elsif ($desc =~ /Takes a boolean argument or (?:C<)?([\w-]+)/) {
+            @choices = ('no','yes',$1);
+            push @load, qw/replace:false=no replace:true=yes replace:0=no replace:1=yes/;
+        }
+
+        if ($desc =~ /Takes one of/) {
+            my ($choices) = ($desc =~ /Takes one of ([^.]+?)(?:\.|to test)/);
+            $choices =~ s/\(the default\)//g;
+            $choices =~ s/\b(or|and)\b/,/g;
+            $choices =~ s/\s//g;
+            $choices =~ s/C<(\w+)>/$1/g;
+            $choices =~ s/,+/,/g;
+            say "set choice $choices";
+            @choices = split /,/, $choices;
+        }
+
         die "Error in $config_class: cannot find the values of $element enum type\n"
             unless @choices;
         push @load, 'choice='.join(',',@choices);
