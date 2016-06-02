@@ -87,8 +87,17 @@ sub load_data {
 
         # read data in the model order
         foreach my $elt (@elements) {
-            my $unit_data = $data_ref->{$elt}; # extract relevant data
+            my $unit_data = delete $data_ref->{$elt}; # extract relevant data
             next unless defined $unit_data;
+            $scanner->scan_element($unit_data, $node,$elt) ;
+        }
+        # read accepted elements
+        foreach my $elt (sort keys %$data_ref) {
+            my $unit_data = $data_ref->{$elt}; # extract relevant data
+
+            # force creation of element (can be removed with Config::Model 2.086)
+            my $obj = $node->fetch_element($elt);
+
             $scanner->scan_element($unit_data, $node,$elt) ;
         }
     };
