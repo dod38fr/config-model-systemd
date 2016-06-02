@@ -14,11 +14,20 @@ __END__
 
 =head1 SYNOPSIS
 
+=head2 command line
+
+Requires L<App::Cme>:
+
  $ cme edit systemd-user
  $ cme check systemd-user
 
  # cme edit systemd
  # cme check systemd
+
+=head2 Perl program
+
+ use Config::Model qw/cme/;
+ cme('systemd-user')->modify('socket:free-imap-tunnel Socket Accept=yes') ;
 
 =head1 DESCRIPTION
 
@@ -49,6 +58,26 @@ You can also use L<cme> to run sanity checks on the configuration file:
 
  cme check systemd-user
  cme check systemd
+
+=head2 Use in Perl program
+
+As of L<Config::Model> 2.086, a L<cme/"cme(...)"> function is exported
+to modify configuration in a Perl program. For instance:
+
+ use Config::Model qw/cme/; # also import cme function
+ # call cme for systemd-user, modify ans save my-imap-tunnel.socket file.
+ cme('systemd-user')->modify('socket:my-imap-tunnel Socket Accept=yes') ;
+
+Similarly, system Systemd files can be modified using C<systemd> application:
+
+ use Config::Model qw/cme/;
+ cme('systemd')->modify(...) ;
+
+For more details and parameters, please see 
+L<cme|Config::Model/"cme ( ... )">,
+L<modify|Config::Model::Instance/"modify ( ... )">,
+L<load|Config::Model::Instance/"load ( ... )"> and
+L<save|Config::Model::Instance/"save ( ... )"> documentation.
 
 =begin :comment
 
