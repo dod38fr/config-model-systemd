@@ -1,5 +1,24 @@
 {{$NEXT}}
 
+0.007 2016-06-05
+
+  Bug fix:
+    * Unit backend: fix read value of accepted elements
+
+  Improved model generation from systemd doc:
+    * parse-man:
+      * Booleans are yes/no values
+      * infer enum choice from "boolean or something else"
+        as seen in Systemd doc.
+      * parse-man dies when no option is used on command line
+      * cannot extract info from IOSchedulingClass doc, this param is
+        tweaked using specific instructions
+
+  Generated model:
+   * Booleans are yes/no values
+   * "boolean or something else" are now enum type with
+     choices: yes,no,somethin-else as specified in Systemd doc
+
 0.006 2016-05-11
 
   Bug fix:
