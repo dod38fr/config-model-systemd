@@ -14,6 +14,17 @@ use Config::Model::Exception;
 use Getopt::Long;
 use experimental qw/postderef signatures/ ;
 
+# default class name is Systemd::Section::ucfirst($item)
+my @list = qw/exec kill resource-control service unit socket/;
+
+# Override the default class name
+# Please remove the old generated model if a class name is changed.
+my %map = (
+    'exec' => 'Common::Exec',
+    'kill' => 'Common::Kill',
+    'resource-control' => 'Common::ResourceControl',
+);
+
 my %opt;
 GetOptions (\%opt, "from=s") or die("Error in command line arguments\n");
 
@@ -174,16 +185,6 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
 
     return $obj;
 }
-
-# If you change the mapped class names (i.e. the values of this hash),
-# be sure to rename the matching class with cme meta edit
-my @list = qw/exec kill resource-control service unit socket/;
-# default class name is Systemd::Section::ucfirst($item)
-my %map = (
-    'exec' => 'Common::Exec',
-    'kill' => 'Common::Kill',
-    'resource-control' => 'Common::ResourceControl',
-);
 
 my $data = parse_xml(\@list, \%map) ;
 
