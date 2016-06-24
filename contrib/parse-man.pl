@@ -255,8 +255,8 @@ $meta_root->load(
 # doc for IOSchedulingClass is too complicated to parse,
 $meta_root->load(
     '! class:Systemd::Common::Exec
-       element:IOSchedulingClass value_type:=enum
-                                 choice:=0,1,2,3,none,realtime,best-effort,idle'
+       element:IOSchedulingClass value_type=enum
+                                 choice=0,1,2,3,none,realtime,best-effort,idle'
 );
 
 
