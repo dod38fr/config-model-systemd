@@ -15,7 +15,8 @@ use Getopt::Long;
 use experimental qw/postderef signatures/ ;
 
 # default class name is Systemd::Section::ucfirst($item)
-my @list = qw/exec kill resource-control service unit socket/;
+my @service_list = qw/service socket/;
+my @list = qw/exec kill resource-control unit/;
 
 # Override the default class name
 # Please remove the old generated model if a class name is changed.
@@ -186,7 +187,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
     return $obj;
 }
 
-my $data = parse_xml(\@list, \%map) ;
+my $data = parse_xml([@list, @service_list], \%map) ;
 
 # Itself constructor returns an object to read or write the data
 # structure containing the model to be edited
