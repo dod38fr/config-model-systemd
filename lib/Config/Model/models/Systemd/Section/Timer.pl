@@ -1,0 +1,331 @@
+[
+  {
+    'accept' => [
+      '.*',
+      {
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      }
+    ],
+    'class_description' => 'A unit configuration file whose name ends in
+C<.timer> encodes information about a timer
+controlled and supervised by systemd, for timer-based
+activation.
+This man page lists the configuration options specific to
+this unit type. See
+L<systemd.unit(5)|"https://manpages.debian.org/cgi-bin/man.cgi?query=systemd.unit&sektion=5&manpath=Debian+unstable+sid">
+for the common options of all unit configuration files. The common
+configuration items are configured in the generic [Unit] and
+[Install] sections. The timer specific configuration options are
+configured in the [Timer] section.
+For each timer file, a matching unit file must exist,
+describing the unit to activate when the timer elapses. By
+default, a service by the same name as the timer (except for the
+suffix) is activated. Example: a timer file
+foo.timer activates a matching service
+foo.service. The unit to activate may be
+controlled by Unit= (see below).
+This configuration class was generated from systemd documentation.
+by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>
+',
+    'copyright' => [
+      '2010-2016 Lennart Poettering and others',
+      '2016 Dominique Dumont'
+    ],
+    'element' => [
+      'OnActiveSec',
+      {
+        'description' => 'Defines monotonic timers relative to different
+starting points: C<OnActiveSec> defines a
+timer relative to the moment the timer itself is activated.
+C<OnBootSec> defines a timer relative to when
+the machine was booted up. C<OnStartupSec>
+defines a timer relative to when systemd was first started.
+C<OnUnitActiveSec> defines a timer relative
+to when the unit the timer is activating was last activated.
+C<OnUnitInactiveSec> defines a timer relative
+to when the unit the timer is activating was last
+deactivated.Multiple directives may be combined of the same and of
+different types. For example, by combining
+C<OnBootSec> and
+C<OnUnitActiveSec>, it is possible to define
+a timer that elapses in regular intervals and activates a
+specific service each time.The arguments to the directives are time spans
+configured in seconds. Example: "C<OnBootSec>50" means 50s after
+boot-up. The argument may also include time units. Example:
+"C<OnBootSec>5h 30min" means 5 hours and 30 minutes after
+boot-up. For details about the syntax of time spans, see
+L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">.If a timer configured with C<OnBootSec>
+or C<OnStartupSec> is already in the past
+when the timer unit is activated, it will immediately elapse
+and the configured unit is started. This is not the case for
+timers defined in the other directives.These are monotonic timers, independent of wall-clock
+time and timezones. If the computer is temporarily suspended,
+the monotonic clock stops too.If the empty string is assigned to any of these options,
+the list of timers is reset, and all prior assignments will
+have no effect.Note that timers do not necessarily expire at the
+precise time configured with these settings, as they are
+subject to the C<AccuracySec> setting
+below.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'OnBootSec',
+      {
+        'description' => 'Defines monotonic timers relative to different
+starting points: C<OnActiveSec> defines a
+timer relative to the moment the timer itself is activated.
+C<OnBootSec> defines a timer relative to when
+the machine was booted up. C<OnStartupSec>
+defines a timer relative to when systemd was first started.
+C<OnUnitActiveSec> defines a timer relative
+to when the unit the timer is activating was last activated.
+C<OnUnitInactiveSec> defines a timer relative
+to when the unit the timer is activating was last
+deactivated.Multiple directives may be combined of the same and of
+different types. For example, by combining
+C<OnBootSec> and
+C<OnUnitActiveSec>, it is possible to define
+a timer that elapses in regular intervals and activates a
+specific service each time.The arguments to the directives are time spans
+configured in seconds. Example: "C<OnBootSec>50" means 50s after
+boot-up. The argument may also include time units. Example:
+"C<OnBootSec>5h 30min" means 5 hours and 30 minutes after
+boot-up. For details about the syntax of time spans, see
+L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">.If a timer configured with C<OnBootSec>
+or C<OnStartupSec> is already in the past
+when the timer unit is activated, it will immediately elapse
+and the configured unit is started. This is not the case for
+timers defined in the other directives.These are monotonic timers, independent of wall-clock
+time and timezones. If the computer is temporarily suspended,
+the monotonic clock stops too.If the empty string is assigned to any of these options,
+the list of timers is reset, and all prior assignments will
+have no effect.Note that timers do not necessarily expire at the
+precise time configured with these settings, as they are
+subject to the C<AccuracySec> setting
+below.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'OnStartupSec',
+      {
+        'description' => 'Defines monotonic timers relative to different
+starting points: C<OnActiveSec> defines a
+timer relative to the moment the timer itself is activated.
+C<OnBootSec> defines a timer relative to when
+the machine was booted up. C<OnStartupSec>
+defines a timer relative to when systemd was first started.
+C<OnUnitActiveSec> defines a timer relative
+to when the unit the timer is activating was last activated.
+C<OnUnitInactiveSec> defines a timer relative
+to when the unit the timer is activating was last
+deactivated.Multiple directives may be combined of the same and of
+different types. For example, by combining
+C<OnBootSec> and
+C<OnUnitActiveSec>, it is possible to define
+a timer that elapses in regular intervals and activates a
+specific service each time.The arguments to the directives are time spans
+configured in seconds. Example: "C<OnBootSec>50" means 50s after
+boot-up. The argument may also include time units. Example:
+"C<OnBootSec>5h 30min" means 5 hours and 30 minutes after
+boot-up. For details about the syntax of time spans, see
+L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">.If a timer configured with C<OnBootSec>
+or C<OnStartupSec> is already in the past
+when the timer unit is activated, it will immediately elapse
+and the configured unit is started. This is not the case for
+timers defined in the other directives.These are monotonic timers, independent of wall-clock
+time and timezones. If the computer is temporarily suspended,
+the monotonic clock stops too.If the empty string is assigned to any of these options,
+the list of timers is reset, and all prior assignments will
+have no effect.Note that timers do not necessarily expire at the
+precise time configured with these settings, as they are
+subject to the C<AccuracySec> setting
+below.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'OnUnitActiveSec',
+      {
+        'description' => 'Defines monotonic timers relative to different
+starting points: C<OnActiveSec> defines a
+timer relative to the moment the timer itself is activated.
+C<OnBootSec> defines a timer relative to when
+the machine was booted up. C<OnStartupSec>
+defines a timer relative to when systemd was first started.
+C<OnUnitActiveSec> defines a timer relative
+to when the unit the timer is activating was last activated.
+C<OnUnitInactiveSec> defines a timer relative
+to when the unit the timer is activating was last
+deactivated.Multiple directives may be combined of the same and of
+different types. For example, by combining
+C<OnBootSec> and
+C<OnUnitActiveSec>, it is possible to define
+a timer that elapses in regular intervals and activates a
+specific service each time.The arguments to the directives are time spans
+configured in seconds. Example: "C<OnBootSec>50" means 50s after
+boot-up. The argument may also include time units. Example:
+"C<OnBootSec>5h 30min" means 5 hours and 30 minutes after
+boot-up. For details about the syntax of time spans, see
+L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">.If a timer configured with C<OnBootSec>
+or C<OnStartupSec> is already in the past
+when the timer unit is activated, it will immediately elapse
+and the configured unit is started. This is not the case for
+timers defined in the other directives.These are monotonic timers, independent of wall-clock
+time and timezones. If the computer is temporarily suspended,
+the monotonic clock stops too.If the empty string is assigned to any of these options,
+the list of timers is reset, and all prior assignments will
+have no effect.Note that timers do not necessarily expire at the
+precise time configured with these settings, as they are
+subject to the C<AccuracySec> setting
+below.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'OnUnitInactiveSec',
+      {
+        'description' => 'Defines monotonic timers relative to different
+starting points: C<OnActiveSec> defines a
+timer relative to the moment the timer itself is activated.
+C<OnBootSec> defines a timer relative to when
+the machine was booted up. C<OnStartupSec>
+defines a timer relative to when systemd was first started.
+C<OnUnitActiveSec> defines a timer relative
+to when the unit the timer is activating was last activated.
+C<OnUnitInactiveSec> defines a timer relative
+to when the unit the timer is activating was last
+deactivated.Multiple directives may be combined of the same and of
+different types. For example, by combining
+C<OnBootSec> and
+C<OnUnitActiveSec>, it is possible to define
+a timer that elapses in regular intervals and activates a
+specific service each time.The arguments to the directives are time spans
+configured in seconds. Example: "C<OnBootSec>50" means 50s after
+boot-up. The argument may also include time units. Example:
+"C<OnBootSec>5h 30min" means 5 hours and 30 minutes after
+boot-up. For details about the syntax of time spans, see
+L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">.If a timer configured with C<OnBootSec>
+or C<OnStartupSec> is already in the past
+when the timer unit is activated, it will immediately elapse
+and the configured unit is started. This is not the case for
+timers defined in the other directives.These are monotonic timers, independent of wall-clock
+time and timezones. If the computer is temporarily suspended,
+the monotonic clock stops too.If the empty string is assigned to any of these options,
+the list of timers is reset, and all prior assignments will
+have no effect.Note that timers do not necessarily expire at the
+precise time configured with these settings, as they are
+subject to the C<AccuracySec> setting
+below.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'OnCalendar',
+      {
+        'description' => 'Defines realtime (i.e. wallclock) timers with
+calendar event expressions. See
+L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">
+for more information on the syntax of calendar event
+expressions. Otherwise, the semantics are similar to
+C<OnActiveSec> and related settings.Note that timers do not necessarily expire at the
+precise time configured with this setting, as it is subject to
+the C<AccuracySec> setting
+below.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'AccuracySec',
+      {
+        'description' => 'Specify the accuracy the timer shall elapse
+with. Defaults to 1min. The timer is scheduled to elapse
+within a time window starting with the time specified in
+C<OnCalendar>,
+C<OnActiveSec>,
+C<OnBootSec>,
+C<OnStartupSec>,
+C<OnUnitActiveSec> or
+C<OnUnitInactiveSec> and ending the time
+configured with C<AccuracySec> later. Within
+this time window, the expiry time will be placed at a
+host-specific, randomized but stable position that is
+synchronized between all local timer units. This is done in
+order to distribute the wake-up time in networked
+installations, as well as optimizing power consumption to
+suppress unnecessary CPU wake-ups. To get best accuracy, set
+this option to 1us. Note that the timer is still subject to
+the timer slack configured via
+L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd-system.conf&C<sektion>5&C<manpath>Debian+unstable+sid">\'s
+C<TimerSlackNSec> setting. See
+L<prctl(2)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>prctl&C<sektion>2&C<manpath>Debian+unstable+sid">
+for details. To optimize power consumption, make sure to set
+this value as high as possible and as low as
+necessary.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'Unit',
+      {
+        'description' => 'The unit to activate when this timer elapses.
+The argument is a unit name, whose suffix is not
+C<.timer>. If not specified, this value
+defaults to a service that has the same name as the timer
+unit, except for the suffix. (See above.) It is recommended
+that the unit name that is activated and the unit name of the
+timer unit are named identically, except for the
+suffix.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'Persistent',
+      {
+        'description' => 'Takes a boolean argument. If true, the time
+when the service unit was last triggered is stored on disk.
+When the timer is activated, the service unit is triggered
+immediately if it would have been triggered at least once
+during the time when the timer was inactive. This is useful to
+catch up on missed runs of the service when the machine was
+off. Note that this setting only has an effect on timers
+configured with C<OnCalendar>.
+',
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      },
+      'WakeSystem',
+      {
+        'description' => 'Takes a boolean argument. If true, an elapsing
+timer will cause the system to resume from suspend, should it
+be suspended and if the system supports this. Note that this
+option will only make sure the system resumes on the
+appropriate times, it will not take care of suspending it
+again after any work that is to be done is finished. Defaults
+to false.',
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      },
+      'RemainAfterExit',
+      {
+        'description' => 'Takes a boolean argument. If true, an elapsed
+timer will stay loaded, and its state remains
+queriable. Defaults to
+yes.',
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      }
+    ],
+    'generated_by' => 'systemd parse-man.pl',
+    'license' => 'LGPLv2.1+',
+    'name' => 'Systemd::Section::Timer'
+  }
+]
+;
+

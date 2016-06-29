@@ -18,6 +18,15 @@
         },
         'index_type' => 'string',
         'type' => 'hash'
+      },
+      'timer',
+      {
+        'cargo' => {
+          'config_class_name' => 'Systemd::Timer',
+          'type' => 'node'
+        },
+        'index_type' => 'string',
+        'type' => 'hash'
       }
     ],
     'name' => 'Systemd',
