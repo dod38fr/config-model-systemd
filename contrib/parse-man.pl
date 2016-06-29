@@ -261,7 +261,44 @@ $meta_root->load(
                                  choice=0,1,2,3,none,realtime,best-effort,idle'
 );
 
+foreach my $service (@service_list) {
+    my $name = ucfirst($service);
+    my $class = 'Systemd::'.( $map{$name} || 'Section::'.ucfirst($name));
 
+    # create class that hold the service created by parsing man page
+    $meta_root->load(
+        qq!
+        class:Systemd::$name
+          element:$name
+            type=warped_node
+            follow:disable="- disable"
+            config_class_name=$class
+            rules:\$disable
+              level=hidden - -
+          include:=Systemd::CommonElements
+          read_config:0
+            backend=Systemd::Unit
+            file=&index.$service
+            auto_delete=1
+            auto_create=1 -
+          accept:".*"
+            type=leaf
+            value_type=uniline
+            warn="Unknown parameter" - -!
+    );
+
+    # Link the class above to base Systemd class
+    $meta_root->load(
+        qq!
+        class:Systemd
+          element:$service
+            type=hash
+            index_type=string
+            cargo
+              type=node
+              config_class_name=Systemd::$name - - !
+    );
+}
 
 say "Saving systemd model...";
 $rw_obj->write_all;
