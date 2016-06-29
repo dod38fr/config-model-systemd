@@ -15,7 +15,7 @@ use Getopt::Long;
 use experimental qw/postderef signatures/ ;
 
 # default class name is Systemd::Section::ucfirst($item)
-my @service_list = qw/service socket/;
+my @service_list = qw/service socket timer/;
 my @list = qw/exec kill resource-control unit/;
 
 # Override the default class name
