@@ -271,10 +271,11 @@ foreach my $service (@service_list) {
         class:Systemd::$name
           element:$name
             type=warped_node
-            follow:disable="- disable"
             config_class_name=$class
-            rules:\$disable
-              level=hidden - -
+            warp
+              follow:disable="- disable"
+              rules:\$disable
+                level=hidden - - -
           include:=Systemd::CommonElements
           read_config:0
             backend=Systemd::Unit
