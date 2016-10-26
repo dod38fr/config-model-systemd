@@ -95,8 +95,9 @@ systemd will proceed with starting follow-up units after this
 notification message has been sent. If this option is used,
 C<NotifyAccess> (see below) should be set to
 open access to the notification socket provided by systemd. If
-C<NotifyAccess> is not set, it will be
-implicitly set to main. Note that currently
+C<NotifyAccess> is missing or set to
+none, it will be forcibly set to
+main. Note that currently
 C<Type>notify will not work
 if used in combination with
 C<PrivateNetwork>yes.Behavior of idle is very similar to
@@ -162,36 +163,6 @@ dbus.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
-      'BusPolicy',
-      {
-        'description' => 'If specified, a custom kdbus
-endpoint will be created and installed as the default bus node
-for the service. Such a custom endpoint can hold an own set of
-policy rules that are enforced on top of the bus-wide ones.
-The custom endpoint is named after the service it was created
-for, and its node will be bind-mounted over the default bus
-node location, so the service can only access the bus through
-its own endpoint. Note that custom bus endpoints default to a
-"deny all" policy. Hence, if at least one
-C<BusPolicy> directive is given, you have to
-make sure to add explicit rules for everything the service
-should be able to do.The value of this directive is comprised
-of two parts; the bus name, and a verb to
-specify to granted access, which is one of
-see,
-talk, or
-own.
-talk implies
-see, and own
-implies both talk and
-see.
-If multiple access levels are specified for the
-same bus name, the most powerful one takes
-effect.
-Examples:C<BusPolicy>org.freedesktop.systemd1 C<talkBusPolicy>org.foo.bar seeThis option is only available on kdbus enabled systems.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
       'ExecStart',
       {
         'cargo' => {
@@ -212,17 +183,14 @@ with the same effect. If the empty string is assigned to this
 option, the list of commands to start is reset, prior
 assignments of this option will have no effect. If no
 C<ExecStart> is specified, then the service
-must have C<RemainAfterExit>yes set.For each of the specified commands, the first argument
-must be an absolute path to an executable. Optionally, if this
-file name is prefixed with C<@>, the second
-token will be passed as C<argv[0]> to the
-executed process, followed by the further arguments specified.
-If the absolute filename is prefixed with
-C<->, an exit code of the command normally
-considered a failure (i.e. non-zero exit status or abnormal
-exit due to signal) is ignored and considered success. If both
-C<-> and C<@> are used, they
-can appear in either order.If more than one command is specified, the commands are
+must have C<RemainAfterExit>yes set.For each of the specified commands, the first argument must be an absolute path to an
+executable. Optionally, if this file name is prefixed with C<@>, the second token will be
+passed as C<argv[0]> to the executed process, followed by the further arguments specified.  If
+the absolute filename is prefixed with C<->, an exit code of the command normally considered a
+failure (i.e. non-zero exit status or abnormal exit due to signal) is ignored and considered success.  If the
+absolute path is prefixed with C<+> then it is executed with full
+privileges. C<->, C<@>, and C<+> may be used together and they
+can appear in any order.If more than one command is specified, the commands are
 invoked sequentially in the order they appear in the unit
 file. If one of the commands fails (and is not prefixed with
 C<->), other lines are not executed, and the
@@ -247,7 +215,7 @@ C<->) fail, the rest are not executed and the
 unit is considered failed.C<ExecStart> commands are only run after
 all C<ExecStartPre> commands that were not prefixed
 with a C<-> exit successfully.C<ExecStartPost> commands are only run after
-the service has started, as determined by C<Type>
+the service has started successfully, as determined by C<Type>
 (i.e. the process has been started for C<Type>simple
 or C<Type>idle, the process exits successfully for
 C<Type>oneshot, the initial process exits successfully
@@ -256,7 +224,10 @@ for C<Type>notify, or the C<BusName>
 has been taken for C<Type>dbus).Note that C<ExecStartPre> may not be
 used to start long-running processes. All processes forked
 off by processes invoked via C<ExecStartPre> will
-be killed before the next service process is run.',
+be killed before the next service process is run.Note that if any of the commands specified in C<ExecStartPre>,
+C<ExecStart>, or C<ExecStartPost> fail (and are not prefixed with
+C<->, see above) or time out before the service is fully up, execution continues with commands
+specified in C<ExecStopPost>, the commands in C<ExecStop> are skipped.',
         'type' => 'list'
       },
       'ExecStartPost',
@@ -275,7 +246,7 @@ C<->) fail, the rest are not executed and the
 unit is considered failed.C<ExecStart> commands are only run after
 all C<ExecStartPre> commands that were not prefixed
 with a C<-> exit successfully.C<ExecStartPost> commands are only run after
-the service has started, as determined by C<Type>
+the service has started successfully, as determined by C<Type>
 (i.e. the process has been started for C<Type>simple
 or C<Type>idle, the process exits successfully for
 C<Type>oneshot, the initial process exits successfully
@@ -284,7 +255,10 @@ for C<Type>notify, or the C<BusName>
 has been taken for C<Type>dbus).Note that C<ExecStartPre> may not be
 used to start long-running processes. All processes forked
 off by processes invoked via C<ExecStartPre> will
-be killed before the next service process is run.',
+be killed before the next service process is run.Note that if any of the commands specified in C<ExecStartPre>,
+C<ExecStart>, or C<ExecStartPost> fail (and are not prefixed with
+C<->, see above) or time out before the service is fully up, execution continues with commands
+specified in C<ExecStopPost>, the commands in C<ExecStop> are skipped.',
         'type' => 'list'
       },
       'ExecReload',
@@ -338,7 +312,15 @@ remaining processes of the services are killed using
 SIGKILL immediately after the command
 exited, this would not result in a clean stop. The specified
 command should hence be a synchronous operation, not an
-asynchronous one.',
+asynchronous one.Note that the commands specified in C<ExecStop> are only executed when the service
+started successfully first. They are not invoked if the service was never started at all, or in case its
+start-up failed, for example because any of the commands specified in C<ExecStart>,
+C<ExecStartPre> or C<ExecStartPost> failed (and weren\'t prefixed with
+C<->, see above) or timed out. Use C<ExecStopPost> to invoke commands when a
+service failed to start up correctly and is shut down again.It is recommended to use this setting for commands that communicate with the service requesting clean
+termination. When the commands specified with this option are executed it should be assumed that the service is
+still fully up and is able to react correctly to all commands. For post-mortem clean-up steps use
+C<ExecStopPost> instead.',
         'type' => 'list'
       },
       'ExecStopPost',
@@ -347,16 +329,17 @@ asynchronous one.',
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => 'Additional commands that are executed after
-the service was stopped. This includes cases where the
-commands configured in C<ExecStop> were used,
-where the service does not have any
-C<ExecStop> defined, or where the service
-exited unexpectedly. This argument takes multiple command
-lines, following the same scheme as described for
-C<ExecStart>. Use of these settings is
-optional. Specifier and environment variable substitution is
-supported.',
+        'description' => "Additional commands that are executed after the service is stopped. This includes cases where
+the commands configured in C<ExecStop> were used, where the service does not have any
+C<ExecStop> defined, or where the service exited unexpectedly. This argument takes multiple
+command lines, following the same scheme as described for C<ExecStart>. Use of these settings
+is optional. Specifier and environment variable substitution is supported. Note that \x{2013} unlike
+C<ExecStop> \x{2013} commands specified with this setting are invoked when a service failed to start
+up correctly and is shut down again.It is recommended to use this setting for clean-up operations that shall be executed even when the
+service failed to start up correctly. Commands configured with this setting need to be able to operate even if
+the service failed starting up half-way and left incompletely initialized data around. As the service's
+processes have been terminated already when the commands specified with this setting are executed they should
+not attempt to communicate with them.",
         'type' => 'list'
       },
       'RestartSec',
@@ -375,7 +358,7 @@ daemon service does not signal start-up completion within the
 configured time, the service will be considered failed and
 will be shut down again. Takes a unit-less value in seconds,
 or a time span value such as "5min 20s". Pass
-C<0> to disable the timeout logic. Defaults to
+C<infinity> to disable the timeout logic. Defaults to
 C<DefaultTimeoutStartSec> from the manager
 configuration file, except when
 C<Type>oneshot is used, in which case the
@@ -395,7 +378,7 @@ equal duration with SIGKILL (see
 C<KillMode> in
 L<systemd.kill(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.kill&C<sektion>5&C<manpath>Debian+unstable+sid">).
 Takes a unit-less value in seconds, or a time span value such
-as "5min 20s". Pass C<0> to disable the
+as "5min 20s". Pass C<infinity> to disable the
 timeout logic. Defaults to
 C<DefaultTimeoutStopSec> from the manager
 configuration file (see
@@ -413,6 +396,16 @@ C<TimeoutStopSec> to the specified value.
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
+      'RuntimeMaxSec',
+      {
+        'description' => 'Configures a maximum time for the service to run. If this is used and the service has been
+active for longer than the specified time it is terminated and put into a failure state. Note that this setting
+does not have any effect on C<Type>oneshot services, as they terminate immediately after
+activation completed. Pass C<infinity> (the default) to configure no runtime
+limit.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'WatchdogSec',
       {
         'description' => 'Configures the watchdog timeout for a service.
@@ -424,7 +417,8 @@ regularly with C<C<WATCHDOG>1> (i.e. the
 larger than the configured time, then the service is placed in
 a failed state and it will be terminated with
 SIGABRT. By setting
-C<Restart> to on-failure or
+C<Restart> to on-failure,
+on-watchdog, on-abnormal or
 always, the service will be automatically
 restarted. The time configured here will be passed to the
 executed service process in the
@@ -440,6 +434,8 @@ check whether the service manager expects watchdog keep-alive
 notifications. See
 L<sd_watchdog_enabled(3)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>sd_watchdog_enabled&C<sektion>3&C<manpath>Debian+unstable+sid">
 for details.
+L<sd_event_set_watchdog(3)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>sd_event_set_watchdog&C<sektion>3&C<manpath>Debian+unstable+sid">
+may be used to enable automatic watchdog notification support.
 ',
         'type' => 'leaf',
         'value_type' => 'uniline'
@@ -527,8 +523,8 @@ SIGINT, SIGTERM, and
 SIGPIPE. Exit status definitions can
 either be numeric exit codes or termination signal names,
 separated by spaces. For example:
-C<SuccessExitStatus>1 2 8
-SIGKILL ensures that exit codes 1, 2, 8 and
+C<SuccessExitStatus>1 2 8 SIGKILL
+ensures that exit codes 1, 2, 8 and
 the termination signal SIGKILL are
 considered clean service terminations.
 Note that if a process has a signal handler installed
@@ -557,14 +553,14 @@ definitions can either be numeric exit codes or termination
 signal names, and are separated by spaces. Defaults to the
 empty list, so that, by default, no exit status is excluded
 from the configured restart logic. For example:
-C<RestartPreventExitStatus>1 6
-SIGABRT ensures that exit codes 1 and 6 and
-the termination signal SIGABRT will not
-result in automatic service restarting. This option may appear
-more than once, in which case the list of restart-preventing
-statuses is merged. If the empty string is assigned to this
-option, the list is reset and all prior assignments of this
-option will have no effect.',
+C<RestartPreventExitStatus>1 6 SIGABRT
+ensures that exit codes 1 and 6 and the termination signal
+SIGABRT will not result in automatic
+service restarting. This option may appear more than once, in
+which case the list of restart-preventing statuses is
+merged. If the empty string is assigned to this option, the
+list is reset and all prior assignments of this option will
+have no effect.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -688,126 +684,12 @@ effect.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
-      'StartLimitInterval',
-      {
-        'description' => 'Configure service start rate limiting. By
-default, services which are started more than 5 times within
-10 seconds are not permitted to start any more times until the
-10 second interval ends. With these two options, this rate
-limiting may be modified. Use
-C<StartLimitInterval> to configure the
-checking interval (defaults to
-C<DefaultStartLimitInterval> in manager
-configuration file, set to 0 to disable any kind of rate
-limiting). Use C<StartLimitBurst> to
-configure how many starts per interval are allowed (defaults
-to C<DefaultStartLimitBurst> in manager
-configuration file). These configuration options are
-particularly useful in conjunction with
-C<Restart>; however, they apply to all kinds
-of starts (including manual), not just those triggered by the
-C<Restart> logic. Note that units which are
-configured for C<Restart> and which reach the
-start limit are not attempted to be restarted anymore;
-however, they may still be restarted manually at a later
-point, from which point on, the restart logic is again
-activated. Note that systemctl reset-failed
-will cause the restart rate counter for a service to be
-flushed, which is useful if the administrator wants to
-manually start a service and the start limit interferes with
-that.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
-      'StartLimitBurst',
-      {
-        'description' => 'Configure service start rate limiting. By
-default, services which are started more than 5 times within
-10 seconds are not permitted to start any more times until the
-10 second interval ends. With these two options, this rate
-limiting may be modified. Use
-C<StartLimitInterval> to configure the
-checking interval (defaults to
-C<DefaultStartLimitInterval> in manager
-configuration file, set to 0 to disable any kind of rate
-limiting). Use C<StartLimitBurst> to
-configure how many starts per interval are allowed (defaults
-to C<DefaultStartLimitBurst> in manager
-configuration file). These configuration options are
-particularly useful in conjunction with
-C<Restart>; however, they apply to all kinds
-of starts (including manual), not just those triggered by the
-C<Restart> logic. Note that units which are
-configured for C<Restart> and which reach the
-start limit are not attempted to be restarted anymore;
-however, they may still be restarted manually at a later
-point, from which point on, the restart logic is again
-activated. Note that systemctl reset-failed
-will cause the restart rate counter for a service to be
-flushed, which is useful if the administrator wants to
-manually start a service and the start limit interferes with
-that.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
-      'StartLimitAction',
-      {
-        'choice' => [
-          'none',
-          'reboot',
-          'reboot-force',
-          'reboot-immediate',
-          'poweroff',
-          'poweroff-force',
-          'poweroff-immediate'
-        ],
-        'description' => 'Configure the action to take if the rate limit
-configured with C<StartLimitInterval> and
-C<StartLimitBurst> is hit. Takes one of
-none,
-reboot,
-reboot-force,
-reboot-immediate,
-poweroff,
-poweroff-force or
-poweroff-immediate. If
-none is set, hitting the rate limit will
-trigger no action besides that the start will not be
-permitted. reboot causes a reboot following
-the normal shutdown procedure (i.e. equivalent to
-systemctl reboot).
-reboot-force causes a forced reboot which
-will terminate all processes forcibly but should cause no
-dirty file systems on reboot (i.e. equivalent to
-systemctl reboot -f) and
-reboot-immediate causes immediate execution
-of the
-L<reboot(2)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>reboot&C<sektion>2&C<manpath>Debian+unstable+sid">
-system call, which might result in data loss. Similarly,
-poweroff, poweroff-force,
-poweroff-immediate have the effect of
-powering down the system with similar semantics. Defaults to
-none.',
-        'type' => 'leaf',
-        'value_type' => 'enum'
-      },
       'FailureAction',
       {
-        'description' => 'Configure the action to take when the service
-enters a failed state. Takes the same values as
-C<StartLimitAction> and executes the same
-actions. Defaults to none. ',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
-      'RebootArgument',
-      {
-        'description' => 'Configure the optional argument for the
-L<reboot(2)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>reboot&C<sektion>2&C<manpath>Debian+unstable+sid">
-system call if C<StartLimitAction> or
-C<FailureAction> is a reboot action. This
-works just like the optional argument to systemctl
-reboot command.',
+        'description' => 'Configure the action to take when the service enters a failed state. Takes the same values as
+the unit setting C<StartLimitAction> and executes the same actions (see
+L<systemd.unit(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.unit&C<sektion>5&C<manpath>Debian+unstable+sid">). Defaults to
+none. ',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -854,7 +736,7 @@ above.',
         'value_type' => 'uniline'
       }
     ],
-    'generated_by' => 'systemd parse-man.pl',
+    'generated_by' => 'parse-man.pl from systemd doc',
     'include' => [
       'Systemd::Common::ResourceControl',
       'Systemd::Common::Exec',

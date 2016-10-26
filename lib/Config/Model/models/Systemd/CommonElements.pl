@@ -14,30 +14,34 @@ See L<systemd-system.conf> for details.',
       'Unit',
       {
         'config_class_name' => 'Systemd::Section::Unit',
-        'follow' => {
-          'disable' => '- disable'
-        },
-        'rules' => [
-          '$disable',
-          {
-            'level' => 'hidden'
-          }
-        ],
-        'type' => 'warped_node'
+        'type' => 'warped_node',
+        'warp' => {
+          'follow' => {
+            'disable' => '- disable'
+          },
+          'rules' => [
+            '$disable',
+            {
+              'level' => 'hidden'
+            }
+          ]
+        }
       },
       'Install',
       {
         'config_class_name' => 'Systemd::Section::Install',
-        'follow' => {
-          'disable' => '- disable'
-        },
-        'rules' => [
-          '$disable',
-          {
-            'level' => 'hidden'
-          }
-        ],
-        'type' => 'warped_node'
+        'type' => 'warped_node',
+        'warp' => {
+          'follow' => {
+            'disable' => '- disable'
+          },
+          'rules' => [
+            '$disable',
+            {
+              'level' => 'hidden'
+            }
+          ]
+        }
       }
     ],
     'name' => 'Systemd::CommonElements'

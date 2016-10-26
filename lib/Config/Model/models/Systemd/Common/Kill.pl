@@ -117,7 +117,7 @@ the service around. Takes a boolean value. Defaults to "yes".
         ]
       }
     ],
-    'generated_by' => 'systemd parse-man.pl',
+    'generated_by' => 'parse-man.pl from systemd doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Common::Kill'
   }

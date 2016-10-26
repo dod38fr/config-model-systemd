@@ -47,16 +47,12 @@ Accept=false is set. If
 Accept=true is set, a service template file
 foo@.service must exist from which services
 are instantiated for each incoming connection.
-Unless DefaultDependencies= is set to
-false, socket units will implicitly have
-dependencies of type Requires= and
-After= on sysinit.target
-as well as dependencies of type Conflicts= and
-Before= on
-shutdown.target. These ensure that socket
-units pull in basic system initialization, and are terminated
-cleanly prior to system shutdown. Only sockets involved with early
-boot or late system shutdown should disable this option.
+Unless DefaultDependencies= in the C<[Unit]> section is set to
+false, socket units will implicitly have dependencies of type Requires= and
+After= on sysinit.target as well as dependencies of type
+Conflicts= and Before= on shutdown.target. These ensure
+that socket units pull in basic system initialization, and are terminated cleanly prior to system shutdown. Only
+sockets involved with early boot or late system shutdown should disable this option.
 Socket units will have a Before=
 dependency on the service which they trigger added implicitly. No
 implicit WantedBy= or
@@ -310,6 +306,15 @@ activated service has to have the
 C<USBFunctionDescriptors> and
 C<USBFunctionStrings> options set.
 ',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'SocketProtocol',
+      {
+        'description' => 'Takes a one of udplite
+or sctp. Specifies a socket protocol
+(IPPROTO_UDPLITE) UDP-Lite
+(IPPROTO_SCTP) SCTP socket respectively. ',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -952,9 +957,41 @@ socket unit, including its .socket
 suffix.',
         'type' => 'leaf',
         'value_type' => 'uniline'
+      },
+      'TriggerLimitIntervalSec',
+      {
+        'description' => "Configures a limit on how often this socket unit my be activated within a specific time
+interval. The C<TriggerLimitIntervalSec> may be used to configure the length of the time
+interval in the usual time units C<us>, C<ms>, C<s>,
+C<min>, C<h>, \x{2026} and defaults to 2s (See
+L<systemd.time(7)|\"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid\"> for details on
+the various time units understood). The C<TriggerLimitBurst> setting takes a positive integer
+value and specifies the number of permitted activations per time interval, and defaults to 200 for
+C<Accept>yes sockets (thus by default permitting 200 activations per 2s), and 20 otherwise (20
+activations per 2s). Set either to 0 to disable any form of trigger rate limiting. If the limit is hit, the
+socket unit is placed into a failure mode, and will not be connectible anymore until restarted. Note that this
+limit is enforced before the service activation is enqueued.",
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'TriggerLimitBurst',
+      {
+        'description' => "Configures a limit on how often this socket unit my be activated within a specific time
+interval. The C<TriggerLimitIntervalSec> may be used to configure the length of the time
+interval in the usual time units C<us>, C<ms>, C<s>,
+C<min>, C<h>, \x{2026} and defaults to 2s (See
+L<systemd.time(7)|\"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid\"> for details on
+the various time units understood). The C<TriggerLimitBurst> setting takes a positive integer
+value and specifies the number of permitted activations per time interval, and defaults to 200 for
+C<Accept>yes sockets (thus by default permitting 200 activations per 2s), and 20 otherwise (20
+activations per 2s). Set either to 0 to disable any form of trigger rate limiting. If the limit is hit, the
+socket unit is placed into a failure mode, and will not be connectible anymore until restarted. Note that this
+limit is enforced before the service activation is enqueued.",
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       }
     ],
-    'generated_by' => 'systemd parse-man.pl',
+    'generated_by' => 'parse-man.pl from systemd doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Section::Socket'
   }

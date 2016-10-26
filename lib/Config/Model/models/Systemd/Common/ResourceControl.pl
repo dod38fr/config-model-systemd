@@ -129,19 +129,58 @@ L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>sy
           'yes'
         ]
       },
+      'MemoryLow',
+      {
+        'description' => 'Specify the best-effort memory usage protection of the executed processes in this unit. If the memory
+usages of this unit and all its ancestors are below their low boundaries, this unit\'s memory won\'t be
+reclaimed as long as memory can be reclaimed from unprotected units.Takes a memory size in bytes. If the value is suffixed with K, M, G or T, the specified memory size is
+parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes (with the base 1024), respectively. Alternatively, a
+percentage value may be specified, which is taken relative to the installed physical memory on the
+system. This controls the C<memory.low> control group attribute. For details about this
+control group attribute, see cgroup-v2.txt.Implies C<C<MemoryAccounting>true>.This setting is supported only if the unified control group hierarchy is used.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'MemoryHigh',
+      {
+        'description' => 'Specify the high limit on memory usage of the executed processes in this unit. Memory usage may go
+above the limit if unavoidable, but the processes are heavily slowed down and memory is taken away
+aggressively in such cases. This is the main mechanism to control memory usage of a unit.Takes a memory size in bytes. If the value is suffixed with K, M, G or T, the specified memory size is
+parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes (with the base 1024), respectively. Alternatively, a
+percentage value may be specified, which is taken relative to the installed physical memory on the
+system. If assigned the
+special value C<infinity>, no memory limit is applied. This controls the
+C<memory.high> control group attribute. For details about this control group attribute, see
+cgroup-v2.txt.Implies C<C<MemoryAccounting>true>.This setting is supported only if the unified control group hierarchy is used.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'MemoryMax',
+      {
+        'description' => 'Specify the absolute limit on memory usage of the executed processes in this unit. If memory usage
+cannot be contained under the limit, out-of-memory killer is invoked inside the unit. It is recommended to
+use C<MemoryHigh> as the main control mechanism and use C<MemoryMax> as the
+last line of defense.Takes a memory size in bytes. If the value is suffixed with K, M, G or T, the specified memory size is
+parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes (with the base 1024), respectively. Alternatively, a
+percentage value may be specified, which is taken relative to the installed physical memory on the system. If
+assigned the special value C<infinity>, no memory limit is applied. This controls the
+C<memory.max> control group attribute. For details about this control group attribute, see
+cgroup-v2.txt.Implies C<C<MemoryAccounting>true>.This setting is supported only if the unified control group hierarchy is used. Use
+C<MemoryLimit> on systems using the legacy control group hierarchy.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'MemoryLimit',
       {
-        'description' => 'Specify the limit on maximum memory usage of the
-executed processes. The limit specifies how much process and
-kernel memory can be used by tasks in this unit. Takes a
-memory size in bytes. If the value is suffixed with K, M, G
-or T, the specified memory size is parsed as Kilobytes,
-Megabytes, Gigabytes, or Terabytes (with the base 1024),
-respectively. If assigned the special value
-C<infinity>, no memory limit is applied. This
-controls the C<memory.limit_in_bytes>
-control group attribute. For details about this control
-group attribute, see memory.txt.Implies C<C<MemoryAccounting>true>.',
+        'description' => 'Specify the limit on maximum memory usage of the executed processes. The limit specifies how much
+process and kernel memory can be used by tasks in this unit. Takes a memory size in bytes. If the value is
+suffixed with K, M, G or T, the specified memory size is parsed as Kilobytes, Megabytes, Gigabytes, or
+Terabytes (with the base 1024), respectively. Alternatively, a percentage value may be specified, which is
+taken relative to the installed physical memory on the system. If assigned the special value
+C<infinity>, no memory limit is applied. This controls the
+C<memory.limit_in_bytes> control group attribute. For details about this control group
+attribute, see memory.txt.Implies C<C<MemoryAccounting>true>.This setting is supported only if the legacy control group hierarchy is used. Use
+C<MemoryMax> on systems using the unified control group hierarchy.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -168,30 +207,156 @@ L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>sy
       },
       'TasksMax',
       {
-        'description' => 'Specify the maximum number of tasks that may be
-created in the unit. This ensures that the number of tasks
-accounted for the unit (see above) stays below a specific
-limit. If assigned the special value
-C<infinity>, no tasks limit is applied. This
-controls the C<pids.max> control group
-attribute. For details about this control group attribute,
-see pids.txt.Implies C<C<TasksAccounting>true>. The
+        'description' => 'Specify the maximum number of tasks that may be created in the unit. This ensures that the number of
+tasks accounted for the unit (see above) stays below a specific limit. This either takes an absolute number
+of tasks or a percentage value that is taken relative to the configured maximum number of tasks on the
+system.  If assigned the special value C<infinity>, no tasks limit is applied. This controls
+the C<pids.max> control group attribute. For details about this control group attribute, see
+pids.txt.Implies C<C<TasksAccounting>true>. The
 system default for this setting may be controlled with
 C<DefaultTasksMax> in
 L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd-system.conf&C<sektion>5&C<manpath>Debian+unstable+sid">.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
+      'IOAccounting',
+      {
+        'description' => 'Turn on Block I/O accounting for this unit, if the unified control group hierarchy is used on the
+system. Takes a boolean argument. Note that turning on block I/O accounting for one unit will also implicitly
+turn it on for all units contained in the same slice and all for its parent slices and the units contained
+therein. The system default for this setting may be controlled with C<DefaultIOAccounting>
+in
+L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd-system.conf&C<sektion>5&C<manpath>Debian+unstable+sid">.This setting is supported only if the unified control group hierarchy is used. Use
+C<BlockIOAccounting> on systems using the legacy control group hierarchy.',
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      },
+      'IOWeight',
+      {
+        'description' => 'Set the default overall block I/O weight for the executed processes, if the unified control group
+hierarchy is used on the system. Takes a single weight value (between 1 and 10000) to set the default block
+I/O weight. This controls the C<io.weight> control group attribute, which defaults to
+100. For details about this control group attribute, see cgroup-v2.txt.  The available I/O
+bandwidth is split up among all units within one slice relative to their block I/O weight.While C<StartupIOWeight> only applies
+to the startup phase of the system,
+C<IOWeight> applies to the later runtime of
+the system, and if the former is not set also to the startup
+phase. This allows prioritizing specific services at boot-up
+differently than during runtime.Implies C<C<IOAccounting>true>.This setting is supported only if the unified control group hierarchy is used. Use
+C<BlockIOWeight> and C<StartupBlockIOWeight> on systems using the legacy
+control group hierarchy.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'StartupIOWeight',
+      {
+        'description' => 'Set the default overall block I/O weight for the executed processes, if the unified control group
+hierarchy is used on the system. Takes a single weight value (between 1 and 10000) to set the default block
+I/O weight. This controls the C<io.weight> control group attribute, which defaults to
+100. For details about this control group attribute, see cgroup-v2.txt.  The available I/O
+bandwidth is split up among all units within one slice relative to their block I/O weight.While C<StartupIOWeight> only applies
+to the startup phase of the system,
+C<IOWeight> applies to the later runtime of
+the system, and if the former is not set also to the startup
+phase. This allows prioritizing specific services at boot-up
+differently than during runtime.Implies C<C<IOAccounting>true>.This setting is supported only if the unified control group hierarchy is used. Use
+C<BlockIOWeight> and C<StartupBlockIOWeight> on systems using the legacy
+control group hierarchy.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'IODeviceWeight',
+      {
+        'description' => 'Set the per-device overall block I/O weight for the executed processes, if the unified control group
+hierarchy is used on the system. Takes a space-separated pair of a file path and a weight value to specify
+the device specific weight value, between 1 and 10000. (Example: "/dev/sda 1000"). The file path may be
+specified as path to a block device node or as any other file, in which case the backing block device of the
+file system of the file is determined. This controls the C<io.weight> control group
+attribute, which defaults to 100. Use this option multiple times to set weights for multiple devices. For
+details about this control group attribute, see cgroup-v2.txt.Implies C<C<IOAccounting>true>.This setting is supported only if the unified control group hierarchy is used. Use
+C<BlockIODeviceWeight> on systems using the legacy control group hierarchy.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'IOReadBandwidthMax',
+      {
+        'description' => 'Set the per-device overall block I/O bandwidth maximum limit for the executed processes, if the unified
+control group hierarchy is used on the system. This limit is not work-conserving and the executed processes
+are not allowed to use more even if the device has idle capacity.  Takes a space-separated pair of a file
+path and a bandwidth value (in bytes per second) to specify the device specific bandwidth. The file path may
+be a path to a block device node, or as any other file in which case the backing block device of the file
+system of the file is used. If the bandwidth is suffixed with K, M, G, or T, the specified bandwidth is
+parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes, respectively, to the base of 1000. (Example:
+"/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This controls the C<io.max> control
+group attributes. Use this option multiple times to set bandwidth limits for multiple devices. For details
+about this control group attribute, see cgroup-v2.txt.
+Implies C<C<IOAccounting>true>.This setting is supported only if the unified control group hierarchy is used. Use
+C<BlockIOAccounting> on systems using the legacy control group hierarchy.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'IOWriteBandwidthMax',
+      {
+        'description' => 'Set the per-device overall block I/O bandwidth maximum limit for the executed processes, if the unified
+control group hierarchy is used on the system. This limit is not work-conserving and the executed processes
+are not allowed to use more even if the device has idle capacity.  Takes a space-separated pair of a file
+path and a bandwidth value (in bytes per second) to specify the device specific bandwidth. The file path may
+be a path to a block device node, or as any other file in which case the backing block device of the file
+system of the file is used. If the bandwidth is suffixed with K, M, G, or T, the specified bandwidth is
+parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes, respectively, to the base of 1000. (Example:
+"/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This controls the C<io.max> control
+group attributes. Use this option multiple times to set bandwidth limits for multiple devices. For details
+about this control group attribute, see cgroup-v2.txt.
+Implies C<C<IOAccounting>true>.This setting is supported only if the unified control group hierarchy is used. Use
+C<BlockIOAccounting> on systems using the legacy control group hierarchy.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'IOReadIOPSMax',
+      {
+        'description' => 'Set the per-device overall block I/O IOs-Per-Second maximum limit for the executed processes, if the
+unified control group hierarchy is used on the system. This limit is not work-conserving and the executed
+processes are not allowed to use more even if the device has idle capacity.  Takes a space-separated pair of
+a file path and an IOPS value to specify the device specific IOPS. The file path may be a path to a block
+device node, or as any other file in which case the backing block device of the file system of the file is
+used. If the IOPS is suffixed with K, M, G, or T, the specified IOPS is parsed as KiloIOPS, MegaIOPS,
+GigaIOPS, or TeraIOPS, respectively, to the base of 1000. (Example:
+"/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 1K"). This controls the C<io.max> control
+group attributes. Use this option multiple times to set IOPS limits for multiple devices. For details about
+this control group attribute, see cgroup-v2.txt.
+Implies C<C<IOAccounting>true>.This setting is supported only if the unified control group hierarchy is used.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'IOWriteIOPSMax',
+      {
+        'description' => 'Set the per-device overall block I/O IOs-Per-Second maximum limit for the executed processes, if the
+unified control group hierarchy is used on the system. This limit is not work-conserving and the executed
+processes are not allowed to use more even if the device has idle capacity.  Takes a space-separated pair of
+a file path and an IOPS value to specify the device specific IOPS. The file path may be a path to a block
+device node, or as any other file in which case the backing block device of the file system of the file is
+used. If the IOPS is suffixed with K, M, G, or T, the specified IOPS is parsed as KiloIOPS, MegaIOPS,
+GigaIOPS, or TeraIOPS, respectively, to the base of 1000. (Example:
+"/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 1K"). This controls the C<io.max> control
+group attributes. Use this option multiple times to set IOPS limits for multiple devices. For details about
+this control group attribute, see cgroup-v2.txt.
+Implies C<C<IOAccounting>true>.This setting is supported only if the unified control group hierarchy is used.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'BlockIOAccounting',
       {
-        'description' => 'Turn on Block I/O accounting for this unit. Takes a
-boolean argument. Note that turning on block I/O accounting
-for one unit will also implicitly turn it on for all units
-contained in the same slice and all for its parent slices
-and the units contained therein. The system default for this
-setting may be controlled with
+        'description' => 'Turn on Block I/O accounting for this unit, if the legacy control group hierarchy is used on the
+system. Takes a boolean argument. Note that turning on block I/O accounting for one unit will also implicitly
+turn it on for all units contained in the same slice and all for its parent slices and the units contained
+therein. The system default for this setting may be controlled with
 C<DefaultBlockIOAccounting> in
-L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd-system.conf&C<sektion>5&C<manpath>Debian+unstable+sid">.',
+L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd-system.conf&C<sektion>5&C<manpath>Debian+unstable+sid">.This setting is supported only if the legacy control group hierarchy is used. Use
+C<IOAccounting> on systems using the unified control group hierarchy.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -201,103 +366,91 @@ L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>sy
       },
       'BlockIOWeight',
       {
-        'description' => 'Set the default overall block I/O weight for
-the executed processes. Takes a single weight value (between
-10 and 1000) to set the default block I/O weight. This controls
-the C<blkio.weight> control group attribute,
-which defaults to 500. For details about this control group
-attribute, see blkio-controller.txt.
-The available I/O bandwidth is split up among all units within
-one slice relative to their block I/O weight.While C<StartupBlockIOWeight> only
+        'description' => 'Set the default overall block I/O weight for the executed processes, if the legacy control
+group hierarchy is used on the system. Takes a single weight value (between 10 and 1000) to set the default
+block I/O weight. This controls the C<blkio.weight> control group attribute, which defaults to
+500. For details about this control group attribute, see blkio-controller.txt.
+The available I/O bandwidth is split up among all units within one slice relative to their block I/O
+weight.While C<StartupBlockIOWeight> only
 applies to the startup phase of the system,
 C<BlockIOWeight> applies to the later runtime
 of the system, and if the former is not set also to the
 startup phase. This allows prioritizing specific services at
 boot-up differently than during runtime.Implies
-C<C<BlockIOAccounting>true>.',
+C<C<BlockIOAccounting>true>.This setting is supported only if the legacy control group hierarchy is used. Use
+C<IOWeight> and C<StartupIOWeight> on systems using the unified control group
+hierarchy.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'StartupBlockIOWeight',
       {
-        'description' => 'Set the default overall block I/O weight for
-the executed processes. Takes a single weight value (between
-10 and 1000) to set the default block I/O weight. This controls
-the C<blkio.weight> control group attribute,
-which defaults to 500. For details about this control group
-attribute, see blkio-controller.txt.
-The available I/O bandwidth is split up among all units within
-one slice relative to their block I/O weight.While C<StartupBlockIOWeight> only
+        'description' => 'Set the default overall block I/O weight for the executed processes, if the legacy control
+group hierarchy is used on the system. Takes a single weight value (between 10 and 1000) to set the default
+block I/O weight. This controls the C<blkio.weight> control group attribute, which defaults to
+500. For details about this control group attribute, see blkio-controller.txt.
+The available I/O bandwidth is split up among all units within one slice relative to their block I/O
+weight.While C<StartupBlockIOWeight> only
 applies to the startup phase of the system,
 C<BlockIOWeight> applies to the later runtime
 of the system, and if the former is not set also to the
 startup phase. This allows prioritizing specific services at
 boot-up differently than during runtime.Implies
-C<C<BlockIOAccounting>true>.',
+C<C<BlockIOAccounting>true>.This setting is supported only if the legacy control group hierarchy is used. Use
+C<IOWeight> and C<StartupIOWeight> on systems using the unified control group
+hierarchy.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'BlockIODeviceWeight',
       {
-        'description' => 'Set the per-device overall block I/O weight for the
-executed processes. Takes a space-separated pair of a file
-path and a weight value to specify the device specific
-weight value, between 10 and 1000. (Example: "/dev/sda
-500"). The file path may be specified as path to a block
-device node or as any other file, in which case the backing
-block device of the file system of the file is
-determined. This controls the
-C<blkio.weight_device> control group
-attribute, which defaults to 1000. Use this option multiple
-times to set weights for multiple devices. For details about
-this control group attribute, see blkio-controller.txt.Implies
-C<C<BlockIOAccounting>true>.',
+        'description' => 'Set the per-device overall block I/O weight for the executed processes, if the legacy control group
+hierarchy is used on the system. Takes a space-separated pair of a file path and a weight value to specify
+the device specific weight value, between 10 and 1000. (Example: "/dev/sda 500"). The file path may be
+specified as path to a block device node or as any other file, in which case the backing block device of the
+file system of the file is determined. This controls the C<blkio.weight_device> control group
+attribute, which defaults to 1000. Use this option multiple times to set weights for multiple devices. For
+details about this control group attribute, see blkio-controller.txt.Implies
+C<C<BlockIOAccounting>true>.This setting is supported only if the legacy control group hierarchy is used. Use
+C<IODeviceWeight> on systems using the unified control group hierarchy.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'BlockIOReadBandwidth',
       {
-        'description' => 'Set the per-device overall block I/O bandwidth limit
-for the executed processes. Takes a space-separated pair of
-a file path and a bandwidth value (in bytes per second) to
-specify the device specific bandwidth. The file path may be
-a path to a block device node, or as any other file in which
-case the backing block device of the file system of the file
-is used. If the bandwidth is suffixed with K, M, G, or T,
-the specified bandwidth is parsed as Kilobytes, Megabytes,
-Gigabytes, or Terabytes, respectively, to the base of
-1000. (Example:
-"/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This
-controls the C<blkio.read_bps_device> and
-C<blkio.write_bps_device> control group
-attributes. Use this option multiple times to set bandwidth
-limits for multiple devices. For details about these control
-group attributes, see blkio-controller.txt.
+        'description' => 'Set the per-device overall block I/O bandwidth limit for the executed processes, if the legacy control
+group hierarchy is used on the system. Takes a space-separated pair of a file path and a bandwidth value (in
+bytes per second) to specify the device specific bandwidth. The file path may be a path to a block device
+node, or as any other file in which case the backing block device of the file system of the file is used. If
+the bandwidth is suffixed with K, M, G, or T, the specified bandwidth is parsed as Kilobytes, Megabytes,
+Gigabytes, or Terabytes, respectively, to the base of 1000. (Example:
+"/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This controls the
+C<blkio.throttle.read_bps_device> and C<blkio.throttle.write_bps_device>
+control group attributes. Use this option multiple times to set bandwidth limits for multiple devices. For
+details about these control group attributes, see blkio-controller.txt.
 Implies
-C<C<BlockIOAccounting>true>.',
+C<C<BlockIOAccounting>true>.This setting is supported only if the legacy control group hierarchy is used. Use
+C<IOReadBandwidthMax> and C<IOWriteBandwidthMax> on systems using the
+unified control group hierarchy.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'BlockIOWriteBandwidth',
       {
-        'description' => 'Set the per-device overall block I/O bandwidth limit
-for the executed processes. Takes a space-separated pair of
-a file path and a bandwidth value (in bytes per second) to
-specify the device specific bandwidth. The file path may be
-a path to a block device node, or as any other file in which
-case the backing block device of the file system of the file
-is used. If the bandwidth is suffixed with K, M, G, or T,
-the specified bandwidth is parsed as Kilobytes, Megabytes,
-Gigabytes, or Terabytes, respectively, to the base of
-1000. (Example:
-"/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This
-controls the C<blkio.read_bps_device> and
-C<blkio.write_bps_device> control group
-attributes. Use this option multiple times to set bandwidth
-limits for multiple devices. For details about these control
-group attributes, see blkio-controller.txt.
+        'description' => 'Set the per-device overall block I/O bandwidth limit for the executed processes, if the legacy control
+group hierarchy is used on the system. Takes a space-separated pair of a file path and a bandwidth value (in
+bytes per second) to specify the device specific bandwidth. The file path may be a path to a block device
+node, or as any other file in which case the backing block device of the file system of the file is used. If
+the bandwidth is suffixed with K, M, G, or T, the specified bandwidth is parsed as Kilobytes, Megabytes,
+Gigabytes, or Terabytes, respectively, to the base of 1000. (Example:
+"/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This controls the
+C<blkio.throttle.read_bps_device> and C<blkio.throttle.write_bps_device>
+control group attributes. Use this option multiple times to set bandwidth limits for multiple devices. For
+details about these control group attributes, see blkio-controller.txt.
 Implies
-C<C<BlockIOAccounting>true>.',
+C<C<BlockIOAccounting>true>.This setting is supported only if the legacy control group hierarchy is used. Use
+C<IOReadBandwidthMax> and C<IOWriteBandwidthMax> on systems using the
+unified control group hierarchy.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -358,24 +511,6 @@ This is the default.
         'type' => 'leaf',
         'value_type' => 'enum'
       },
-      'NetClass',
-      {
-        'description' => 'Configures a network class number to assign to the
-unit. This value will be set to the
-C<net_cls.class_id> property of the
-C<net_cls> cgroup of the unit. The directive
-accepts a numerical value (for fixed number assignment) and the keyword
-C<auto> (for dynamic allocation). Network traffic of
-all processes inside the unit will have the network class ID assigned
-by the kernel. Also see
-the kernel docs for
-net_cls controller
-and
-L<systemd.resource-control(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.resource-control&C<sektion>5&C<manpath>Debian+unstable+sid">.
-',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
       'Slice',
       {
         'description' => 'The name of the slice unit to place the unit
@@ -388,7 +523,10 @@ hierarchy of slices each of which might have resource
 settings applied.For units of type slice, the only accepted value for
 this setting is the parent slice. Since the name of a slice
 unit implies the parent slice, it is hence redundant to ever
-set this parameter directly for slice units.',
+set this parameter directly for slice units.Special care should be taken when relying on the default slice assignment in templated service units
+that have C<DefaultDependencies>no set, see
+L<systemd.service(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.service&C<sektion>5&C<manpath>Debian+unstable+sid">, section
+"Automatic Dependencies" for details.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -405,7 +543,7 @@ group controllers enabled.',
         'value_type' => 'uniline'
       }
     ],
-    'generated_by' => 'systemd parse-man.pl',
+    'generated_by' => 'parse-man.pl from systemd doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Common::ResourceControl'
   }
