@@ -222,7 +222,7 @@ foreach my $config_class (keys $data->{class}->%*) {
 
     # TODO: indicates systemd version
     $meta_root->load( steps => [
-        qq!class:$config_class generated_by="systemd parse-man.pl"!,
+        qq!class:$config_class generated_by="parse-man.pl from systemd doc"!,
         qq!copyright:0="2010-2016 Lennart Poettering and others"!,
         qq!copyright:1="2016 Dominique Dumont"!,
         qq!license="LGPLv2.1+"!,
