@@ -12,16 +12,18 @@
       'Socket',
       {
         'config_class_name' => 'Systemd::Section::Socket',
-        'follow' => {
-          'disable' => '- disable'
-        },
-        'rules' => [
-          '$disable',
-          {
-            'level' => 'hidden'
-          }
-        ],
-        'type' => 'warped_node'
+        'type' => 'warped_node',
+        'warp' => {
+          'follow' => {
+            'disable' => '- disable'
+          },
+          'rules' => [
+            '$disable',
+            {
+              'level' => 'hidden'
+            }
+          ]
+        }
       }
     ],
     'include' => [
