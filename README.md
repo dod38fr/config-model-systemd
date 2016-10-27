@@ -31,11 +31,11 @@ You can also use cme to run sanity checks on the configuration file:
 
 ## Installation
 
-On Debian (soon), run:
+On Debian, run:
 
     apt install cme libconfig-model-systemd-perl
 
-You can also install this project from CPAN (soon):
+You can also install this project from CPAN:
 
     cpanm install App::Cme
     cpanm install Config::Model::Systemd
