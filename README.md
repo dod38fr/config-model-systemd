@@ -29,6 +29,21 @@ You can also use cme to run sanity checks on the configuration file:
     cme check systemd-user
     cme check systemd
 
+### More detailed usage
+
+See [Managing Systemd configuration with cme](https://github.com/dod38fr/config-model/wiki/Managing-systemd-configuration-with-cme)
+wiki page.
+
+## Versioning scheme
+
+This module is versioned with 3 fields:
+
+* major number
+* supported Systemd version
+* minor version for the usual changes. This number is reset to one each time a new version of Systemd is supported.
+
+For instance: version `0.231.1` is the first release that supports Systemd version 231
+
 ## Installation
 
 On Debian, run:
@@ -42,10 +57,14 @@ You can also install this project from CPAN:
 
 Please follow these [instructions](README.build-from-git) to build from git.
 
+## Problems ?
+
+See [CONTRIBUTING](CONTRIBUTING.md) file.
+
 ## Re-generate systemd model files
 
 The files in `lib/Config/Model/models/Systemd/Section` and
-`lib/Config/Model/models/Systemd/Common` are generated from systemd
+`lib/Config/Model/models/Systemd/Common` are generated from Systemd
 documentation in xml format.
 
 To regenerate the model files, you must retrieve systemd sources. For instance, you
@@ -59,5 +78,5 @@ Then, from `config-model-systemd` directory, run:
 
 ## More information
 
+* [Managing Systemd configuration with cme](https://github.com/dod38fr/config-model/wiki/Managing-systemd-configuration-with-cme)
 * [Using cme](https://github.com/dod38fr/config-model/wiki/Using-cme)
-    
