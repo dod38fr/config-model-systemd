@@ -46,20 +46,26 @@ For instance: version `0.231.1` is the first release that supports Systemd versi
 
 ## Installation
 
-On Debian, run:
+### Debian, Ubuntu
+
+Run:
 
     apt install cme libconfig-model-systemd-perl
+
+### Others
 
 You can also install this project from CPAN:
 
     cpanm install App::Cme
     cpanm install Config::Model::Systemd
 
-Please follow these [instructions](README.build-from-git) to build from git.
+### From GitHub
+
+You may also follow these [instructions](README.build-from-git) to install and build from git.
 
 ## Problems ?
 
-See [CONTRIBUTING](CONTRIBUTING.md) file.
+Please report any issue on https://github.com/dod38fr/config-model-systemd/issues
 
 ## Re-generate systemd model files
 
