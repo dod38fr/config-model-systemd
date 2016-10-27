@@ -1,5 +1,23 @@
 {{$NEXT}}
 
+0.231.1 2016-10-27
+
+
+  This release uses a new version scheme where the 2nd field shows the
+  version of Systemd supported by 'cme'
+
+  Systemd model update:
+    * update with systemd 231
+    * add support for Timer service
+
+  Bug fix:
+    * Systemd model: use new warp syntax
+      (required Config::Model 2.087)
+    * parse_man: use new warp syntax
+      (Require Config::Model::Itself 2.005)
+    * fix linkage of generated class in root class (parse-man)
+    * remove socket service file when needed
+ 
 0.007 2016-06-05
 
   Bug fix:
