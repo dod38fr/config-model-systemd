@@ -53,7 +53,7 @@ can retrieve Debian source package:
 
     apt-get source systemd
 
-Then, from `config-model-systemd`, run:
+Then, from `config-model-systemd` directory, run:
 
     perl contrib/parse-man.pl -from <path to systemd source>
 
