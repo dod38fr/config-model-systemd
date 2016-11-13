@@ -47,7 +47,7 @@ sub read {
             my ($unit_type) = ($file =~ $filter);
             $logger->debug( "registering unit $unit_type name $unit_name from $file (layered mode))");
             # force config_dir during init
-            $self->node->load(step => "$unit_type:$unit_name", check => $args{check} ) ;
+            $self->node->load(step => qq!$unit_type:"$unit_name"!, check => $args{check} ) ;
         }
     }
 
@@ -57,11 +57,11 @@ sub read {
         my $unit_name = $file->basename($filter);
         if ($file->realpath eq '/dev/null') {
             $logger->debug("unit $unit_type name $unit_name from $file is disabled");
-            $self->node->load(step => "$unit_type:$unit_name disable=1", check => $args{check} ) ;
+            $self->node->load(step => qq!$unit_type:"$unit_name" disable=1!, check => $args{check} ) ;
         }
         else {
             $logger->debug("registering unit $unit_type name $unit_name from $file");
-            $self->node->load(step => "$unit_type:$unit_name", check => $args{check} ) ;
+            $self->node->load(step => qq!$unit_type:"$unit_name"!, check => $args{check} ) ;
         }
     }
     return 1 ;
