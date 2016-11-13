@@ -1,7 +1,11 @@
 {{$NEXT}}
 
-0.231.1 2016-10-27
+0.231.2 2016-11-13
 
+  Bug fix:
+  * Fix parser bug triggered by unit name containing a dot
+
+0.231.1 2016-10-27
 
   This release uses a new version scheme where the 2nd field shows the
   version of Systemd supported by 'cme'
