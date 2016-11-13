@@ -21,6 +21,9 @@ sudo aptitude install \
      libdist-zilla-perl \
      libdist-zilla-plugin-podspellingtests-perl \
      libdist-zilla-plugin-git-perl \
+     libterm-ui-perl \
+     libpod-elemental-transformer-list-perl \
+     libpod-weaver-section-support-perl \
      cme
 
 On other systems, run:
@@ -38,6 +41,9 @@ $ sudo cpamn install Dist::Zilla::Plugin::Run::BeforeBuild
 $ sudo cpamn install Dist::Zilla::PluginBundle::Filter
 $ sudo cpamn install Dist::Zilla::Plugin::Git::NextVersion
 $ sudo cpamn install App::Cme
+$ sudo cpamn install Term::UI
+$ sudo cpamn install Pod::Elemental::Transformer::List
+$ sudo cpamn install Pod::Weaver::Section::Support
 
 Then run:
 
