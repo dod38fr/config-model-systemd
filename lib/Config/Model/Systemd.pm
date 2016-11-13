@@ -97,7 +97,8 @@ by systemd project. This list is expected to be rather complete.
 
 The properties of these parameters are inferred from the description
 of the parameters and are probably less accurate. In case of errors,
-please log a bug.
+please L<log a bug|https://github.com/dod38fr/config-model-systemd/issues>.
+.
 
 =head1 TODO
 
