@@ -145,12 +145,15 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
     my ($min, $max) = ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d+])/) ;
 
     my @load ;
+    my @load_extra;
+
 
     push @load, qw/type=list cargo/ if $element =~ /^Exec/ or $desc =~ /may be specified more than once/;
 
     push @load, 'type=leaf', "value_type=$value_type";
 
-    push @load, 'write_as=no,yes' if $value_type eq 'boolean';
+    push @load_extra, 'write_as=no,yes' if $value_type eq 'boolean';
+
 
     if ($value_type eq 'enum') {
         my @choices;
@@ -174,14 +177,14 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
 
         die "Error in $config_class: cannot find the values of $element enum type\n"
             unless @choices;
-        push @load, 'choice='.join(',',@choices);
+        push @load_extra, 'choice='.join(',',@choices);
     }
 
 
-    push @load, "min=$min" if defined $min;
-    push @load, "max=$max" if defined $max;
+    push @load_extra, "min=$min" if defined $min;
+    push @load_extra, "max=$max" if defined $max;
 
-    $obj->load(step => \@load);
+    $obj->load(step => [@load, @load_extra]);
 
     return $obj;
 }
