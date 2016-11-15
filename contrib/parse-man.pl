@@ -72,7 +72,6 @@ sub parse_xml ($list, $map) {
             my ($var_doc_elt) = $listitem->get_xpath(qq!./para/varname[string()="$var_name"]!);
             #say "condition_variable $var_name found at ",$var_doc_elt->path;
             my ($name, $extra_info) = split '=', $var_name, 2;
-            say $file->basename(".xml").": class $config_class element $name, trashed $extra_info" if $extra_info;
             my $desc = join ("\n\n", $pre_doc, $var_doc_elt->parent->text, $post_doc);
             push $data{element}->@*, [$config_class => $name => $desc => $extra_info];
         }
@@ -86,7 +85,6 @@ sub parse_xml ($list, $map) {
         foreach my $term_elt ($elt->children('term')) {
             my $varname = $term_elt->first_child('varname')->text;
             my ($name, $extra_info) = split '=', $varname, 2;
-            say $file->basename(".xml").": class $config_class element $name, trashed $extra_info" if $extra_info;
 
             push $data{element}->@*, [$config_class => $name => $desc => $extra_info];
         }
@@ -142,6 +140,8 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
         : $extra_info =~ /\w\|\w/                ? 'enum'
         :                                          'uniline';
 
+    say "class $config_class element $element, did not use extra info: $extra_info" if $extra_info and $value_type ne 'enum';
+
     my ($min, $max) = ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d+])/) ;
 
     my @load ;
@@ -169,7 +169,6 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
             $choices =~ s/\s//g;
             $choices =~ s/C<(\w+)>/$1/g;
             $choices =~ s/,+/,/g;
-            say "set choice $choices";
             @choices = split /,/, $choices;
         }
 
