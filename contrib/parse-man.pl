@@ -147,6 +147,10 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
     my @load ;
     my @load_extra;
 
+    if ($value_type eq 'integer' and $desc =~ /usual suffixes K/) {
+        $value_type = 'uniline';
+        push @load_extra , q!match="^\d+(?i)[KMG]$"!;
+    }
 
     push @load, qw/type=list cargo/ if $element =~ /^Exec/ or $desc =~ /may be specified more than once/;
 
