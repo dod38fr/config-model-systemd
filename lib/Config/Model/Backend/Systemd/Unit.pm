@@ -17,6 +17,9 @@ sub read {
     my $self = shift ;
     my %args = @_ ;
 
+    # enable 2 styles of comments (gh #1)
+    $args{comment_delimiter} = "#;";
+
     # args are:
     # root       => './my_test',  # fake root directory, used for tests
     # config_dir => /etc/foo',    # absolute path
