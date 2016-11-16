@@ -197,6 +197,17 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
     push @load_extra, "min=$min" if defined $min;
     push @load_extra, "max=$max" if defined $max;
 
+    if ($supersedes) {
+        push @load_extra, "status=deprecated";
+
+        say "Class $config_class: element $element is deprecated in favor of $supersedes";
+        # put migration in place for the other element
+        my $new = $meta_root->grab(
+            step => "class:$config_class element:$supersedes",
+            autoadd => 1
+        );
+        $new->load(steps => qq!migrate_from variables:old="- $element" formula="\$old"!);
+    }
     $obj->load(step => [@load, @load_extra]);
 
     return $obj;
