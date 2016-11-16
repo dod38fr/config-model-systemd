@@ -80,13 +80,22 @@ sub parse_xml ($list, $map) {
     my $variable = sub  ($t, $elt) {
         return $condition_variable->($t, $elt) if $elt->first_child_text('term') =~ /^Condition/;
         my $desc = $elt->first_child('listitem')->text;
+
+        # detect deprecated param and what replaces them
+        my @supersedes ;
+        if ($desc =~ /settings? (?:are|is) deprecated. Use ([\w=\s,]+)./) {
+            my $capture = $1;
+            @supersedes = $capture =~ /(\w+)=/g;
+        }
+
         $desc =~ s/(\w+)=/C<$1>/g;
 
         foreach my $term_elt ($elt->children('term')) {
             my $varname = $term_elt->first_child('varname')->text;
             my ($name, $extra_info) = split '=', $varname, 2;
 
-            push $data{element}->@*, [$config_class => $name => $desc => $extra_info];
+            # we hope that deprecated items are listed in the same order with the new items
+            push $data{element}->@*, [$config_class => $name => $desc => $extra_info => shift @supersedes ];
         }
     };
 
@@ -121,7 +130,7 @@ sub parse_xml ($list, $map) {
 }
 
 
-sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info) {
+sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $supersedes) {
 
     my $obj = $meta_root->grab(
         step => "class:$config_class element:$element",
@@ -238,9 +247,9 @@ foreach my $config_class (keys $data->{class}->%*) {
 }
 
 foreach my $cdata ($data->{element}->@*) {
-    my ($config_class, $element, $desc, $extra_info) = $cdata->@*;
+    my ($config_class, $element, $desc, $extra_info, $supersedes) = $cdata->@*;
 
-    my $obj = setup_element ($meta_root, $config_class, $element, $desc, $extra_info);
+    my $obj = setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $supersedes);
 
     # cleanup one utf8 characters (aka \x{2014}). This can be removed once Config::Model 2.084
     # is released: generated pod will declare utf8 encoding
