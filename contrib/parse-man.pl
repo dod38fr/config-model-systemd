@@ -182,12 +182,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 
         if ($desc =~ /Takes one of/) {
             my ($choices) = ($desc =~ /Takes one of ([^.]+?)(?:\.|to test)/);
-            $choices =~ s/\(the default\)//g;
-            $choices =~ s/\b(or|and)\b/,/g;
-            $choices =~ s/\s//g;
-            $choices =~ s/C<(\w+)>/$1/g;
-            $choices =~ s/,+/,/g;
-            @choices = split /,/, $choices;
+            @choices = extract_choices($choices);
         }
 
         die "Error in $config_class: cannot find the values of $element enum type\n"
@@ -215,6 +210,15 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 
     say "class $config_class element $element:\n\t".join("\n\t", @log) if @log;
     return $obj;
+}
+
+sub extract_choices($choices) {
+    $choices =~ s/\(the default\)//g;
+    $choices =~ s/\b(or|and)\b/,/g;
+    $choices =~ s/\s//g;
+    $choices =~ s/C<([\w-]+)>/$1/g;
+    $choices =~ s/,+/,/g;
+    return split /,/, $choices;
 }
 
 my $data = parse_xml([@list, @service_list], \%map) ;
