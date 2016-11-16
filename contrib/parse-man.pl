@@ -132,6 +132,8 @@ sub parse_xml ($list, $map) {
 
 sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $supersedes) {
 
+    my @log;
+
     my $obj = $meta_root->grab(
         step => "class:$config_class element:$element",
         autoadd => 1
@@ -149,7 +151,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
         : $extra_info =~ /\w\|\w/                ? 'enum'
         :                                          'uniline';
 
-    say "class $config_class element $element, did not use extra info: $extra_info" if $extra_info and $value_type ne 'enum';
+    push @log, "did not use extra info: $extra_info" if $extra_info and $value_type ne 'enum';
 
     my ($min, $max) = ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d+])/) ;
 
@@ -190,6 +192,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 
         die "Error in $config_class: cannot find the values of $element enum type\n"
             unless @choices;
+        push @log, "enum choices are '".join("', '", @choices)."'";
         push @load_extra, 'choice='.join(',',@choices);
     }
 
@@ -200,7 +203,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
     if ($supersedes) {
         push @load_extra, "status=deprecated";
 
-        say "Class $config_class: element $element is deprecated in favor of $supersedes";
+        push @log, "deprecated in favor of $supersedes";
         # put migration in place for the other element
         my $new = $meta_root->grab(
             step => "class:$config_class element:$supersedes",
@@ -210,6 +213,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
     }
     $obj->load(step => [@load, @load_extra]);
 
+    say "class $config_class element $element:\n\t".join("\n\t", @log) if @log;
     return $obj;
 }
 
