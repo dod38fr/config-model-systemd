@@ -27,7 +27,7 @@ sub read {
 
     if ($self->node->instance->layered) {
         # avoid deep recursion in layered mode
-        return $self->SUPER::read(@_);
+        return $self->SUPER::read(%args);
     };
 
     my $dir = path($args{root}.$args{config_dir});
@@ -66,7 +66,7 @@ sub read {
         $logger->debug("reading unit $unit_type name $unit_name from ".$args{config_dir});
 
         # mouse super() does not work...
-        $self->SUPER::read(@_);
+        $self->SUPER::read(%args);
     }
 }
 
