@@ -153,7 +153,11 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 
     push @log, "did not use extra info: $extra_info" if $extra_info and $value_type ne 'enum';
 
-    my ($min, $max) = ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d+])/) ;
+    my ($min, $max);
+    if ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d]+)/) {
+        ($min, $max) = ($1, $2);
+        push @log, "integer between $min and $max";
+    }
 
     my @load ;
     my @load_extra;
