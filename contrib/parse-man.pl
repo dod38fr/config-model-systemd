@@ -147,6 +147,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
         = $desc =~ /Takes a boolean argument or/ ? 'enum'
         : $desc =~ /Takes an? (boolean|integer)/ ? $1
         : $desc =~ /Takes time \(in seconds\)/   ? 'integer'
+        : $desc =~ /allowed range/i              ? 'integer'
         : $desc =~ /Takes one of/                ? 'enum'
         : $extra_info =~ /\w\|\w/                ? 'enum'
         :                                          'uniline';
@@ -157,6 +158,10 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
     if ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d]+)/) {
         ($min, $max) = ($1, $2);
         push @log, "integer between $min and $max";
+    }
+    if ($desc =~ /allowed range is ([-\d]+) to ([-\d]+)/) {
+        ($min, $max) = ($1, $2);
+        push @log, "integer range is $min to $max";
     }
 
     my @load ;
