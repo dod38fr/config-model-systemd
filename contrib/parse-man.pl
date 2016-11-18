@@ -152,7 +152,10 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
         : $extra_info =~ /\w\|\w/                ? 'enum'
         :                                          'uniline';
 
-    push @log, "did not use extra info: $extra_info" if $extra_info and $value_type ne 'enum';
+    if ($extra_info and $value_type ne 'enum') {
+        push @log, "did not use extra info: $extra_info" unless
+            scalar grep {$extra_info eq $_} qw/weight/;
+    }
 
     my ($min, $max);
     if ($desc =~ /Takes an integer between ([-\d]+) (?:\([\w\s]+\))? and ([-\d]+)/) {
