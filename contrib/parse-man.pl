@@ -110,12 +110,13 @@ sub parse_xml ($list, $map) {
             $set_config_class->($1) ;
         }
     };
+    my $turn_to_pod_c = sub { my $t = $_->text(); $_->set_text("C<$t>");};
     my $twig = XML::Twig->new (
         twig_handlers => {
             'refsect1/title' => $parse_sub_title,
             'refsect1[string(title)=~ /Description/]/para' => $desc,
             'citerefentry' => $manpage,
-            'literal' => sub { my $t = $_->text(); $_->set_text("C<$t>");},
+            'literal' => $turn_to_pod_c,
             'refsect1[string(title)=~ /Options/]/variablelist/varlistentry' => $variable,
         }
     );
