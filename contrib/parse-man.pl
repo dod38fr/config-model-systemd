@@ -69,8 +69,8 @@ sub parse_xml ($list, $map) {
         my $post_doc = $listitem->last_child_text('para');
         foreach my $var_elt (@var_list) {
             my $var_name = $var_elt->text;
-            my ($var_doc_elt) = $listitem->get_xpath(qq!./para/varname[string()="$var_name"]!);
-            #say "condition_variable $var_name found at ",$var_doc_elt->path;
+            my ($var_doc_elt) = $listitem->get_xpath(qq!./para/varname[string()="C<$var_name>"]!);
+            # say "condition_variable $var_name found at ",$var_doc_elt->path;
             my ($name, $extra_info) = split '=', $var_name, 2;
             my $desc = join ("\n\n", $pre_doc, $var_doc_elt->parent->text, $post_doc);
             push $data{element}->@*, [$config_class => $name => $desc => $extra_info];
@@ -88,11 +88,15 @@ sub parse_xml ($list, $map) {
             @supersedes = $capture =~ /(\w+)=/g;
         }
 
-        $desc =~ s/(\w+)=/C<$1>/g;
+        # apply subsitution only on variable names (FooBar=). The regexp must test
+        # for capital letter and C<..> to avoid breaking URL parameters
+        $desc =~ s/C<([A-Z]\w+)=>/C<$1>/g;
 
         foreach my $term_elt ($elt->children('term')) {
             my $varname = $term_elt->first_child('varname')->text;
-            my ($name, $extra_info) = split '=', $varname, 2;
+            my ($name, $extra_info) = $varname =~ /C<([\w-]+)=([^>]*)>/ ;
+
+            die "Error: cannot extract parameter name from '$varname'" unless defined $name;
 
             # we hope that deprecated items are listed in the same order with the new items
             push $data{element}->@*, [$config_class => $name => $desc => $extra_info => shift @supersedes ];
@@ -117,6 +121,10 @@ sub parse_xml ($list, $map) {
             'refsect1[string(title)=~ /Description/]/para' => $desc,
             'citerefentry' => $manpage,
             'literal' => $turn_to_pod_c,
+            'option' => $turn_to_pod_c,
+            'constant' => $turn_to_pod_c,
+            # varname handling is done before the variable handling below
+            'varname' => $turn_to_pod_c,
             'refsect1[string(title)=~ /Options/]/variablelist/varlistentry' => $variable,
         }
     );
@@ -188,8 +196,10 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
         if ($extra_info =~ /\w\|\w/) {
             @choices = split /\|/, $extra_info ;
         }
-        elsif ($desc =~ /Takes a boolean argument or (?:C<)?([\w-]+)/) {
-            @choices = ('no','yes',$1);
+        elsif ($desc =~ /Takes a boolean argument or /) {
+            my ($choices) = ($desc =~ /Takes a boolean argument or (?:the )?(?:special values|architecture identifiers\s*)?([^.]+?)\./);
+            @choices = ('no','yes');
+            push @choices, extract_choices($choices);
             push @load, qw/replace:false=no replace:true=yes replace:0=no replace:1=yes/;
         }
 
@@ -226,12 +236,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 }
 
 sub extract_choices($choices) {
-    $choices =~ s/\(the default\)//g;
-    $choices =~ s/\b(or|and)\b/,/g;
-    $choices =~ s/\s//g;
-    $choices =~ s/C<([\w-]+)>/$1/g;
-    $choices =~ s/,+/,/g;
-    return split /,/, $choices;
+    return $choices =~ /C<([\w-]+)>/g;
 }
 
 my $data = parse_xml([@list, @service_list], \%map) ;
