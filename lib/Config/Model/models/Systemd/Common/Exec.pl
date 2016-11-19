@@ -24,6 +24,9 @@ for more information on the specific unit configuration files. The
 execution specific configuration options are configured in the
 [Service], [Socket], [Mount], or [Swap] sections, depending on the
 unit type.
+In addition, options which control resources through Linux Control Groups (cgroups) are listed in
+L<systemd.resource-control(5)|"https://manpages.debian.org/cgi-bin/man.cgi?query=systemd.resource-control&sektion=5&manpath=Debian+unstable+sid">.
+Those options complement options listed here.
 This configuration class was generated from systemd documentation.
 by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>
 ',
@@ -34,55 +37,91 @@ by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-
     'element' => [
       'WorkingDirectory',
       {
-        'description' => 'Takes a directory path relative to the service\'s root
-directory specified by C<RootDirectory>, or the
-special value C<~>. Sets the working directory
-for executed processes. If set to C<~>, the
-home directory of the user specified in
-C<User> is used. If not set, defaults to the
-root directory when systemd is running as a system instance
-and the respective user\'s home directory if run as user. If
-the setting is prefixed with the C<->
-character, a missing working directory is not considered
-fatal. If C<RootDirectory> is not set, then
-C<WorkingDirectory> is relative to the root of
-the system running the service manager.
-Note that setting this parameter might result in
-additional dependencies to be added to the unit (see
-above).',
+        'description' => 'Takes a directory path relative to the service\'s root directory specified by
+C<RootDirectory>, or the special value C<~>. Sets the working directory for
+executed processes. If set to C<~>, the home directory of the user specified in
+C<User> is used. If not set, defaults to the root directory when systemd is running as a
+system instance and the respective user\'s home directory if run as user. If the setting is prefixed with the
+C<-> character, a missing working directory is not considered fatal. If
+C<RootDirectory> is not set, then C<WorkingDirectory> is relative to the root
+of the system running the service manager.  Note that setting this parameter might result in additional
+dependencies to be added to the unit (see above).',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'RootDirectory',
       {
-        'description' => 'Takes a directory path relative to the host\'s root directory
-(i.e. the root of the system running the service manager). Sets the
-root directory for executed processes, with the L<chroot(2)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>chroot&C<sektion>2&C<manpath>Debian+unstable+sid">
-system call. If this is used, it must be ensured that the
-process binary and all its auxiliary files are available in
-the chroot() jail. Note that setting this
-parameter might result in additional dependencies to be added
-to the unit (see above).',
+        'description' => 'Takes a directory path relative to the host\'s root directory (i.e. the root of the system
+running the service manager). Sets the root directory for executed processes, with the L<chroot(2)|"https://manpages.debian.org/cgi-bin/man.cgi?query=chroot&sektion=2&manpath=Debian+unstable+sid"> system
+call. If this is used, it must be ensured that the process binary and all its auxiliary files are available in
+the chroot() jail. Note that setting this parameter might result in additional
+dependencies to be added to the unit (see above).The C<PrivateUsers> setting is particularly useful in conjunction with
+C<RootDirectory>. For details, see below.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'User',
       {
-        'description' => 'Sets the Unix user or group that the processes
-are executed as, respectively. Takes a single user or group
-name or ID as argument. If no group is set, the default group
-of the user is chosen. These do not affect commands prefixed with C<+>.',
+        'description' => 'Set the UNIX user or group that the processes are executed as, respectively. Takes a single
+user or group name, or numeric ID as argument. For system services (services run by the system service manager,
+i.e. managed by PID 1) and for user services of the root user (services managed by root\'s instance of
+systemd --user), the default is C<root>, but C<User> may be
+used to specify a different user. For user services of any other user, switching user identity is not
+permitted, hence the only valid setting is the same user the user\'s service manager is running as. If no group
+is set, the default group of the user is used. This setting does not affect commands whose command line is
+prefixed with C<+>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'Group',
       {
-        'description' => 'Sets the Unix user or group that the processes
-are executed as, respectively. Takes a single user or group
-name or ID as argument. If no group is set, the default group
-of the user is chosen. These do not affect commands prefixed with C<+>.',
+        'description' => 'Set the UNIX user or group that the processes are executed as, respectively. Takes a single
+user or group name, or numeric ID as argument. For system services (services run by the system service manager,
+i.e. managed by PID 1) and for user services of the root user (services managed by root\'s instance of
+systemd --user), the default is C<root>, but C<User> may be
+used to specify a different user. For user services of any other user, switching user identity is not
+permitted, hence the only valid setting is the same user the user\'s service manager is running as. If no group
+is set, the default group of the user is used. This setting does not affect commands whose command line is
+prefixed with C<+>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
+      },
+      'DynamicUser',
+      {
+        'description' => "Takes a boolean parameter. If set, a UNIX user and group pair is allocated dynamically when the
+unit is started, and released as soon as it is stopped. The user and group will not be added to
+/etc/passwd or /etc/group, but are managed transiently during
+runtime. The L<nss-systemd(8)|\"https://manpages.debian.org/cgi-bin/man.cgi?query=nss-systemd&sektion=8&manpath=Debian+unstable+sid\">
+glibc NSS module provides integration of these dynamic users/groups into the system's user and group
+databases. The user and group name to use may be configured via C<User> and
+C<Group> (see above). If these options are not used and dynamic user/group allocation is
+enabled for a unit, the name of the dynamic user/group is implicitly derived from the unit name. If the unit
+name without the type suffix qualifies as valid user name it is used directly, otherwise a name incorporating a
+hash of it is used. If a statically allocated user or group of the configured name already exists, it is used
+and no dynamic user/group is allocated. Dynamic users/groups are allocated from the UID/GID range
+61184\x{2026}65519. It is recommended to avoid this range for regular system or login users.  At any point in time
+each UID/GID from this range is only assigned to zero or one dynamically allocated users/groups in
+use. However, UID/GIDs are recycled after a unit is terminated. Care should be taken that any processes running
+as part of a unit for which dynamic users/groups are enabled do not leave files or directories owned by these
+users/groups around, as a different unit might get the same UID/GID assigned later on, and thus gain access to
+these files or directories. If C<DynamicUser> is enabled, C<RemoveIPC>,
+C<PrivateTmp> are implied. This ensures that the lifetime of IPC objects and temporary files
+created by the executed processes is bound to the runtime of the service, and hence the lifetime of the dynamic
+user/group. Since /tmp and /var/tmp are usually the only
+world-writable directories on a system this ensures that a unit making use of dynamic user/group allocation
+cannot leave files around after unit termination. Moreover C<ProtectSystem=strict> and
+C<ProtectHome=read-only> are implied, thus prohibiting the service to write to arbitrary file
+system locations. In order to allow the service to write to certain directories, they have to be whitelisted
+using C<ReadWritePaths>, but care must be taken so that UID/GID recycling doesn't
+create security issues involving files created by the service. Use C<RuntimeDirectory> (see
+below) in order to assign a writable runtime directory to a service, owned by the dynamic user/group and
+removed automatically when the unit is terminated. Defaults to off.",
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
       },
       'SupplementaryGroups',
       {
@@ -102,14 +141,30 @@ configured in the system group database for the
 user. This does not affect commands prefixed with C<+>.',
         'type' => 'list'
       },
+      'RemoveIPC',
+      {
+        'description' => 'Takes a boolean parameter. If set, all System V and POSIX IPC objects owned by the user and
+group the processes of this unit are run as are removed when the unit is stopped. This setting only has an
+effect if at least one of C<User>, C<Group> and
+C<DynamicUser> are used. It has no effect on IPC objects owned by the root user. Specifically,
+this removes System V semaphores, as well as System V and POSIX shared memory segments and message queues. If
+multiple units use the same user or group the IPC objects are removed when the last of these units is
+stopped. This setting is implied if C<DynamicUser> is set.',
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      },
       'Nice',
       {
         'description' => 'Sets the default nice level (scheduling
 priority) for executed processes. Takes an integer between -20
 (highest priority) and 19 (lowest priority). See
-L<setpriority(2)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>setpriority&C<sektion>2&C<manpath>Debian+unstable+sid">
+L<setpriority(2)|"https://manpages.debian.org/cgi-bin/man.cgi?query=setpriority&sektion=2&manpath=Debian+unstable+sid">
 for details.',
-        'max' => '1',
+        'max' => '19',
         'min' => '-20',
         'type' => 'leaf',
         'value_type' => 'integer'
@@ -122,7 +177,7 @@ between -1000 (to disable OOM killing for this process) and
 1000 (to make killing of this process under memory pressure
 very likely). See proc.txt
 for details.',
-        'max' => '1',
+        'max' => '1000',
         'min' => '-1000',
         'type' => 'leaf',
         'value_type' => 'integer'
@@ -141,9 +196,9 @@ for details.',
         ],
         'description' => 'Sets the I/O scheduling class for executed
 processes. Takes an integer between 0 and 3 or one of the
-strings none, realtime,
-best-effort or idle. See
-L<ioprio_set(2)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>ioprio_set&C<sektion>2&C<manpath>Debian+unstable+sid">
+strings C<none>, C<realtime>,
+C<best-effort> or C<idle>. See
+L<ioprio_set(2)|"https://manpages.debian.org/cgi-bin/man.cgi?query=ioprio_set&sektion=2&manpath=Debian+unstable+sid">
 for details.',
         'type' => 'leaf',
         'value_type' => 'enum'
