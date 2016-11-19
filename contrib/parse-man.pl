@@ -72,6 +72,7 @@ sub parse_xml ($list, $map) {
             my ($var_doc_elt) = $listitem->get_xpath(qq!./para/varname[string()="C<$var_name>"]!);
             # say "condition_variable $var_name found at ",$var_doc_elt->path;
             my ($name, $extra_info) = split '=', $var_name, 2;
+            die "Error: cannot extract parameter name from '$var_name'" unless defined $name;
             my $desc = join ("\n\n", $pre_doc, $var_doc_elt->parent->text, $post_doc);
             push $data{element}->@*, [$config_class => $name => $desc => $extra_info];
         }
