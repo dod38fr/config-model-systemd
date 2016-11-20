@@ -174,7 +174,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 
     if ($extra_info and $value_type ne 'enum') {
         push @log, "did not use extra info: $extra_info" unless
-            scalar grep {$extra_info eq $_} qw/weight/;
+            scalar grep {$extra_info eq $_} qw/weight range/;
     }
 
     my ($min, $max);
