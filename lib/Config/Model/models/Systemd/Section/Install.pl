@@ -36,15 +36,15 @@ is added from the listed unit to the current unit. The primary
 result is that the current unit will be started when the
 listed unit is started. See the description of
 C<Wants> and C<Requires> in
-the [Unit] section for details.C<WantedBy>foo.service in a service
+the [Unit] section for details.WantedBy=foo.service in a service
 bar.service is mostly equivalent to
-C<Alias>foo.service.wants/bar.service in the
+Alias=foo.service.wants/bar.service in the
 same file. In case of template units, systemctl
 enable must be called with an instance name, and
 this instance will be added to the
 .wants/ or
 .requires/ list of the listed unit. E.g.
-C<WantedBy>getty.target in a service
+WantedBy=getty.target in a service
 getty@.service will result in
 systemctl enable getty@tty2.service
 creating a
@@ -90,15 +90,15 @@ is added from the listed unit to the current unit. The primary
 result is that the current unit will be started when the
 listed unit is started. See the description of
 C<Wants> and C<Requires> in
-the [Unit] section for details.C<WantedBy>foo.service in a service
+the [Unit] section for details.WantedBy=foo.service in a service
 bar.service is mostly equivalent to
-C<Alias>foo.service.wants/bar.service in the
+Alias=foo.service.wants/bar.service in the
 same file. In case of template units, systemctl
 enable must be called with an instance name, and
 this instance will be added to the
 .wants/ or
 .requires/ list of the listed unit. E.g.
-C<WantedBy>getty.target in a service
+WantedBy=getty.target in a service
 getty@.service will result in
 systemctl enable getty@tty2.service
 creating a

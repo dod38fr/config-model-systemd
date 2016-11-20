@@ -13,7 +13,7 @@ controlled and supervised by systemd, for timer-based
 activation.
 This man page lists the configuration options specific to
 this unit type. See
-L<systemd.unit(5)|"https://manpages.debian.org/cgi-bin/man.cgi?query=systemd.unit&sektion=5&manpath=Debian+unstable+sid">
+L<systemd.unit(5)>
 for the common options of all unit configuration files. The common
 configuration items are configured in the generic [Unit] and
 [Install] sections. The timer specific configuration options are
@@ -24,10 +24,10 @@ default, a service by the same name as the timer (except for the
 suffix) is activated. Example: a timer file
 foo.timer activates a matching service
 foo.service. The unit to activate may be
-controlled by Unit= (see below).
+controlled by C<Unit> (see below).
 Note that in case the unit to activate is already active at the time the timer elapses it is not restarted,
 but simply left running. There is no concept of spawning new service instances in this case. Due to this, services
-with RemainAfterExit= set (which stay around continuously even after the service\'s main process
+with C<RemainAfterExit> set (which stay around continuously even after the service\'s main process
 exited) are usually not suitable for activation via repetitive timers, as they will only be activated once, and
 then stay around forever.
 This configuration class was generated from systemd documentation.
@@ -56,11 +56,11 @@ C<OnBootSec> and
 C<OnUnitActiveSec>, it is possible to define
 a timer that elapses in regular intervals and activates a
 specific service each time.The arguments to the directives are time spans
-configured in seconds. Example: "C<OnBootSec>50" means 50s after
+configured in seconds. Example: "OnBootSec=50" means 50s after
 boot-up. The argument may also include time units. Example:
-"C<OnBootSec>5h 30min" means 5 hours and 30 minutes after
+"OnBootSec=5h 30min" means 5 hours and 30 minutes after
 boot-up. For details about the syntax of time spans, see
-L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">.If a timer configured with C<OnBootSec>
+L<systemd.time(7)>.If a timer configured with C<OnBootSec>
 or C<OnStartupSec> is already in the past
 when the timer unit is activated, it will immediately elapse
 and the configured unit is started. This is not the case for
@@ -93,11 +93,11 @@ C<OnBootSec> and
 C<OnUnitActiveSec>, it is possible to define
 a timer that elapses in regular intervals and activates a
 specific service each time.The arguments to the directives are time spans
-configured in seconds. Example: "C<OnBootSec>50" means 50s after
+configured in seconds. Example: "OnBootSec=50" means 50s after
 boot-up. The argument may also include time units. Example:
-"C<OnBootSec>5h 30min" means 5 hours and 30 minutes after
+"OnBootSec=5h 30min" means 5 hours and 30 minutes after
 boot-up. For details about the syntax of time spans, see
-L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">.If a timer configured with C<OnBootSec>
+L<systemd.time(7)>.If a timer configured with C<OnBootSec>
 or C<OnStartupSec> is already in the past
 when the timer unit is activated, it will immediately elapse
 and the configured unit is started. This is not the case for
@@ -130,11 +130,11 @@ C<OnBootSec> and
 C<OnUnitActiveSec>, it is possible to define
 a timer that elapses in regular intervals and activates a
 specific service each time.The arguments to the directives are time spans
-configured in seconds. Example: "C<OnBootSec>50" means 50s after
+configured in seconds. Example: "OnBootSec=50" means 50s after
 boot-up. The argument may also include time units. Example:
-"C<OnBootSec>5h 30min" means 5 hours and 30 minutes after
+"OnBootSec=5h 30min" means 5 hours and 30 minutes after
 boot-up. For details about the syntax of time spans, see
-L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">.If a timer configured with C<OnBootSec>
+L<systemd.time(7)>.If a timer configured with C<OnBootSec>
 or C<OnStartupSec> is already in the past
 when the timer unit is activated, it will immediately elapse
 and the configured unit is started. This is not the case for
@@ -167,11 +167,11 @@ C<OnBootSec> and
 C<OnUnitActiveSec>, it is possible to define
 a timer that elapses in regular intervals and activates a
 specific service each time.The arguments to the directives are time spans
-configured in seconds. Example: "C<OnBootSec>50" means 50s after
+configured in seconds. Example: "OnBootSec=50" means 50s after
 boot-up. The argument may also include time units. Example:
-"C<OnBootSec>5h 30min" means 5 hours and 30 minutes after
+"OnBootSec=5h 30min" means 5 hours and 30 minutes after
 boot-up. For details about the syntax of time spans, see
-L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">.If a timer configured with C<OnBootSec>
+L<systemd.time(7)>.If a timer configured with C<OnBootSec>
 or C<OnStartupSec> is already in the past
 when the timer unit is activated, it will immediately elapse
 and the configured unit is started. This is not the case for
@@ -204,11 +204,11 @@ C<OnBootSec> and
 C<OnUnitActiveSec>, it is possible to define
 a timer that elapses in regular intervals and activates a
 specific service each time.The arguments to the directives are time spans
-configured in seconds. Example: "C<OnBootSec>50" means 50s after
+configured in seconds. Example: "OnBootSec=50" means 50s after
 boot-up. The argument may also include time units. Example:
-"C<OnBootSec>5h 30min" means 5 hours and 30 minutes after
+"OnBootSec=5h 30min" means 5 hours and 30 minutes after
 boot-up. For details about the syntax of time spans, see
-L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">.If a timer configured with C<OnBootSec>
+L<systemd.time(7)>.If a timer configured with C<OnBootSec>
 or C<OnStartupSec> is already in the past
 when the timer unit is activated, it will immediately elapse
 and the configured unit is started. This is not the case for
@@ -227,7 +227,7 @@ below.',
       {
         'description' => 'Defines realtime (i.e. wallclock) timers with
 calendar event expressions. See
-L<systemd.time(7)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd.time&C<sektion>7&C<manpath>Debian+unstable+sid">
+L<systemd.time(7)>
 for more information on the syntax of calendar event
 expressions. Otherwise, the semantics are similar to
 C<OnActiveSec> and related settings.Note that timers do not necessarily expire at the
@@ -256,9 +256,9 @@ order to optimize power consumption to suppress unnecessary
 CPU wake-ups. To get best accuracy, set this option to
 1us. Note that the timer is still subject to the timer slack
 configured via
-L<systemd-system.conf(5)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>systemd-system.conf&C<sektion>5&C<manpath>Debian+unstable+sid">\'s
+L<systemd-system.conf(5)>\'s
 C<TimerSlackNSec> setting. See
-L<prctl(2)|"https://manpages.debian.org/cgi-bin/man.cgi?C<query>prctl&C<sektion>2&C<manpath>Debian+unstable+sid">
+L<prctl(2)>
 for details. To optimize power consumption, make sure to set
 this value as high as possible and as low as
 necessary.',
@@ -292,7 +292,7 @@ C<RandomizedDelaySec> to 0, thus encouraging
 coalescing of timer events. In order to optimally stretch
 timer events over a certain range of time, make sure to set
 C<RandomizedDelaySec> to a higher value, and
-C<AccuracySec>1us.',
+C<AccuracySec=1us>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -319,7 +319,7 @@ during the time when the timer was inactive. This is useful to
 catch up on missed runs of the service when the machine was
 off. Note that this setting only has an effect on timers
 configured with C<OnCalendar>. Defaults
-to false.
+to C<false>.
 ',
         'type' => 'leaf',
         'value_type' => 'boolean',
@@ -336,7 +336,7 @@ be suspended and if the system supports this. Note that this
 option will only make sure the system resumes on the
 appropriate times, it will not take care of suspending it
 again after any work that is to be done is finished. Defaults
-to false.',
+to C<false>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -358,7 +358,7 @@ started again, and is guaranteed to elapse only once. However,
 if C<RemainAfterElapse> is off, it might be
 started again if it is already elapsed, and thus be triggered
 multiple times. Defaults to
-yes.',
+C<yes>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
