@@ -300,11 +300,6 @@ foreach my $cdata ($data->{element}->@*) {
 
     my $obj = setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $supersedes);
 
-    # cleanup one utf8 characters (aka \x{2014}). This can be removed once Config::Model 2.084
-    # is released: generated pod will declare utf8 encoding
-    $desc =~ s/—/--/g;
-    $desc =~ s/ / /g; # not exactly an underscore
-
     $obj->fetch_element("description")->store($desc);
 }
 
