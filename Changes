@@ -1,5 +1,30 @@
 {{$NEXT}}
 
+0.231.3 2016-11-20
+
+  Systemd model update:
+    * update with systemd 232
+    * specify default value of some integer parameters
+    * can migrate depracated resource-control parameters
+      (for instance, cme replaces deprecated CPUWeight with CPUShares)
+
+  Systemd parser update:
+    * parser: enable 2 styles of comments (gh #1)
+
+  Improved model generation from systemd doc (parse-man.pl):
+    * model extraction:
+      * fix enum values extraction
+      * fix integer min max extraction
+      * extract integer range from description
+      * extract default value of integer param
+      * detect and setup migration of deprecated parmaters
+      * handle correctly integer with K|G|M suffix
+    * description extraction:
+      * remove obsolete utf8 cleanup in descrtipion
+      * fix bug in description formatting
+      * disable insertion of debian man page URL (this debian
+        service is now down)
+
 0.231.2 2016-11-13
 
   Bug fix:
