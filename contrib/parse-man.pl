@@ -251,7 +251,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 }
 
 sub extract_choices($choices) {
-    return $choices =~ /C<([\w-]+)>/g;
+    return $choices =~ /C<([\w\-+]+)>/g;
 }
 
 my $data = parse_xml([@list, @service_list], \%map) ;
