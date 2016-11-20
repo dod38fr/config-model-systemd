@@ -68,9 +68,9 @@ sub parse_xml ($list, $map) {
         my $post_doc = $listitem->last_child_text('para');
         foreach my $var_elt (@var_list) {
             my $var_name = $var_elt->text;
-            my ($var_doc_elt) = $listitem->get_xpath(qq!./para/varname[string()="C<$var_name>"]!);
+            my ($var_doc_elt) = $listitem->get_xpath(qq!./para/varname[string()="$var_name"]!);
             # say "condition_variable $var_name found at ",$var_doc_elt->path;
-            my ($name, $extra_info) = split '=', $var_name, 2;
+            my ($name, $extra_info) = $var_name =~ /C<([\w-]+)=([^>]*)>/ ;
             die "Error: cannot extract parameter name from '$var_name'" unless defined $name;
             my $desc = join ("\n\n", $pre_doc, $var_doc_elt->parent->text, $post_doc);
             push $data{element}->@*, [$config_class => $name => $desc => $extra_info];
@@ -78,7 +78,7 @@ sub parse_xml ($list, $map) {
     };
 
     my $variable = sub  ($t, $elt) {
-        return $condition_variable->($t, $elt) if $elt->first_child_text('term') =~ /^Condition/;
+        return $condition_variable->($t, $elt) if $elt->first_child_text('term') =~ /^C<Condition/;
         my $desc = $elt->first_child('listitem')->text;
 
         # detect deprecated param and what replaces them
@@ -88,9 +88,12 @@ sub parse_xml ($list, $map) {
             @supersedes = $capture =~ /(\w+)=/g;
         }
 
-        # apply subsitution only on variable names (FooBar=). The regexp must test
+        # apply substitution only on variable names (FooBar=). The regexp must test
         # for capital letter and C<..> to avoid breaking URL parameters
         $desc =~ s/C<([A-Z]\w+)=>/C<$1>/g;
+
+        # detect verbatim parts setup with programlisting tag
+        $desc =~ s/^\+-\+/    /gm;
 
         foreach my $term_elt ($elt->children('term')) {
             my $varname = $term_elt->first_child('varname')->text;
@@ -123,7 +126,15 @@ sub parse_xml ($list, $map) {
             'literal' => $turn_to_pod_c,
             'option' => $turn_to_pod_c,
             'constant' => $turn_to_pod_c,
-            # varname handling is done before the variable handling below
+            # this also remove the indentation of programlisting
+            # element,
+            'para' => sub { $_->subs_text(qr/\n\s+/,"\n"); 1;},
+            # hack: use my own tag which is removed later to create
+            # code block. Can't directly indent text as the content of
+            # para element is also indented (and cleanup above)
+            'programlisting' => sub {my $t = $_->text(); $t =~ s/\n\s*/\n+-+/g; $_->set_text("\n\n+-+$t\n\n");},
+            # varname handling is done before the variable handling
+            # below
             'varname' => $turn_to_pod_c,
             'refsect1[string(title)=~ /Options/]/variablelist/varlistentry' => $variable,
         }
@@ -266,6 +277,7 @@ foreach my $config_class (keys $data->{class}->%*) {
     my $desc_ref = $data->{class}{$config_class};
     my $desc_text = join("\n\n",$desc_ref->@*);
     $desc_text =~ s/^\s+//gm;
+    $desc_text =~ s/C<([A-Z]\w+)=>/C<$1>/g;
 
     $desc_text.="\nThis configuration class was generated from systemd documentation.\n"
         ."by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>\n";
@@ -292,9 +304,6 @@ foreach my $cdata ($data->{element}->@*) {
     # is released: generated pod will declare utf8 encoding
     $desc =~ s/—/--/g;
     $desc =~ s/ / /g; # not exactly an underscore
-
-    # cleanup empty lines
-    $desc =~ s/^\s+//gm;
 
     $obj->fetch_element("description")->store($desc);
 }
