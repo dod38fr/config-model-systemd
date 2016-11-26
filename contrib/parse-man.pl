@@ -230,7 +230,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
     push @load_extra, "max=$max" if defined $max;
 
     if ($value_type eq 'integer' and $desc =~ /defaults? (?:to|is) (\d+)/i) {
-        push @load_extra, "default=$1" ;
+        push @load_extra, "upstream_default=$1" ;
     }
 
     if ($supersedes) {
