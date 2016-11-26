@@ -60,7 +60,6 @@ L<systemd-system.conf(5)>.',
       },
       'CPUWeight',
       {
-        'default' => '100',
         'description' => 'Assign the specified CPU time weight to the processes executed, if the unified control group hierarchy
 is used on the system. These options take an integer value and control the C<cpu.weight>
 control group attribute. The allowed range is 1 to 10000. Defaults to 100. For details about this control
@@ -72,11 +71,11 @@ boot-up differently than during normal runtime.Implies C<CPUAccounting=true>.The
         'max' => '10000',
         'min' => '1',
         'type' => 'leaf',
+        'upstream_default' => '100',
         'value_type' => 'integer'
       },
       'StartupCPUWeight',
       {
-        'default' => '100',
         'description' => 'Assign the specified CPU time weight to the processes executed, if the unified control group hierarchy
 is used on the system. These options take an integer value and control the C<cpu.weight>
 control group attribute. The allowed range is 1 to 10000. Defaults to 100. For details about this control
@@ -88,6 +87,7 @@ boot-up differently than during normal runtime.Implies C<CPUAccounting=true>.The
         'max' => '10000',
         'min' => '1',
         'type' => 'leaf',
+        'upstream_default' => '100',
         'value_type' => 'integer'
       },
       'CPUQuota',
@@ -428,7 +428,6 @@ group controllers enabled.',
       },
       'CPUShares',
       {
-        'default' => '1024',
         'description' => 'Assign the specified CPU time share weight to the processes executed. These options take an integer
 value and control the C<cpu.shares> control group attribute. The allowed range is 2 to
 262144. Defaults to 1024. For details about this control group attribute, see sched-design-CFS.txt.
@@ -441,11 +440,11 @@ C<StartupCPUWeight> instead.',
         'max' => '262144',
         'min' => '2',
         'type' => 'leaf',
+        'upstream_default' => '1024',
         'value_type' => 'integer'
       },
       'StartupCPUShares',
       {
-        'default' => '1024',
         'description' => 'Assign the specified CPU time share weight to the processes executed. These options take an integer
 value and control the C<cpu.shares> control group attribute. The allowed range is 2 to
 262144. Defaults to 1024. For details about this control group attribute, see sched-design-CFS.txt.
@@ -458,6 +457,7 @@ C<StartupCPUWeight> instead.',
         'max' => '262144',
         'min' => '2',
         'type' => 'leaf',
+        'upstream_default' => '1024',
         'value_type' => 'integer'
       },
       'MemoryLimit',
