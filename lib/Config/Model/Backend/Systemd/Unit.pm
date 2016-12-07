@@ -78,11 +78,13 @@ sub load_data {
     my $self = shift;
     my %args = @_ ; # data, check, split_reg
 
+    my $check = $args{check};
     my $data = $args{data} ;
+
     # use ObjTreeScanner ?
     my $disp_leaf = sub {
         my ($scanner, $data, $node,$element_name,$index, $leaf_object) = @_ ;
-        $leaf_object->store($data);
+        $leaf_object->store(value =>  $data, check => $check);
     } ;
 
     my $unit_cb = sub {
@@ -99,7 +101,7 @@ sub load_data {
             my $unit_data = $data_ref->{$elt}; # extract relevant data
 
             # force creation of element (can be removed with Config::Model 2.086)
-            my $obj = $node->fetch_element($elt);
+            my $obj = $node->fetch_element(name => $elt, check => $check);
 
             $scanner->scan_element($unit_data, $node,$elt) ;
         }
@@ -113,7 +115,7 @@ sub load_data {
     my $list_cb = sub {
         my ($scanner, $data,$node,$element_name,@idx) = @_ ;
         my $list_ref = ref($data) ? $data : [ $data ];
-        my $list_obj= $node->fetch_element($element_name);
+        my $list_obj= $node->fetch_element(name => $element_name, check => $check);
         foreach my $d (@$list_ref) {
             #if (length $d) {
             $list_obj->push($d); # push also empty values
