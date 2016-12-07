@@ -84,6 +84,12 @@ sub load_data {
     # use ObjTreeScanner ?
     my $disp_leaf = sub {
         my ($scanner, $data, $node,$element_name,$index, $leaf_object) = @_ ;
+        if (ref($data) eq 'ARRAY') {
+            Config::Model::Exception::User->throw(
+                object => $leaf_object,
+                error  => "Cannot store twice the same value. Is '$element_name' line duplicated in config file ?"
+            )
+        }
         $leaf_object->store(value =>  $data, check => $check);
     } ;
 
