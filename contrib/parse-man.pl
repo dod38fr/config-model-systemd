@@ -294,7 +294,7 @@ foreach my $config_class (keys $data->{class}->%*) {
         qq!copyright:0="2010-2016 Lennart Poettering and others"!,
         qq!copyright:1="2016 Dominique Dumont"!,
         qq!license="LGPLv2.1+"!,
-        qq!accept:".*" type=leaf value_type=uniline!,
+        qq!accept:".*" type=leaf value_type=uniline warn="Unknown parameter"!,
     ]);
 
 }
