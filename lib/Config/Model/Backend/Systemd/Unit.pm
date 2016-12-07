@@ -117,12 +117,7 @@ sub load_data {
         my $list_ref = ref($data) ? $data : [ $data ];
         my $list_obj= $node->fetch_element(name => $element_name, check => $check);
         foreach my $d (@$list_ref) {
-            #if (length $d) {
             $list_obj->push($d); # push also empty values
-            #}
-            #else {
-            #    $list_obj->clear;
-            #}
         }
 
     };
