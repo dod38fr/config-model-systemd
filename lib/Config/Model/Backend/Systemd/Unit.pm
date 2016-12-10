@@ -87,8 +87,12 @@ sub load_data {
         if (ref($data) eq 'ARRAY') {
             Config::Model::Exception::User->throw(
                 object => $leaf_object,
-                error  => "Cannot store twice the same value. Is '$element_name' line duplicated in config file ?"
-            )
+                error  => "Cannot store twice the same value ('"
+                .join("', '",@$data). "'). "
+                ."Is '$element_name' line duplicated in config file ? "
+                ."You can use -force option to load value '". $data->[-1]."'."
+            ) if $check eq 'yes';
+            $data = $data->[-1];
         }
         $leaf_object->store(value =>  $data, check => $check);
     } ;
