@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+0.232.3 2016-12-12
+
+  Bug fix:
+    * fix load of bad systemd files with -force option
+      (require App::Cme 1.016 and Config::Model 2.096)
+    * issue an error when a systemd parameter is specified
+      twice (can be overriden with -force option)
+    * issue a warning when an unknown parameter is found in a
+      systemd file
+    * avoid writing systemd default values in systemd file
+
 0.232.2 2016-11-22
 
   Add missing dependency on Config::Model 2.094
