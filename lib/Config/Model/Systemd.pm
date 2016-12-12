@@ -2,7 +2,7 @@ package Config::Model::Systemd;
 
 use 5.10.1;
 
-use Config::Model 2.094;
+use Config::Model 2.096;
 
 1;
 
