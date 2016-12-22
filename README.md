@@ -64,7 +64,7 @@ You can also install this project from CPAN:
 
 ### From GitHub
 
-You may also follow these [instructions](README.build-from-git) to install and build from git.
+You may also follow these [instructions](README-build-from-git.md) to install and build from git.
 
 ## Problems ?
 
