@@ -1,3 +1,6 @@
+[![](https://travis-ci.org/dod38fr/config-model-systemd.svg?branch=master)](https://travis-ci.org/dod38fr/config-model-systemd)
+
+
 # config-model-systemd
 
 check and edit systemd configuration files
