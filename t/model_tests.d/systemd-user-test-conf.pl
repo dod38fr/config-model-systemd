@@ -57,6 +57,14 @@ $conf_dir = '~/.config/systemd/user/';
             # file added during tests
             @$list_ref = grep { /usr/ } @$list_ref ;
         }
+    },
+
+    {
+        name => 'from-scratch',
+        load => 'service:test Unit Description="test from scratch"',
+        file_contents_like => {
+            "home/joe/.config/systemd/user/test.service" => qr/from scratch/ ,
+        },
     }
 );
 
