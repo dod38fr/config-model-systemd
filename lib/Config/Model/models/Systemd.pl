@@ -32,6 +32,7 @@
     'name' => 'Systemd',
     'read_config' => [
       {
+        'auto_create' => '1',
         'backend' => 'Systemd'
       }
     ]

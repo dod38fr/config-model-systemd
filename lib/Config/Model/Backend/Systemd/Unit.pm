@@ -33,9 +33,6 @@ sub read {
         return $self->SUPER::read(%args);
     };
 
-    my $dir = path($args{root}.$args{config_dir});
-    die "Unknown directory $dir" unless $dir->is_dir;
-
     my $unit_type = $self->node->element_name;
     my $unit_name   = $self->node->index_value;
 
@@ -62,7 +59,8 @@ sub read {
     }
     $self->node->instance->layered_stop;
 
-    if (path($args{file_path})->realpath eq '/dev/null') {
+    my $file_path = path($args{file_path});
+    if ($file_path->exists and $file_path->realpath eq '/dev/null') {
         $logger->debug("skipping  unit $unit_type name $unit_name from ".$args{config_dir});
     }
     else {

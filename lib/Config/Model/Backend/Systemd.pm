@@ -33,9 +33,6 @@ sub read {
     # check      => yes|no|skip
 
 
-    my $dir = path($args{root}.$args{config_dir});
-    die "Unknown directory $dir" unless $dir->is_dir;
-
     # load layers
     foreach my $layer ($self->default_directories) {
         my $dir = path ($args{root}.$layer);
@@ -49,6 +46,13 @@ sub read {
             # force config_dir during init
             $self->node->load(step => qq!$unit_type:"$unit_name"!, check => $args{check} ) ;
         }
+    }
+
+    my $dir = path($args{root}.$args{config_dir});
+
+    if (not $dir->is_dir) {
+        $logger->debug("skipping missing directory $dir");
+        return 1 ;
     }
 
     $self->config_dir($dir);
