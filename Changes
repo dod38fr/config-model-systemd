@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+0.232.4 2016-12-30
+
+  Bug fix:
+    * fix systemd-user load when config dir is missing (Debian #849490)
+
 0.232.3 2016-12-12
 
   Bug fix:
