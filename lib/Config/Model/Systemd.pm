@@ -114,6 +114,12 @@ be supported.
 In case of issue, please log a bug on
 L<https://github.com/dod38fr/config-model-systemd/issues>.
 
+=head1 Contributors
+
+ Mohammad S Anwar
+
+Thanks for your contributions
+
 =head1 SEE ALSO
 
 =over
