@@ -4,7 +4,8 @@
       '.*',
       {
         'type' => 'leaf',
-        'value_type' => 'uniline'
+        'value_type' => 'uniline',
+        'warn' => 'Unknown parameter'
       }
     ],
     'class_description' => 'A unit configuration file whose name ends in

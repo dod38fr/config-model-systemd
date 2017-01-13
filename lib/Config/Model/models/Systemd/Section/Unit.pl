@@ -4,7 +4,8 @@
       '.*',
       {
         'type' => 'leaf',
-        'value_type' => 'uniline'
+        'value_type' => 'uniline',
+        'warn' => 'Unknown parameter'
       }
     ],
     'class_description' => "A unit configuration file encodes information about a
@@ -763,35 +764,39 @@ works just like the optional argument to systemctl reboot command.',
       },
       'ConditionArchitecture',
       {
-        'choice' => [
-          'x86',
-          'x86-64',
-          'ppc',
-          'ppc-le',
-          'ppc64',
-          'ppc64-le',
-          'ia64',
-          'parisc',
-          'parisc64',
-          's390',
-          's390x',
-          'sparc',
-          'sparc64',
-          'mips',
-          'mips-le',
-          'mips64',
-          'mips64-le',
-          'alpha',
-          'arm',
-          'arm-be',
-          'arm64',
-          'arm64-be',
-          'sh',
-          'sh64',
-          'm86k',
-          'tilegx',
-          'cris'
-        ],
+        'cargo' => {
+          'choice' => [
+            'x86',
+            'x86-64',
+            'ppc',
+            'ppc-le',
+            'ppc64',
+            'ppc64-le',
+            'ia64',
+            'parisc',
+            'parisc64',
+            's390',
+            's390x',
+            'sparc',
+            'sparc64',
+            'mips',
+            'mips-le',
+            'mips64',
+            'mips64-le',
+            'alpha',
+            'arm',
+            'arm-be',
+            'arm64',
+            'arm64-be',
+            'sh',
+            'sh64',
+            'm86k',
+            'tilegx',
+            'cris'
+          ],
+          'type' => 'leaf',
+          'value_type' => 'enum'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -857,11 +862,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'enum'
+        'type' => 'list'
       },
       'ConditionVirtualization',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -917,11 +925,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionHost',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -957,11 +968,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionKernelCommandLine',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -996,11 +1010,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionSecurity',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1035,11 +1052,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionCapability',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1074,11 +1094,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionACPower',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1114,11 +1137,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionNeedsUpdate',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1160,11 +1186,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionFirstBoot',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1197,11 +1226,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionPathExists',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1235,11 +1267,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionPathExistsGlob',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1269,11 +1304,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionPathIsDirectory',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1302,11 +1340,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionPathIsSymbolicLink',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1336,11 +1377,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionPathIsMountPoint',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1369,11 +1413,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionPathIsReadWrite',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1403,11 +1450,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionDirectoryNotEmpty',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1437,11 +1487,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionFileNotEmpty',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1471,11 +1524,14 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'ConditionFileIsExecutable',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
 respected. A failing condition will not result in the unit being moved into a failure state. The condition is
@@ -1505,8 +1561,7 @@ checks follow symlinks. If any of these options is assigned
 the empty string, the list of conditions is reset completely,
 all previous condition settings (of any kind) will have no
 effect.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'AssertArchitecture',
       {
