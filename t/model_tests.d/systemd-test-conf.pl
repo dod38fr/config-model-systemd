@@ -35,6 +35,14 @@ $conf_dir = '/etc/systemd/system/';
             @$list_ref = grep { $_ ne '/etc/systemd/system/sshd.service'} @$list_ref;
         }
     },
+    {
+        name => 'condition-list',
+        setup => {
+            # Debian  #850228
+            'main-test' => $conf_dir.'main-test.service',
+        }
+    },
+
 );
 
 1; # to keep Perl happy
