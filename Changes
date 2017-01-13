@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+0.232.5 2017-01-13
+
+  Bug fix:
+    * fix Unit Condition* parameters which are list type, not uniline
+      (Debian #849490)
+
 0.232.4 2016-12-30
 
   Bug fix:
