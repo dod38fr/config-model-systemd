@@ -281,12 +281,13 @@ say "Creating systemd model...";
 
 foreach my $config_class (keys $data->{class}->%*) {
     my $desc_ref = $data->{class}{$config_class};
-    my $desc_text = join("\n\n",$desc_ref->@*);
-    $desc_text =~ s/^\s+//gm;
-    $desc_text =~ s/C<([A-Z]\w+)=>/C<$1>/g;
+
+    # cleanup leading white space and add formatting
+    my $desc_text = join("\n\n", map { s/\n[\t ]+/\n/g; s/C<([A-Z]\w+)=>/C<$1>/g; $_;} $desc_ref->@*);
 
     $desc_text.="\nThis configuration class was generated from systemd documentation.\n"
         ."by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>\n";
+
     my $steps = "class:$config_class class_description";
     $meta_root->grab(step => $steps, autoadd => 1)->store($desc_text);
 
@@ -298,7 +299,6 @@ foreach my $config_class (keys $data->{class}->%*) {
         qq!license="LGPLv2.1+"!,
         qq!accept:".*" type=leaf value_type=uniline warn="Unknown parameter"!,
     ]);
-
 }
 
 foreach my $cdata ($data->{element}->@*) {
