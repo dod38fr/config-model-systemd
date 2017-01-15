@@ -54,25 +54,37 @@ C<OnUnitActiveSec> defines a timer relative
 to when the unit the timer is activating was last activated.
 C<OnUnitInactiveSec> defines a timer relative
 to when the unit the timer is activating was last
-deactivated.Multiple directives may be combined of the same and of
+deactivated.
+
+Multiple directives may be combined of the same and of
 different types. For example, by combining
 C<OnBootSec> and
 C<OnUnitActiveSec>, it is possible to define
 a timer that elapses in regular intervals and activates a
-specific service each time.The arguments to the directives are time spans
+specific service each time.
+
+The arguments to the directives are time spans
 configured in seconds. Example: "OnBootSec=50" means 50s after
 boot-up. The argument may also include time units. Example:
 "OnBootSec=5h 30min" means 5 hours and 30 minutes after
 boot-up. For details about the syntax of time spans, see
-L<systemd.time(7)>.If a timer configured with C<OnBootSec>
+L<systemd.time(7)>.
+
+If a timer configured with C<OnBootSec>
 or C<OnStartupSec> is already in the past
 when the timer unit is activated, it will immediately elapse
 and the configured unit is started. This is not the case for
-timers defined in the other directives.These are monotonic timers, independent of wall-clock
+timers defined in the other directives.
+
+These are monotonic timers, independent of wall-clock
 time and timezones. If the computer is temporarily suspended,
-the monotonic clock stops too.If the empty string is assigned to any of these options,
+the monotonic clock stops too.
+
+If the empty string is assigned to any of these options,
 the list of timers is reset, and all prior assignments will
-have no effect.Note that timers do not necessarily expire at the
+have no effect.
+
+Note that timers do not necessarily expire at the
 precise time configured with these settings, as they are
 subject to the C<AccuracySec> setting
 below.',
@@ -91,25 +103,37 @@ C<OnUnitActiveSec> defines a timer relative
 to when the unit the timer is activating was last activated.
 C<OnUnitInactiveSec> defines a timer relative
 to when the unit the timer is activating was last
-deactivated.Multiple directives may be combined of the same and of
+deactivated.
+
+Multiple directives may be combined of the same and of
 different types. For example, by combining
 C<OnBootSec> and
 C<OnUnitActiveSec>, it is possible to define
 a timer that elapses in regular intervals and activates a
-specific service each time.The arguments to the directives are time spans
+specific service each time.
+
+The arguments to the directives are time spans
 configured in seconds. Example: "OnBootSec=50" means 50s after
 boot-up. The argument may also include time units. Example:
 "OnBootSec=5h 30min" means 5 hours and 30 minutes after
 boot-up. For details about the syntax of time spans, see
-L<systemd.time(7)>.If a timer configured with C<OnBootSec>
+L<systemd.time(7)>.
+
+If a timer configured with C<OnBootSec>
 or C<OnStartupSec> is already in the past
 when the timer unit is activated, it will immediately elapse
 and the configured unit is started. This is not the case for
-timers defined in the other directives.These are monotonic timers, independent of wall-clock
+timers defined in the other directives.
+
+These are monotonic timers, independent of wall-clock
 time and timezones. If the computer is temporarily suspended,
-the monotonic clock stops too.If the empty string is assigned to any of these options,
+the monotonic clock stops too.
+
+If the empty string is assigned to any of these options,
 the list of timers is reset, and all prior assignments will
-have no effect.Note that timers do not necessarily expire at the
+have no effect.
+
+Note that timers do not necessarily expire at the
 precise time configured with these settings, as they are
 subject to the C<AccuracySec> setting
 below.',
@@ -128,25 +152,37 @@ C<OnUnitActiveSec> defines a timer relative
 to when the unit the timer is activating was last activated.
 C<OnUnitInactiveSec> defines a timer relative
 to when the unit the timer is activating was last
-deactivated.Multiple directives may be combined of the same and of
+deactivated.
+
+Multiple directives may be combined of the same and of
 different types. For example, by combining
 C<OnBootSec> and
 C<OnUnitActiveSec>, it is possible to define
 a timer that elapses in regular intervals and activates a
-specific service each time.The arguments to the directives are time spans
+specific service each time.
+
+The arguments to the directives are time spans
 configured in seconds. Example: "OnBootSec=50" means 50s after
 boot-up. The argument may also include time units. Example:
 "OnBootSec=5h 30min" means 5 hours and 30 minutes after
 boot-up. For details about the syntax of time spans, see
-L<systemd.time(7)>.If a timer configured with C<OnBootSec>
+L<systemd.time(7)>.
+
+If a timer configured with C<OnBootSec>
 or C<OnStartupSec> is already in the past
 when the timer unit is activated, it will immediately elapse
 and the configured unit is started. This is not the case for
-timers defined in the other directives.These are monotonic timers, independent of wall-clock
+timers defined in the other directives.
+
+These are monotonic timers, independent of wall-clock
 time and timezones. If the computer is temporarily suspended,
-the monotonic clock stops too.If the empty string is assigned to any of these options,
+the monotonic clock stops too.
+
+If the empty string is assigned to any of these options,
 the list of timers is reset, and all prior assignments will
-have no effect.Note that timers do not necessarily expire at the
+have no effect.
+
+Note that timers do not necessarily expire at the
 precise time configured with these settings, as they are
 subject to the C<AccuracySec> setting
 below.',
@@ -165,25 +201,37 @@ C<OnUnitActiveSec> defines a timer relative
 to when the unit the timer is activating was last activated.
 C<OnUnitInactiveSec> defines a timer relative
 to when the unit the timer is activating was last
-deactivated.Multiple directives may be combined of the same and of
+deactivated.
+
+Multiple directives may be combined of the same and of
 different types. For example, by combining
 C<OnBootSec> and
 C<OnUnitActiveSec>, it is possible to define
 a timer that elapses in regular intervals and activates a
-specific service each time.The arguments to the directives are time spans
+specific service each time.
+
+The arguments to the directives are time spans
 configured in seconds. Example: "OnBootSec=50" means 50s after
 boot-up. The argument may also include time units. Example:
 "OnBootSec=5h 30min" means 5 hours and 30 minutes after
 boot-up. For details about the syntax of time spans, see
-L<systemd.time(7)>.If a timer configured with C<OnBootSec>
+L<systemd.time(7)>.
+
+If a timer configured with C<OnBootSec>
 or C<OnStartupSec> is already in the past
 when the timer unit is activated, it will immediately elapse
 and the configured unit is started. This is not the case for
-timers defined in the other directives.These are monotonic timers, independent of wall-clock
+timers defined in the other directives.
+
+These are monotonic timers, independent of wall-clock
 time and timezones. If the computer is temporarily suspended,
-the monotonic clock stops too.If the empty string is assigned to any of these options,
+the monotonic clock stops too.
+
+If the empty string is assigned to any of these options,
 the list of timers is reset, and all prior assignments will
-have no effect.Note that timers do not necessarily expire at the
+have no effect.
+
+Note that timers do not necessarily expire at the
 precise time configured with these settings, as they are
 subject to the C<AccuracySec> setting
 below.',
@@ -202,25 +250,37 @@ C<OnUnitActiveSec> defines a timer relative
 to when the unit the timer is activating was last activated.
 C<OnUnitInactiveSec> defines a timer relative
 to when the unit the timer is activating was last
-deactivated.Multiple directives may be combined of the same and of
+deactivated.
+
+Multiple directives may be combined of the same and of
 different types. For example, by combining
 C<OnBootSec> and
 C<OnUnitActiveSec>, it is possible to define
 a timer that elapses in regular intervals and activates a
-specific service each time.The arguments to the directives are time spans
+specific service each time.
+
+The arguments to the directives are time spans
 configured in seconds. Example: "OnBootSec=50" means 50s after
 boot-up. The argument may also include time units. Example:
 "OnBootSec=5h 30min" means 5 hours and 30 minutes after
 boot-up. For details about the syntax of time spans, see
-L<systemd.time(7)>.If a timer configured with C<OnBootSec>
+L<systemd.time(7)>.
+
+If a timer configured with C<OnBootSec>
 or C<OnStartupSec> is already in the past
 when the timer unit is activated, it will immediately elapse
 and the configured unit is started. This is not the case for
-timers defined in the other directives.These are monotonic timers, independent of wall-clock
+timers defined in the other directives.
+
+These are monotonic timers, independent of wall-clock
 time and timezones. If the computer is temporarily suspended,
-the monotonic clock stops too.If the empty string is assigned to any of these options,
+the monotonic clock stops too.
+
+If the empty string is assigned to any of these options,
 the list of timers is reset, and all prior assignments will
-have no effect.Note that timers do not necessarily expire at the
+have no effect.
+
+Note that timers do not necessarily expire at the
 precise time configured with these settings, as they are
 subject to the C<AccuracySec> setting
 below.',
@@ -234,7 +294,9 @@ calendar event expressions. See
 L<systemd.time(7)>
 for more information on the syntax of calendar event
 expressions. Otherwise, the semantics are similar to
-C<OnActiveSec> and related settings.Note that timers do not necessarily expire at the
+C<OnActiveSec> and related settings.
+
+Note that timers do not necessarily expire at the
 precise time configured with this setting, as it is subject to
 the C<AccuracySec> setting
 below.',

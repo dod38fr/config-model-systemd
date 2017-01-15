@@ -57,7 +57,9 @@ C<forking>,
 C<oneshot>,
 C<dbus>,
 C<notify> or
-C<idle>.If set to C<simple> (the default if
+C<idle>.
+
+If set to C<simple> (the default if
 neither C<Type> nor
 C<BusName>, but C<ExecStart>
 are specified), it is expected that the process configured
@@ -66,7 +68,9 @@ service. In this mode, if the process offers functionality to
 other processes on the system, its communication channels
 should be installed before the daemon is started up (e.g.
 sockets set up by systemd, via socket activation), as systemd
-will immediately proceed starting follow-up units.If set to C<forking>, it is expected that
+will immediately proceed starting follow-up units.
+
+If set to C<forking>, it is expected that
 the process configured with C<ExecStart> will
 call fork() as part of its start-up. The
 parent process is expected to exit when start-up is complete
@@ -76,13 +80,17 @@ traditional UNIX daemons. If this setting is used, it is
 recommended to also use the C<PIDFile>
 option, so that systemd can identify the main process of the
 daemon. systemd will proceed with starting follow-up units as
-soon as the parent process exits.Behavior of C<oneshot> is similar to
+soon as the parent process exits.
+
+Behavior of C<oneshot> is similar to
 C<simple>; however, it is expected that the
 process has to exit before systemd starts follow-up units.
 C<RemainAfterExit> is particularly useful for
 this type of service. This is the implied default if neither
 C<Type> or C<ExecStart> are
-specified.Behavior of C<dbus> is similar to
+specified.
+
+Behavior of C<dbus> is similar to
 C<simple>; however, it is expected that the
 daemon acquires a name on the D-Bus bus, as configured by
 C<BusName>. systemd will proceed with
@@ -90,7 +98,9 @@ starting follow-up units after the D-Bus bus name has been
 acquired. Service units with this option configured implicitly
 gain dependencies on the dbus.socket
 unit. This type is the default if C<BusName>
-is specified.Behavior of C<notify> is similar to
+is specified.
+
+Behavior of C<notify> is similar to
 C<simple>; however, it is expected that the
 daemon sends a notification message via
 L<sd_notify(3)>
@@ -104,7 +114,9 @@ C<none>, it will be forcibly set to
 C<main>. Note that currently
 C<Type>C<notify> will not work
 if used in combination with
-C<PrivateNetwork>C<yes>.Behavior of C<idle> is very similar to C<simple>; however, actual execution
+C<PrivateNetwork>C<yes>.
+
+Behavior of C<idle> is very similar to C<simple>; however, actual execution
 of the service binary is delayed until all active jobs are dispatched. This may be used to avoid interleaving
 of output of shell services with the status output on the console. Note that this type is useful only to
 improve console output, it is not useful as a general unit ordering tool, and the effect of this service type
@@ -177,23 +189,30 @@ C<dbus>.',
 executed when this service is started. The value is split into
 zero or more command lines according to the rules described
 below (see section "Command Lines" below).
+
 Unless C<Type> is C<oneshot>, exactly one command must be given. When
 C<Type=oneshot> is used, zero or more commands may be specified. Commands may be specified by
 providing multiple command lines in the same directive, or alternatively, this directive may be specified more
 than once with the same effect. If the empty string is assigned to this option, the list of commands to start
 is reset, prior assignments of this option will have no effect. If no C<ExecStart> is
-specified, then the service must have C<RemainAfterExit=yes> set.For each of the specified commands, the first argument must be an absolute path to an
+specified, then the service must have C<RemainAfterExit=yes> set.
+
+For each of the specified commands, the first argument must be an absolute path to an
 executable. Optionally, if this file name is prefixed with C<@>, the second token will be
 passed as C<argv[0]> to the executed process, followed by the further arguments specified.  If
 the absolute filename is prefixed with C<->, an exit code of the command normally considered a
 failure (i.e. non-zero exit status or abnormal exit due to signal) is ignored and considered success.  If the
 absolute path is prefixed with C<+> then it is executed with full
 privileges. C<@>, C<->, and C<+> may be used together and they
-can appear in any order.If more than one command is specified, the commands are
+can appear in any order.
+
+If more than one command is specified, the commands are
 invoked sequentially in the order they appear in the unit
 file. If one of the commands fails (and is not prefixed with
 C<->), other lines are not executed, and the
-unit is considered failed.Unless C<Type=forking> is set, the
+unit is considered failed.
+
+Unless C<Type=forking> is set, the
 process started via this command line will be considered the
 main process of the daemon.',
         'type' => 'list'
@@ -209,21 +228,31 @@ or after the command in C<ExecStart>,
 respectively. Syntax is the same as for
 C<ExecStart>, except that multiple command
 lines are allowed and the commands are executed one after the
-other, serially.If any of those commands (not prefixed with
+other, serially.
+
+If any of those commands (not prefixed with
 C<->) fail, the rest are not executed and the
-unit is considered failed.C<ExecStart> commands are only run after
+unit is considered failed.
+
+C<ExecStart> commands are only run after
 all C<ExecStartPre> commands that were not prefixed
-with a C<-> exit successfully.C<ExecStartPost> commands are only run after
+with a C<-> exit successfully.
+
+C<ExecStartPost> commands are only run after
 the service has started successfully, as determined by C<Type>
 (i.e. the process has been started for C<Type=simple>
 or C<Type=idle>, the process exits successfully for
 C<Type=oneshot>, the initial process exits successfully
 for C<Type=forking>, C<READY=1> is sent
 for C<Type=notify>, or the C<BusName>
-has been taken for C<Type=dbus>).Note that C<ExecStartPre> may not be
+has been taken for C<Type=dbus>).
+
+Note that C<ExecStartPre> may not be
 used to start long-running processes. All processes forked
 off by processes invoked via C<ExecStartPre> will
-be killed before the next service process is run.Note that if any of the commands specified in C<ExecStartPre>,
+be killed before the next service process is run.
+
+Note that if any of the commands specified in C<ExecStartPre>,
 C<ExecStart>, or C<ExecStartPost> fail (and are not prefixed with
 C<->, see above) or time out before the service is fully up, execution continues with commands
 specified in C<ExecStopPost>, the commands in C<ExecStop> are skipped.',
@@ -240,21 +269,31 @@ or after the command in C<ExecStart>,
 respectively. Syntax is the same as for
 C<ExecStart>, except that multiple command
 lines are allowed and the commands are executed one after the
-other, serially.If any of those commands (not prefixed with
+other, serially.
+
+If any of those commands (not prefixed with
 C<->) fail, the rest are not executed and the
-unit is considered failed.C<ExecStart> commands are only run after
+unit is considered failed.
+
+C<ExecStart> commands are only run after
 all C<ExecStartPre> commands that were not prefixed
-with a C<-> exit successfully.C<ExecStartPost> commands are only run after
+with a C<-> exit successfully.
+
+C<ExecStartPost> commands are only run after
 the service has started successfully, as determined by C<Type>
 (i.e. the process has been started for C<Type=simple>
 or C<Type=idle>, the process exits successfully for
 C<Type=oneshot>, the initial process exits successfully
 for C<Type=forking>, C<READY=1> is sent
 for C<Type=notify>, or the C<BusName>
-has been taken for C<Type=dbus>).Note that C<ExecStartPre> may not be
+has been taken for C<Type=dbus>).
+
+Note that C<ExecStartPre> may not be
 used to start long-running processes. All processes forked
 off by processes invoked via C<ExecStartPre> will
-be killed before the next service process is run.Note that if any of the commands specified in C<ExecStartPre>,
+be killed before the next service process is run.
+
+Note that if any of the commands specified in C<ExecStartPre>,
 C<ExecStart>, or C<ExecStartPost> fail (and are not prefixed with
 C<->, see above) or time out before the service is fully up, execution continues with commands
 specified in C<ExecStopPost>, the commands in C<ExecStop> are skipped.',
@@ -272,12 +311,12 @@ lines, following the same scheme as described for
 C<ExecStart> above. Use of this setting is
 optional. Specifier and environment variable substitution is
 supported here following the same scheme as for
-C<ExecStart>.One additional, special environment variable is set: if
+C<ExecStart>.
+
+One additional, special environment variable is set: if
 known, C<$MAINPID> is set to the main process
 of the daemon, and may be used for command lines like the
 following:
-
-    /bin/kill -HUP $MAINPID
 
 Note however that reloading a daemon by sending a signal
 (as with the example line above) is usually not a good choice,
@@ -307,7 +346,9 @@ If this option is not specified, the process is terminated by
 sending the signal specified in C<KillSignal>
 when service stop is requested. Specifier and environment
 variable substitution is supported (including
-C<$MAINPID>, see above).Note that it is usually not sufficient to specify a
+C<$MAINPID>, see above).
+
+Note that it is usually not sufficient to specify a
 command for this setting that only asks the service to
 terminate (for example, by queuing some form of termination
 signal for it), but does not wait for it to do so. Since the
@@ -315,12 +356,16 @@ remaining processes of the services are killed using
 C<SIGKILL> immediately after the command
 exited, this would not result in a clean stop. The specified
 command should hence be a synchronous operation, not an
-asynchronous one.Note that the commands specified in C<ExecStop> are only executed when the service
+asynchronous one.
+
+Note that the commands specified in C<ExecStop> are only executed when the service
 started successfully first. They are not invoked if the service was never started at all, or in case its
 start-up failed, for example because any of the commands specified in C<ExecStart>,
 C<ExecStartPre> or C<ExecStartPost> failed (and weren\'t prefixed with
 C<->, see above) or timed out. Use C<ExecStopPost> to invoke commands when a
-service failed to start up correctly and is shut down again.It is recommended to use this setting for commands that communicate with the service requesting clean
+service failed to start up correctly and is shut down again.
+
+It is recommended to use this setting for commands that communicate with the service requesting clean
 termination. When the commands specified with this option are executed it should be assumed that the service is
 still fully up and is able to react correctly to all commands. For post-mortem clean-up steps use
 C<ExecStopPost> instead.',
@@ -338,11 +383,15 @@ C<ExecStop> defined, or where the service exited unexpectedly. This argument tak
 command lines, following the same scheme as described for C<ExecStart>. Use of these settings
 is optional. Specifier and environment variable substitution is supported. Note that \x{2013} unlike
 C<ExecStop> \x{2013} commands specified with this setting are invoked when a service failed to start
-up correctly and is shut down again.It is recommended to use this setting for clean-up operations that shall be executed even when the
+up correctly and is shut down again.
+
+It is recommended to use this setting for clean-up operations that shall be executed even when the
 service failed to start up correctly. Commands configured with this setting need to be able to operate even if
 the service failed starting up half-way and left incompletely initialized data around. As the service's
 processes have been terminated already when the commands specified with this setting are executed they should
-not attempt to communicate with them.Note that all commands that are configured with this setting are invoked with the result code of the
+not attempt to communicate with them.
+
+Note that all commands that are configured with this setting are invoked with the result code of the
 service, as well as the main process' exit code and status, set in the C<\$SERVICE_RESULT>,
 C<\$EXIT_CODE> and C<\$EXIT_STATUS> environment variables, see
 L<systemd.exec(5)> for
@@ -470,7 +519,9 @@ C<ExecReload>. When the death of the process
 is a result of systemd operation (e.g. service stop or
 restart), the service will not be restarted. Timeouts include
 missing the watchdog "keep-alive ping" deadline and a service
-start, reload, and stop operation timeouts.Takes one of
+start, reload, and stop operation timeouts.
+
+Takes one of
 C<no>,
 C<on-success>,
 C<on-failure>,
@@ -506,12 +557,16 @@ C<on-watchdog>, the service will be restarted
 only if the watchdog timeout for the service expires. If set
 to C<always>, the service will be restarted
 regardless of whether it exited cleanly or not, got terminated
-abnormally by a signal, or hit a timeout.Exit causes and the effect of the C<Restart> settings on themRestart settings/Exit causesC<no>C<always>C<on-success>C<on-failure>C<on-abnormal>C<on-abort>C<on-watchdog>Clean exit code or signalXXUnclean exit codeXXUnclean signalXXXXTimeoutXXXWatchdogXXXXAs exceptions to the setting above, the service will not
+abnormally by a signal, or hit a timeout.
+
+As exceptions to the setting above, the service will not
 be restarted if the exit code or signal is specified in
 C<RestartPreventExitStatus> (see below).
 Also, the services will always be restarted if the exit code
 or signal is specified in
-C<RestartForceExitStatus> (see below).Setting this to C<on-failure> is the
+C<RestartForceExitStatus> (see below).
+
+Setting this to C<on-failure> is the
 recommended choice for long-running services, in order to
 increase reliability by attempting automatic recovery from
 errors. For services that shall be able to terminate on their
@@ -536,6 +591,7 @@ separated by spaces. For example:
 ensures that exit codes 1, 2, 8 and
 the termination signal C<SIGKILL> are
 considered clean service terminations.
+
 Note that if a process has a signal handler installed
 and exits by calling
 L<_exit(2)>
@@ -544,7 +600,9 @@ lost. Programs should instead perform cleanup and kill
 themselves with the same signal instead. See
 Proper
 handling of SIGINT/SIGQUIT \x{2014} How to be a proper
-program.This option may appear more than once, in which case the
+program.
+
+This option may appear more than once, in which case the
 list of successful exit statuses is merged. If the empty
 string is assigned to this option, the list is reset, all
 prior assignments of this option will have no
@@ -679,7 +737,9 @@ service is started. Normally, it should not be necessary to use
 this setting, as all socket file descriptors whose unit shares
 the same name as the service (subject to the different unit
 name suffix of course) are passed to the spawned
-process.Note that the same socket file descriptors may be passed
+process.
+
+Note that the same socket file descriptors may be passed
 to multiple processes simultaneously. Also note that a
 different service may be activated on incoming socket traffic
 than the one which is ultimately configured to inherit the
@@ -687,7 +747,9 @@ socket file descriptors. Or, in other words: the
 C<Service> setting of
 .socket units does not have to match the
 inverse of the C<Sockets> setting of the
-.service it refers to.This option may appear more than once, in which case the
+.service it refers to.
+
+This option may appear more than once, in which case the
 list of socket units is merged. If the empty string is
 assigned to this option, the list of sockets is reset, and all
 prior uses of this setting will have no

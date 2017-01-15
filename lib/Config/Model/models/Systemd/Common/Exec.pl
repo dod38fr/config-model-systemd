@@ -58,7 +58,9 @@ dependencies to be added to the unit (see above).',
 running the service manager). Sets the root directory for executed processes, with the L<chroot(2)> system
 call. If this is used, it must be ensured that the process binary and all its auxiliary files are available in
 the chroot() jail. Note that setting this parameter might result in additional
-dependencies to be added to the unit (see above).The C<PrivateUsers> setting is particularly useful in conjunction with
+dependencies to be added to the unit (see above).
+
+The C<PrivateUsers> setting is particularly useful in conjunction with
 C<RootDirectory>. For details, see below.',
         'type' => 'leaf',
         'value_type' => 'uniline'
@@ -311,7 +313,9 @@ assignments have no effect. Variable expansion is not
 performed inside the strings, however, specifier expansion is
 possible. The $ character has no special meaning. If you need
 to assign a value containing spaces to a variable, use double
-quotes (") for the assignment.Example:
+quotes (") for the assignment.
+
+Example:
 
     Environment="VAR1=word1 word2" VAR2=word3 "VAR3=$word 5 6"
 
@@ -340,18 +344,24 @@ which may be used for commenting. A line ending with a
 backslash will be concatenated with the following one,
 allowing multiline variable definitions. The parser strips
 leading and trailing whitespace from the values of
-assignments, unless you use double quotes (").The argument passed should be an absolute filename or
+assignments, unless you use double quotes (").
+
+The argument passed should be an absolute filename or
 wildcard expression, optionally prefixed with
 C<->, which indicates that if the file does
 not exist, it will not be read and no error or warning message
 is logged. This option may be specified more than once in
 which case all specified files are read. If the empty string
 is assigned to this option, the list of file to read is reset,
-all prior assignments have no effect.The files listed with this directive will be read
+all prior assignments have no effect.
+
+The files listed with this directive will be read
 shortly before the process is executed (more specifically,
 after all processes from a previous unit state terminated.
 This means you can generate these files in one unit state, and
-read it with this option in the next).Settings from these
+read it with this option in the next).
+
+Settings from these
 files override settings made with
 C<Environment>. If the same variable is set
 twice from these files, the files will be read in the order
@@ -371,15 +381,20 @@ names. This option may be specified more than once, in which case all
 listed variables will be set. If the empty string is assigned to this
 option, the list of environment variables is reset, all prior
 assignments have no effect. Variables that are not set in the system
-manager will not be passed and will be silently ignored.Variables passed from this setting are overridden by those passed
+manager will not be passed and will be silently ignored.
+
+Variables passed from this setting are overridden by those passed
 from C<Environment> or
-C<EnvironmentFile>.Example:
+C<EnvironmentFile>.
+
+Example:
 
     PassEnvironment=VAR1 VAR2 VAR3
 
 passes three variables C<VAR1>,
 C<VAR2>, C<VAR3>
 with the values set for those variables in PID1.
+
 See
 L<environ(7)>
 for details about environment variables.',
@@ -402,23 +417,33 @@ C<tty>,
 C<tty-force>,
 C<tty-fail>,
 C<socket> or
-C<fd>.If C<null> is selected, standard input
+C<fd>.
+
+If C<null> is selected, standard input
 will be connected to /dev/null, i.e. all
 read attempts by the process will result in immediate
-EOF.If C<tty> is selected, standard input is
+EOF.
+
+If C<tty> is selected, standard input is
 connected to a TTY (as configured by
 C<TTYPath>, see below) and the executed
 process becomes the controlling process of the terminal. If
 the terminal is already being controlled by another process,
 the executed process waits until the current controlling
-process releases the terminal.C<tty-force> is similar to
+process releases the terminal.
+
+C<tty-force> is similar to
 C<tty>, but the executed process is forcefully
 and immediately made the controlling process of the terminal,
 potentially removing previous controlling processes from the
-terminal.C<tty-fail> is similar to
+terminal.
+
+C<tty-fail> is similar to
 C<tty> but if the terminal already has a
 controlling process start-up of the executed process
-fails.The C<socket> option is only valid in
+fails.
+
+The C<socket> option is only valid in
 socket-activated services, and only when the socket
 configuration file (see
 L<systemd.socket(5)>
@@ -428,7 +453,9 @@ service was activated from, which is primarily useful for
 compatibility with daemons designed for use with the
 traditional
 L<inetd(8)>
-daemon.The C<fd> option connects
+daemon.
+
+The C<fd> option connects
 the input stream to a single file descriptor provided by a socket unit.
 A custom named file descriptor can be specified as part of this option,
 after a C<:> (e.g. C<fd:foobar>).
@@ -440,7 +467,9 @@ from the name of its containing socket unit.
 If multiple matches are found, the first one will be used.
 See C<FileDescriptorName> in
 L<systemd.socket(5)>
-for more details about named descriptors and ordering.This setting defaults to
+for more details about named descriptors and ordering.
+
+This setting defaults to
 C<null>.',
         'type' => 'leaf',
         'value_type' => 'enum'
@@ -472,38 +501,56 @@ C<journal+console>,
 C<syslog+console>,
 C<kmsg+console>,
 C<socket> or
-C<fd>.C<inherit> duplicates the file descriptor
-of standard input for standard output.C<null> connects standard output to
+C<fd>.
+
+C<inherit> duplicates the file descriptor
+of standard input for standard output.
+
+C<null> connects standard output to
 /dev/null, i.e. everything written to it
-will be lost.C<tty> connects standard output to a tty
+will be lost.
+
+C<tty> connects standard output to a tty
 (as configured via C<TTYPath>, see below). If
 the TTY is used for output only, the executed process will not
 become the controlling process of the terminal, and will not
 fail or wait for other processes to release the
-terminal.C<journal> connects standard output with
+terminal.
+
+C<journal> connects standard output with
 the journal which is accessible via
 L<journalctl(1)>.
 Note that everything that is written to syslog or kmsg (see
 below) is implicitly stored in the journal as well, the
 specific two options listed below are hence supersets of this
-one.C<syslog> connects standard output to the
+one.
+
+C<syslog> connects standard output to the
 L<syslog(3)>
 system syslog service, in addition to the journal. Note that
 the journal daemon is usually configured to forward everything
 it receives to syslog anyway, in which case this option is no
-different from C<journal>.C<kmsg> connects standard output with the
+different from C<journal>.
+
+C<kmsg> connects standard output with the
 kernel log buffer which is accessible via
 L<dmesg(1)>,
 in addition to the journal. The journal daemon might be
 configured to send all logs to kmsg anyway, in which case this
-option is no different from C<journal>.C<journal+console>,
+option is no different from C<journal>.
+
+C<journal+console>,
 C<syslog+console> and
 C<kmsg+console> work in a similar way as the
 three options above but copy the output to the system console
-as well.C<socket> connects standard output to a
+as well.
+
+C<socket> connects standard output to a
 socket acquired via socket activation. The semantics are
 similar to the same option of
-C<StandardInput>.The C<fd> option connects
+C<StandardInput>.
+
+The C<fd> option connects
 the output stream to a single file descriptor provided by a socket unit.
 A custom named file descriptor can be specified as part of this option,
 after a C<:> (e.g. C<fd:foobar>).
@@ -515,9 +562,13 @@ from the name of its containing socket unit.
 If multiple matches are found, the first one will be used.
 See C<FileDescriptorName> in
 L<systemd.socket(5)>
-for more details about named descriptors and ordering.If the standard output (or error output, see below) of a unit is connected to the journal, syslog or the
+for more details about named descriptors and ordering.
+
+If the standard output (or error output, see below) of a unit is connected to the journal, syslog or the
 kernel log buffer, the unit will implicitly gain a dependency of type C<After> on
-systemd-journald.socket (also see the automatic dependencies section above).This setting defaults to the value set with
+systemd-journald.socket (also see the automatic dependencies section above).
+
+This setting defaults to the value set with
 C<DefaultStandardOutput> in
 L<systemd-system.conf(5)>,
 which defaults to C<journal>. Note that setting
@@ -535,7 +586,9 @@ with some exceptions: if set to C<inherit> the
 file descriptor used for standard output is duplicated for
 standard error, while C<fd> operates on the error
 stream and will look by default for a descriptor named
-C<stderr>.This setting defaults to the value set with
+C<stderr>.
+
+This setting defaults to the value set with
 C<DefaultStandardError> in
 L<systemd-system.conf(5)>,
 which defaults to C<inherit>. Note that setting
@@ -697,7 +750,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -709,14 +764,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -738,7 +797,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -750,14 +811,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -779,7 +844,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -791,14 +858,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -820,7 +891,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -832,14 +905,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -861,7 +938,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -873,14 +952,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -902,7 +985,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -914,14 +999,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -943,7 +1032,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -955,14 +1046,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -984,7 +1079,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -996,14 +1093,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1025,7 +1126,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -1037,14 +1140,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1066,7 +1173,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -1078,14 +1187,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1107,7 +1220,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -1119,14 +1234,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1148,7 +1267,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -1160,14 +1281,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1189,7 +1314,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -1201,14 +1328,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1230,7 +1361,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -1242,14 +1375,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1271,7 +1408,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -1283,14 +1422,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1312,7 +1455,9 @@ specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
 C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
 or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
 prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).Note that most process resource limits configured with
+equivalent to 1).
+
+Note that most process resource limits configured with
 these options are per-process, and processes may fork in order
 to acquire a new set of resources that are accounted
 independently of the original process, and may thus escape
@@ -1324,14 +1469,18 @@ over these per-process limits, as they apply to services as a
 whole, may be altered dynamically at runtime, and are
 generally more expressive. For example,
 C<MemoryLimit> is a more powerful (and
-working) replacement for C<LimitRSS>.For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
+working) replacement for C<LimitRSS>.
+
+For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
 per-user instance of
 L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.Resource limits not configured explicitly for a unit default to the value configured in the various
+bound by (possibly more restrictive) per-user limits enforced by the OS.
+
+Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).Resource limit directives, their equivalent ulimit shell commands and the unit usedDirectiveulimit equivalentUnitLimitCPU=ulimit -tSecondsLimitFSIZE=ulimit -fBytesLimitDATA=ulimit -dBytesLimitSTACK=ulimit -sBytesLimitCORE=ulimit -cBytesLimitRSS=ulimit -mBytesLimitNOFILE=ulimit -nNumber of File DescriptorsLimitAS=ulimit -vBytesLimitNPROC=ulimit -uNumber of ProcessesLimitMEMLOCK=ulimit -lBytesLimitLOCKS=ulimit -xNumber of LocksLimitSIGPENDING=ulimit -iNumber of Queued SignalsLimitMSGQUEUE=ulimit -qBytesLimitNICE=ulimit -eNice LevelLimitRTPRIO=ulimit -rRealtime PriorityLimitRTTIME=No equivalentMicroseconds",
+services, see above).",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1378,7 +1527,9 @@ inverted. If the empty string is assigned to this option, the ambient capability
 capability set, and all prior settings have no effect.  If set to C<~> (without any further
 argument), the ambient capability set is reset to the full set of available capabilities, also undoing any
 previous settings. Note that adding capabilities to ambient capability set adds them to the process\'s inherited
-capability set.   Ambient capability sets are useful if you want to execute a process as a
+capability set.  
+
+ Ambient capability sets are useful if you want to execute a process as a
 non-privileged user but still want to give it some capabilities.  Note that in this case option
 C<keep-caps> is automatically added to C<SecureBits> to retain the
 capabilities over the user change. C<AmbientCapabilities> does not affect commands prefixed
@@ -1415,17 +1566,23 @@ for details.',
 access a process might have to the file system hierarchy. Each setting takes a space-separated list of paths
 relative to the host\'s root directory (i.e. the system running the service manager).  Note that if paths
 contain symlinks, they are resolved relative to the root directory set with
-C<RootDirectory>.Paths listed in C<ReadWritePaths> are accessible from within the namespace with the same
+C<RootDirectory>.
+
+Paths listed in C<ReadWritePaths> are accessible from within the namespace with the same
 access modes as from outside of it. Paths listed in C<ReadOnlyPaths> are accessible for
 reading only, writing will be refused even if the usual file access controls would permit this. Nest
 C<ReadWritePaths> inside of C<ReadOnlyPaths> in order to provide writable
 subdirectories within read-only directories. Use C<ReadWritePaths> in order to whitelist
 specific paths for write access if C<ProtectSystem=strict> is used. Paths listed in
 C<InaccessiblePaths> will be made inaccessible for processes inside the namespace (along with
-everything below them in the file system hierarchy).Note that restricting access with these options does not extend to submounts of a directory that are
+everything below them in the file system hierarchy).
+
+Note that restricting access with these options does not extend to submounts of a directory that are
 created later on.  Non-directory paths may be specified as well. These options may be specified more than once,
 in which case all paths listed will have limited access from within the namespace. If the empty string is
-assigned to this option, the specific list is reset, and all prior assignments have no effect.Paths in C<ReadWritePaths>, C<ReadOnlyPaths> and
+assigned to this option, the specific list is reset, and all prior assignments have no effect.
+
+Paths in C<ReadWritePaths>, C<ReadOnlyPaths> and
 C<InaccessiblePaths> may be prefixed with C<->, in which case they will be ignored
 when they do not exist. Note that using this setting will disconnect propagation of mounts from the service to
 the host (propagation in the opposite direction continues to work). This means that this setting may not be used
@@ -1445,17 +1602,23 @@ C<CapabilityBoundingSet=~CAP_SYS_ADMIN> or C<SystemCallFilter=~@mount>.',
 access a process might have to the file system hierarchy. Each setting takes a space-separated list of paths
 relative to the host\'s root directory (i.e. the system running the service manager).  Note that if paths
 contain symlinks, they are resolved relative to the root directory set with
-C<RootDirectory>.Paths listed in C<ReadWritePaths> are accessible from within the namespace with the same
+C<RootDirectory>.
+
+Paths listed in C<ReadWritePaths> are accessible from within the namespace with the same
 access modes as from outside of it. Paths listed in C<ReadOnlyPaths> are accessible for
 reading only, writing will be refused even if the usual file access controls would permit this. Nest
 C<ReadWritePaths> inside of C<ReadOnlyPaths> in order to provide writable
 subdirectories within read-only directories. Use C<ReadWritePaths> in order to whitelist
 specific paths for write access if C<ProtectSystem=strict> is used. Paths listed in
 C<InaccessiblePaths> will be made inaccessible for processes inside the namespace (along with
-everything below them in the file system hierarchy).Note that restricting access with these options does not extend to submounts of a directory that are
+everything below them in the file system hierarchy).
+
+Note that restricting access with these options does not extend to submounts of a directory that are
 created later on.  Non-directory paths may be specified as well. These options may be specified more than once,
 in which case all paths listed will have limited access from within the namespace. If the empty string is
-assigned to this option, the specific list is reset, and all prior assignments have no effect.Paths in C<ReadWritePaths>, C<ReadOnlyPaths> and
+assigned to this option, the specific list is reset, and all prior assignments have no effect.
+
+Paths in C<ReadWritePaths>, C<ReadOnlyPaths> and
 C<InaccessiblePaths> may be prefixed with C<->, in which case they will be ignored
 when they do not exist. Note that using this setting will disconnect propagation of mounts from the service to
 the host (propagation in the opposite direction continues to work). This means that this setting may not be used
@@ -1475,17 +1638,23 @@ C<CapabilityBoundingSet=~CAP_SYS_ADMIN> or C<SystemCallFilter=~@mount>.',
 access a process might have to the file system hierarchy. Each setting takes a space-separated list of paths
 relative to the host\'s root directory (i.e. the system running the service manager).  Note that if paths
 contain symlinks, they are resolved relative to the root directory set with
-C<RootDirectory>.Paths listed in C<ReadWritePaths> are accessible from within the namespace with the same
+C<RootDirectory>.
+
+Paths listed in C<ReadWritePaths> are accessible from within the namespace with the same
 access modes as from outside of it. Paths listed in C<ReadOnlyPaths> are accessible for
 reading only, writing will be refused even if the usual file access controls would permit this. Nest
 C<ReadWritePaths> inside of C<ReadOnlyPaths> in order to provide writable
 subdirectories within read-only directories. Use C<ReadWritePaths> in order to whitelist
 specific paths for write access if C<ProtectSystem=strict> is used. Paths listed in
 C<InaccessiblePaths> will be made inaccessible for processes inside the namespace (along with
-everything below them in the file system hierarchy).Note that restricting access with these options does not extend to submounts of a directory that are
+everything below them in the file system hierarchy).
+
+Note that restricting access with these options does not extend to submounts of a directory that are
 created later on.  Non-directory paths may be specified as well. These options may be specified more than once,
 in which case all paths listed will have limited access from within the namespace. If the empty string is
-assigned to this option, the specific list is reset, and all prior assignments have no effect.Paths in C<ReadWritePaths>, C<ReadOnlyPaths> and
+assigned to this option, the specific list is reset, and all prior assignments have no effect.
+
+Paths in C<ReadWritePaths>, C<ReadOnlyPaths> and
 C<InaccessiblePaths> may be prefixed with C<->, in which case they will be ignored
 when they do not exist. Note that using this setting will disconnect propagation of mounts from the service to
 the host (propagation in the opposite direction continues to work). This means that this setting may not be used
@@ -1581,7 +1750,9 @@ all unit processes are run without privileges in the host user namespace (regard
 user/group is C<root> or not). Specifically this means that the process will have zero process
 capabilities on the host\'s user namespace, but full capabilities within the service\'s user namespace. Settings
 such as C<CapabilityBoundingSet> will affect only the latter, and there\'s no way to acquire
-additional capabilities in the host\'s user namespace. Defaults to off.This setting is particularly useful in conjunction with C<RootDirectory>, as the need to
+additional capabilities in the host\'s user namespace. Defaults to off.
+
+This setting is particularly useful in conjunction with C<RootDirectory>, as the need to
 synchronize the user and group databases in the root directory and on the host is reduced, as the only users
 and groups who need to be matched are C<root>, C<nobody> and the unit\'s own
 user and group.',
@@ -1789,7 +1960,9 @@ executable has its own C<SMACK64EXEC> label, in
 which case the process will transition to run under that
 label. When not specified, the label that systemd is running
 under is used. This directive is ignored if SMACK is
-disabled.The value may be prefixed by C<->, in
+disabled.
+
+The value may be prefixed by C<->, in
 which case all errors will be ignored. An empty value may be
 specified to unset previous assignments. This does not affect
 commands prefixed with C<+>.',
@@ -1853,13 +2026,17 @@ rt_sigreturn, sigreturn system calls and the system calls for
 querying time and sleeping are implicitly whitelisted and do not need to be listed explicitly. This option may
 be specified more than once, in which case the filter masks are merged. If the empty string is assigned, the
 filter is reset, all prior assignments will have no effect. This does not affect commands prefixed with
-C<+>.Note that strict system call filters may impact execution and error handling code paths of the service
+C<+>.
+
+Note that strict system call filters may impact execution and error handling code paths of the service
 invocation. Specifically, access to the execve system call is required for the execution
 of the service binary \x{2014} if it is blocked service invocation will necessarily fail. Also, if execution of the
 service binary fails for some reason (for example: missing service executable), the error handling logic might
 require access to an additional set of system calls in order to process and log this failure correctly. It
 might be necessary to temporarily disable system call filters in order to simplify debugging of such
-failures.If you specify both types of this option (i.e.
+failures.
+
+If you specify both types of this option (i.e.
 whitelisting and blacklisting), the first encountered will
 take precedence and will dictate the default action
 (termination or approval of a system call). Then the next
@@ -1870,13 +2047,17 @@ you have started with a whitelisting of
 read and write, and
 right after it add a blacklisting of
 write, then write
-will be removed from the set.)As the number of possible system
+will be removed from the set.)
+
+As the number of possible system
 calls is large, predefined sets of system calls are provided.
 A set starts with C<\@> character, followed by
 name of the set.
 Currently predefined system call setsSetDescription\@basic-ioSystem calls for basic I/O: reading, writing, seeking, file descriptor duplication and closing (L<read(2)>, L<write(2)>, and related calls)\@clockSystem calls for changing the system clock (L<adjtimex(2)>, L<settimeofday(2)>, and related calls)\@cpu-emulationSystem calls for CPU emulation functionality (L<vm86(2)> and related calls)\@debugDebugging, performance monitoring and tracing functionality (L<ptrace(2)>, L<perf_event_open(2)> and related calls)\@io-eventEvent loop system calls (L<poll(2)>, L<select(2)>, L<epoll(7)>, L<eventfd(2)> and related calls)\@ipcPipes, SysV IPC, POSIX Message Queues and other IPC (L<mq_overview(7)>, L<svipc(7)>)\@keyringKernel keyring access (L<keyctl(2)> and related calls)\@moduleKernel module control (L<init_module(2)>, L<delete_module(2)> and related calls)\@mountFile system mounting and unmounting (L<mount(2)>, L<chroot(2)>, and related calls)\@network-ioSocket I/O (including local AF_UNIX): L<socket(7)>, L<unix(7)>\@obsoleteUnusual, obsolete or unimplemented (L<create_module(2)>, L<gtty(2)>, \x{2026})\@privilegedAll system calls which need super-user capabilities (L<capabilities(7)>)\@processProcess control, execution, namespaces (L<clone(2)>, L<kill(2)>, L<namespaces(7)>, \x{2026}\@raw-ioRaw I/O port access (L<ioperm(2)>, L<iopl(2)>, pciconfig_read(), \x{2026})\@resourcesSystem calls for changing resource limits, memory and scheduling parameters (L<setrlimit(2)>, L<setpriority(2)>, \x{2026})
 Note that as new system calls are added to the kernel, additional system calls might be added to the groups
-above, so the contents of the sets may change between systemd versions.It is recommended to combine the file system namespacing related options with
+above, so the contents of the sets may change between systemd versions.
+
+It is recommended to combine the file system namespacing related options with
 C<SystemCallFilter=~\@mount>, in order to prohibit the unit's processes to undo the
 mappings. Specifically these are the options C<PrivateTmp>,
 C<PrivateDevices>, C<ProtectSystem>, C<ProtectHome>,
@@ -1950,7 +2131,9 @@ capability (e.g. setting C<User=nobody>),
 C<NoNewPrivileges=yes> is implied. By
 default, no restriction applies, all address families are
 accessible to processes. If assigned the empty string, any
-previous list changes are undone.Use this option to limit exposure of processes to remote
+previous list changes are undone.
+
+Use this option to limit exposure of processes to remote
 systems, in particular via exotic network protocols. Note that
 in most cases, the local C<AF_UNIX> address
 family should be included in the configured whitelist as it is

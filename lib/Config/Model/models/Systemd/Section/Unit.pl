@@ -257,7 +257,9 @@ delay between them if foo.service is
 activated. Often, it is a better choice to use
 C<Wants> instead of
 C<Requires> in order to achieve a system that
-is more robust when dealing with failing services.Note that dependencies of this type may also be
+is more robust when dealing with failing services.
+
+Note that dependencies of this type may also be
 configured outside of the unit configuration file by adding a
 symlink to a .requires/ directory
 accompanying the unit file. For details, see
@@ -281,7 +283,9 @@ be started if the configuring unit is. However, if the listed
 units fail to start or cannot be added to the transaction,
 this has no impact on the validity of the transaction as a
 whole. This is the recommended way to hook start-up of one
-unit to the start-up of another unit.Note that dependencies of this type may also be
+unit to the start-up of another unit.
+
+Note that dependencies of this type may also be
 configured outside of the unit configuration file by adding
 symlinks to a .wants/ directory
 accompanying the unit file. For details, see
@@ -321,7 +325,9 @@ C<Conflicts> setting on another unit,
 starting the former will stop the latter and vice versa. Note
 that this setting is independent of and orthogonal to the
 C<After> and C<Before>
-ordering dependencies.If a unit A that conflicts with a unit B is scheduled to
+ordering dependencies.
+
+If a unit A that conflicts with a unit B is scheduled to
 be started at the same time as B, the transaction will either
 fail (in case both are required part of the transaction) or be
 modified to be fixed (in case one or both jobs are not a
@@ -479,7 +485,9 @@ joined.',
         'description' => 'Takes a space-separated list of absolute
 paths. Automatically adds dependencies of type
 C<Requires> and C<After> for
-all mount units required to access the specified path.Mount points marked with C<noauto> are not
+all mount units required to access the specified path.
+
+Mount points marked with C<noauto> are not
 mounted automatically and will be ignored for the purposes of
 this option. If such a mount should be a requirement for this
 unit, direct dependencies on the mount units may be added
@@ -627,7 +635,9 @@ except for device units. NB: this timeout is independent from any unit-specific 
 timeout set with C<TimeoutStartSec> in service units) as the job timeout has no effect on the
 unit itself, only on the job that might be pending for it. Or in other words: unit-specific timeouts are useful
 to abort unit state changes, and revert them. The job timeout set with this option however is useful to abort
-only the job waiting for the unit state to change.C<JobTimeoutAction>
+only the job waiting for the unit state to change.
+
+C<JobTimeoutAction>
 optionally configures an additional
 action to take when the time-out is
 hit. It takes the same values as the
@@ -653,7 +663,9 @@ except for device units. NB: this timeout is independent from any unit-specific 
 timeout set with C<TimeoutStartSec> in service units) as the job timeout has no effect on the
 unit itself, only on the job that might be pending for it. Or in other words: unit-specific timeouts are useful
 to abort unit state changes, and revert them. The job timeout set with this option however is useful to abort
-only the job waiting for the unit state to change.C<JobTimeoutAction>
+only the job waiting for the unit state to change.
+
+C<JobTimeoutAction>
 optionally configures an additional
 action to take when the time-out is
 hit. It takes the same values as the
@@ -679,7 +691,9 @@ except for device units. NB: this timeout is independent from any unit-specific 
 timeout set with C<TimeoutStartSec> in service units) as the job timeout has no effect on the
 unit itself, only on the job that might be pending for it. Or in other words: unit-specific timeouts are useful
 to abort unit state changes, and revert them. The job timeout set with this option however is useful to abort
-only the job waiting for the unit state to change.C<JobTimeoutAction>
+only the job waiting for the unit state to change.
+
+C<JobTimeoutAction>
 optionally configures an additional
 action to take when the time-out is
 hit. It takes the same values as the

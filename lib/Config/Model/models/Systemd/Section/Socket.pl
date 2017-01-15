@@ -100,44 +100,60 @@ by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-
 (C<SOCK_STREAM>), datagram
 (C<SOCK_DGRAM>), or sequential packet
 (C<SOCK_SEQPACKET>) socket, respectively.
-The address can be written in various formats:If the address starts with a slash
+The address can be written in various formats:
+
+If the address starts with a slash
 (C</>), it is read as file system socket in
-the C<AF_UNIX> socket family.If the address starts with an at symbol
+the C<AF_UNIX> socket family.
+
+If the address starts with an at symbol
 (C<@>), it is read as abstract namespace
 socket in the C<AF_UNIX> family. The
 C<@> is replaced with a
 C<NUL> character before binding. For
 details, see
-L<unix(7)>.If the address string is a single number, it is read as
+L<unix(7)>.
+
+If the address string is a single number, it is read as
 port number to listen on via IPv6. Depending on the value of
 C<BindIPv6Only> (see below) this might result
 in the service being available via both IPv6 and IPv4
 (default) or just via IPv6.
+
 If the address string is a string in the format
 v.w.x.y:z, it is read as IPv4 specifier for listening on an
-address v.w.x.y on a port z.If the address string is a string in the format [x]:y,
+address v.w.x.y on a port z.
+
+If the address string is a string in the format [x]:y,
 it is read as IPv6 address x on a port y. Note that this might
 make the service available via IPv4, too, depending on the
 C<BindIPv6Only> setting (see below).
+
 Note that C<SOCK_SEQPACKET> (i.e.
 C<ListenSequentialPacket>) is only available
 for C<AF_UNIX> sockets.
 C<SOCK_STREAM> (i.e.
 C<ListenStream>) when used for IP sockets
 refers to TCP sockets, C<SOCK_DGRAM> (i.e.
-C<ListenDatagram>) to UDP.These options may be specified more than once, in which
+C<ListenDatagram>) to UDP.
+
+These options may be specified more than once, in which
 case incoming traffic on any of the sockets will trigger
 service activation, and all listed sockets will be passed to
 the service, regardless of whether there is incoming traffic
 on them or not. If the empty string is assigned to any of
 these options, the list of addresses to listen on is reset,
 all prior uses of any of these options will have no
-effect.It is also possible to have more than one socket unit
+effect.
+
+It is also possible to have more than one socket unit
 for the same service when using C<Service>,
 and the service will receive all the sockets configured in all
 the socket units. Sockets configured in one unit are passed in
 the order of configuration, but no ordering between socket
-units is specified.If an IP address is used here, it is often desirable to
+units is specified.
+
+If an IP address is used here, it is often desirable to
 listen on it before the interface it is configured on is up
 and running, and even regardless of whether it will be up and
 running at any point. To deal with this, it is recommended to
@@ -155,44 +171,60 @@ below.',
 (C<SOCK_STREAM>), datagram
 (C<SOCK_DGRAM>), or sequential packet
 (C<SOCK_SEQPACKET>) socket, respectively.
-The address can be written in various formats:If the address starts with a slash
+The address can be written in various formats:
+
+If the address starts with a slash
 (C</>), it is read as file system socket in
-the C<AF_UNIX> socket family.If the address starts with an at symbol
+the C<AF_UNIX> socket family.
+
+If the address starts with an at symbol
 (C<@>), it is read as abstract namespace
 socket in the C<AF_UNIX> family. The
 C<@> is replaced with a
 C<NUL> character before binding. For
 details, see
-L<unix(7)>.If the address string is a single number, it is read as
+L<unix(7)>.
+
+If the address string is a single number, it is read as
 port number to listen on via IPv6. Depending on the value of
 C<BindIPv6Only> (see below) this might result
 in the service being available via both IPv6 and IPv4
 (default) or just via IPv6.
+
 If the address string is a string in the format
 v.w.x.y:z, it is read as IPv4 specifier for listening on an
-address v.w.x.y on a port z.If the address string is a string in the format [x]:y,
+address v.w.x.y on a port z.
+
+If the address string is a string in the format [x]:y,
 it is read as IPv6 address x on a port y. Note that this might
 make the service available via IPv4, too, depending on the
 C<BindIPv6Only> setting (see below).
+
 Note that C<SOCK_SEQPACKET> (i.e.
 C<ListenSequentialPacket>) is only available
 for C<AF_UNIX> sockets.
 C<SOCK_STREAM> (i.e.
 C<ListenStream>) when used for IP sockets
 refers to TCP sockets, C<SOCK_DGRAM> (i.e.
-C<ListenDatagram>) to UDP.These options may be specified more than once, in which
+C<ListenDatagram>) to UDP.
+
+These options may be specified more than once, in which
 case incoming traffic on any of the sockets will trigger
 service activation, and all listed sockets will be passed to
 the service, regardless of whether there is incoming traffic
 on them or not. If the empty string is assigned to any of
 these options, the list of addresses to listen on is reset,
 all prior uses of any of these options will have no
-effect.It is also possible to have more than one socket unit
+effect.
+
+It is also possible to have more than one socket unit
 for the same service when using C<Service>,
 and the service will receive all the sockets configured in all
 the socket units. Sockets configured in one unit are passed in
 the order of configuration, but no ordering between socket
-units is specified.If an IP address is used here, it is often desirable to
+units is specified.
+
+If an IP address is used here, it is often desirable to
 listen on it before the interface it is configured on is up
 and running, and even regardless of whether it will be up and
 running at any point. To deal with this, it is recommended to
@@ -210,44 +242,60 @@ below.',
 (C<SOCK_STREAM>), datagram
 (C<SOCK_DGRAM>), or sequential packet
 (C<SOCK_SEQPACKET>) socket, respectively.
-The address can be written in various formats:If the address starts with a slash
+The address can be written in various formats:
+
+If the address starts with a slash
 (C</>), it is read as file system socket in
-the C<AF_UNIX> socket family.If the address starts with an at symbol
+the C<AF_UNIX> socket family.
+
+If the address starts with an at symbol
 (C<@>), it is read as abstract namespace
 socket in the C<AF_UNIX> family. The
 C<@> is replaced with a
 C<NUL> character before binding. For
 details, see
-L<unix(7)>.If the address string is a single number, it is read as
+L<unix(7)>.
+
+If the address string is a single number, it is read as
 port number to listen on via IPv6. Depending on the value of
 C<BindIPv6Only> (see below) this might result
 in the service being available via both IPv6 and IPv4
 (default) or just via IPv6.
+
 If the address string is a string in the format
 v.w.x.y:z, it is read as IPv4 specifier for listening on an
-address v.w.x.y on a port z.If the address string is a string in the format [x]:y,
+address v.w.x.y on a port z.
+
+If the address string is a string in the format [x]:y,
 it is read as IPv6 address x on a port y. Note that this might
 make the service available via IPv4, too, depending on the
 C<BindIPv6Only> setting (see below).
+
 Note that C<SOCK_SEQPACKET> (i.e.
 C<ListenSequentialPacket>) is only available
 for C<AF_UNIX> sockets.
 C<SOCK_STREAM> (i.e.
 C<ListenStream>) when used for IP sockets
 refers to TCP sockets, C<SOCK_DGRAM> (i.e.
-C<ListenDatagram>) to UDP.These options may be specified more than once, in which
+C<ListenDatagram>) to UDP.
+
+These options may be specified more than once, in which
 case incoming traffic on any of the sockets will trigger
 service activation, and all listed sockets will be passed to
 the service, regardless of whether there is incoming traffic
 on them or not. If the empty string is assigned to any of
 these options, the list of addresses to listen on is reset,
 all prior uses of any of these options will have no
-effect.It is also possible to have more than one socket unit
+effect.
+
+It is also possible to have more than one socket unit
 for the same service when using C<Service>,
 and the service will receive all the sockets configured in all
 the socket units. Sockets configured in one unit are passed in
 the order of configuration, but no ordering between socket
-units is specified.If an IP address is used here, it is often desirable to
+units is specified.
+
+If an IP address is used here, it is often desirable to
 listen on it before the interface it is configured on is up
 and running, and even regardless of whether it will be up and
 running at any point. To deal with this, it is recommended to
@@ -439,7 +487,9 @@ C<Accept=true> is mostly useful to allow
 daemons designed for usage with
 L<inetd(8)>
 to work unmodified with systemd socket
-activation.For IPv4 and IPv6 connections, the C<REMOTE_ADDR>
+activation.
+
+For IPv4 and IPv6 connections, the C<REMOTE_ADDR>
 environment variable will contain the remote IP address, and C<REMOTE_PORT>
 will contain the remote port. This is the same as the format used by CGI.
 For SOCK_RAW, the port is the IP protocol.',
@@ -583,11 +633,14 @@ option is beneficial for protocols where the client sends the
 data first (e.g. HTTP, in contrast to SMTP), because the
 server process will not be woken up unnecessarily before it
 can take any action.
+
 If the client also uses the
 C<TCP_DEFER_ACCEPT> option, the latency of
 the initial connection may be reduced, because the kernel will
 send data in the final packet establishing the connection (the
-third packet in the "three-way handshake").Disabled by default.',
+third packet in the "three-way handshake").
+
+Disabled by default.',
         'type' => 'leaf',
         'value_type' => 'integer'
       },

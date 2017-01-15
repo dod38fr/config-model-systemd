@@ -44,7 +44,9 @@ killed. One of
 C<control-group>,
 C<process>,
 C<mixed>,
-C<none>.If set to C<control-group>, all remaining
+C<none>.
+
+If set to C<control-group>, all remaining
 processes in the control group of this unit will be killed on
 unit stop (for services: after the stop command is executed,
 as configured with C<ExecStop>). If set to
@@ -58,7 +60,9 @@ process is killed. In this case, only the stop command will be
 executed on unit stop, but no process be killed otherwise.
 Processes remaining alive after stop are left in their control
 group and the control group continues to exist after stop
-unless it is empty.Processes will first be terminated via
+unless it is empty.
+
+Processes will first be terminated via
 C<SIGTERM> (unless the signal to send is
 changed via C<KillSignal>). Optionally, this
 is immediately followed by a C<SIGHUP> (if
@@ -69,7 +73,9 @@ repeated with the C<SIGKILL> signal (unless
 this is disabled via the C<SendSIGKILL>
 option). See
 L<kill(2)>
-for more information.Defaults to
+for more information.
+
+Defaults to
 C<control-group>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
@@ -82,7 +88,9 @@ of shutting down a unit (see above), and is usually followed
 by C<SIGKILL> (see above and below). For a
 list of valid signals, see
 L<signal(7)>.
-Defaults to C<SIGTERM>. Note that, right after sending the signal specified in
+Defaults to C<SIGTERM>. 
+
+Note that, right after sending the signal specified in
 this setting, systemd will always send
 C<SIGCONT>, to ensure that even suspended
 tasks can be terminated cleanly.',

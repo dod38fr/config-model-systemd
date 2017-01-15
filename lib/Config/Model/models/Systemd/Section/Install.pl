@@ -36,7 +36,9 @@ is added from the listed unit to the current unit. The primary
 result is that the current unit will be started when the
 listed unit is started. See the description of
 C<Wants> and C<Requires> in
-the [Unit] section for details.WantedBy=foo.service in a service
+the [Unit] section for details.
+
+WantedBy=foo.service in a service
 bar.service is mostly equivalent to
 Alias=foo.service.wants/bar.service in the
 same file. In case of template units, systemctl
@@ -61,7 +63,9 @@ this unit is installed/deinstalled. If the user requests
 installation/deinstallation of a unit with this option
 configured, systemctl enable and
 systemctl disable will automatically
-install/uninstall units listed in this option as well.This option may be used more than once, or a
+install/uninstall units listed in this option as well.
+
+This option may be used more than once, or a
 space-separated list of unit names may be
 given.',
         'type' => 'leaf',
@@ -90,7 +94,9 @@ is added from the listed unit to the current unit. The primary
 result is that the current unit will be started when the
 listed unit is started. See the description of
 C<Wants> and C<Requires> in
-the [Unit] section for details.WantedBy=foo.service in a service
+the [Unit] section for details.
+
+WantedBy=foo.service in a service
 bar.service is mostly equivalent to
 Alias=foo.service.wants/bar.service in the
 same file. In case of template units, systemctl
