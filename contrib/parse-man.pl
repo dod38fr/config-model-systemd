@@ -79,7 +79,9 @@ sub parse_xml ($list, $map) {
 
     my $variable = sub  ($t, $elt) {
         return $condition_variable->($t, $elt) if $elt->first_child_text('term') =~ /^C<Condition/;
-        my $desc = $elt->first_child('listitem')->text;
+
+        my @para_text = map {$_->text} $elt->first_child('listitem')->children('para');
+        my $desc = join("\n\n", @para_text);
 
         # detect deprecated param and what replaces them
         my @supersedes ;
@@ -94,6 +96,9 @@ sub parse_xml ($list, $map) {
 
         # detect verbatim parts setup with programlisting tag
         $desc =~ s/^\+-\+/    /gm;
+
+        # no need to have more than 2 \n to separate paragraphs
+        $desc =~ s/\n{3,}/\n\n/g;
 
         foreach my $term_elt ($elt->children('term')) {
             my $varname = $term_elt->first_child('varname')->text;
