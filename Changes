@@ -1,5 +1,13 @@
 {{$NEXT}}
 
+0.232.6 2017-01-15
+
+  Documentation improvement:
+  
+    * Respect paragraph format of original documentation. This
+      improves a lot the readability of the documentation displayed in
+      cme and on cpan website.
+
 0.232.5 2017-01-13
 
   Bug fix:
