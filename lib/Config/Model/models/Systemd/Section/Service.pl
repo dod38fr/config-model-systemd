@@ -11,6 +11,7 @@
     'class_description' => 'A unit configuration file whose name ends in
 .service encodes information about a process
 controlled and supervised by systemd.
+
 This man page lists the configuration options specific to
 this unit type. See
 L<systemd.unit(5)>
@@ -19,6 +20,7 @@ configuration items are configured in the generic
 C<[Unit]> and C<[Install]>
 sections. The service specific configuration options are
 configured in the C<[Service]> section.
+
 Additional options are listed in
 L<systemd.exec(5)>,
 which define the execution environment the commands are executed
@@ -29,6 +31,7 @@ and in
 L<systemd.resource-control(5)>,
 which configure resource control settings for the processes of the
 service.
+
 If a service is requested under a certain name but no unit
 configuration file is found, systemd looks for a SysV init script
 by the same name (with the .service suffix

@@ -19,9 +19,11 @@ XDG
 Desktop Entry Specification .desktop
 files, which are in turn inspired by Microsoft Windows
 .ini files.
+
 This man page lists the common configuration options of all
 the unit types. These options need to be configured in the [Unit]
 or [Install] sections of the unit files.
+
 In addition to the generic [Unit] and [Install] sections
 described here, each unit may have a type-specific section, e.g.
 [Service] for a service unit. See the respective man pages for
@@ -37,6 +39,8 @@ L<systemd.path(5)>,
 L<systemd.timer(5)>,
 L<systemd.slice(5)>,
 L<systemd.scope(5)>.
+
+
 Various settings are allowed to be specified more than once,
 in which case the interpretation depends on the setting. Often,
 multiple settings form a list, and setting to an empty value
@@ -45,8 +49,10 @@ this is allowed, it is mentioned in the description of the
 setting. Note that using multiple assignments to the same value
 makes the unit file incompatible with parsers for the XDG
 .desktop file format.
+
 Unit files are loaded from a set of paths determined during
 compilation, described in the next section.
+
 Unit files may contain additional options on top of those
 listed here. If systemd encounters an unknown option, it will
 write a warning log message but continue loading the unit. If an
@@ -54,6 +60,7 @@ option or section name is prefixed with C<X->, it is
 ignored completely by systemd. Options within an ignored section
 do not need the prefix. Applications may use this to include
 additional information in the unit files.
+
 Boolean arguments used in unit files can be written in
 various formats. For positive settings the strings
 C<1>, C<yes>, C<true>
@@ -61,6 +68,7 @@ and C<on> are equivalent. For negative settings, the
 strings C<0>, C<no>,
 C<false> and C<off> are
 equivalent.
+
 Time span values encoded in unit files can be written in various formats. A stand-alone
 number specifies a time in seconds.  If suffixed with a time unit, the unit is honored. A
 concatenation of multiple values with units is supported, in which case the values are added
@@ -69,10 +77,12 @@ up. Example: C<50> refers to 50 seconds; C<2min\x{a0}200ms> refers to
 C<s>, C<min>, C<h>, C<d>,
 C<w>, C<ms>, C<us>.  For details see
 L<systemd.time(7)>.
+
 Empty lines and lines starting with C<#> or C<;> are
 ignored. This may be used for commenting. Lines ending in a backslash are concatenated with the
 following line while reading and the backslash is replaced by a space character. This may be
 used to wrap long lines.
+
 Units can be aliased (have an alternative name), by creating a symlink from the new name
 to the existing name in one of the unit search paths. For example,
 systemd-networkd.service has the alias
@@ -89,6 +99,7 @@ status, \x{2026}, and in unit dependency directives C<Wants>,
 C<Requires>, C<Before>, C<After>, \x{2026}, with the
 limitation that aliases specified through C<Alias> are only effective when the
 unit is enabled. Aliases cannot be used with the preset command.
+
 Along with a unit file foo.service, the directory
 foo.service.wants/ may exist. All unit files symlinked from such a
 directory are implicitly added as dependencies of type C<Wants> to the unit.
@@ -100,6 +111,7 @@ L<systemctl(1)>
 tool which reads information from the [Install] section of unit files (see below). A similar
 functionality exists for C<Requires> type dependencies as well, the directory
 suffix is .requires/ in this case.
+
 Along with a unit file foo.service, a \"drop-in\" directory
 foo.service.d/ may exist. All files with the suffix
 C<.conf> from this directory will be parsed after the file itself is
@@ -110,12 +122,14 @@ subdirectory and read its C<.conf> files, followed by the template
 C<.d/> subdirectory and the C<.conf> files there. Also note that
 settings from the C<[Install]> section are not honored in drop-in unit files,
 and have no effect.
+
 In addition to /etc/systemd/system, the drop-in C<.d>
 directories for system services can be placed in /usr/lib/systemd/system or
 /run/systemd/system directories. Drop-in files in /etc
 take precedence over those in /run which in turn take precedence over those
 in /usr/lib. Drop-in files under any of these directories take precedence
 over unit files wherever located.
+
 Some unit names reflect paths existing in the file system
 namespace. Example: a device unit
 dev-sda.device refers to a device with the
@@ -132,6 +146,7 @@ paths during transformation. This escaping is reversible. Properly
 escaped paths can be generated using the
 L<systemd-escape(1)>
 command.
+
 Optionally, units may be instantiated from a
 template file at runtime. This allows creation of
 multiple units from a single configuration file. If
@@ -147,19 +162,23 @@ and no file by that name is found, systemd will look
 for getty\@.service and
 instantiate a service from that configuration file if
 it is found.
+
 To refer to the instance string from within the
 configuration file you may use the special C<%i>
 specifier in many of the configuration options. See below for
 details.
+
 If a unit file is empty (i.e. has the file size 0) or is
 symlinked to /dev/null, its configuration
 will not be loaded and it appears with a load state of
 C<masked>, and cannot be activated. Use this as an
 effective way to fully disable a unit, making it impossible to
 start it even manually.
+
 The unit file format is covered by the
 Interface
 Stability Promise.
+
 Additional units might be loaded into systemd (\"linked\")
 from directories not on the unit load path. See the
 link command for

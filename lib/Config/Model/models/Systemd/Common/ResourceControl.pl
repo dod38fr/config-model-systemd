@@ -12,6 +12,7 @@
 of configuration options for resource control of spawned processes. Internally, this relies on the Linux Control
 Groups (cgroups) kernel concept for organizing processes in a hierarchical tree of named groups for the purpose of
 resource management.
+
 This man page lists the configuration options shared by
 those six unit types. See
 L<systemd.unit(5)>
@@ -27,10 +28,12 @@ for more information on the specific unit configuration files. The
 resource control configuration options are configured in the
 [Slice], [Scope], [Service], [Socket], [Mount], or [Swap]
 sections, depending on the unit type.
+
 In addition, options which control resources available to programs
 executed by systemd are listed in
 L<systemd.exec(5)>.
 Those options complement options listed here.
+
 See the New
 Control Group Interfaces for an introduction on how to make
 use of resource control APIs from programs.

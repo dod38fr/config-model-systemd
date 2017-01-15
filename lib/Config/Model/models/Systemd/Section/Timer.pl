@@ -12,6 +12,7 @@
 C<.timer> encodes information about a timer
 controlled and supervised by systemd, for timer-based
 activation.
+
 This man page lists the configuration options specific to
 this unit type. See
 L<systemd.unit(5)>
@@ -19,6 +20,7 @@ for the common options of all unit configuration files. The common
 configuration items are configured in the generic [Unit] and
 [Install] sections. The timer specific configuration options are
 configured in the [Timer] section.
+
 For each timer file, a matching unit file must exist,
 describing the unit to activate when the timer elapses. By
 default, a service by the same name as the timer (except for the
@@ -26,6 +28,7 @@ suffix) is activated. Example: a timer file
 foo.timer activates a matching service
 foo.service. The unit to activate may be
 controlled by C<Unit> (see below).
+
 Note that in case the unit to activate is already active at the time the timer elapses it is not restarted,
 but simply left running. There is no concept of spawning new service instances in this case. Due to this, services
 with C<RemainAfterExit> set (which stay around continuously even after the service\'s main process

@@ -12,6 +12,7 @@
 points, swap devices and scopes share a subset of configuration
 options which define the killing procedure of processes belonging
 to the unit.
+
 This man page lists the configuration options shared by
 these five unit types. See
 L<systemd.unit(5)>
@@ -24,6 +25,7 @@ and
 L<systemd.scope(5)>
 for more information on the configuration file options specific to
 each unit type.
+
 The kill procedure configuration options are configured in
 the [Service], [Socket], [Mount] or [Swap] section, depending on
 the unit type.

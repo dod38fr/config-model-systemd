@@ -12,6 +12,7 @@
 C<.socket> encodes information about an IPC or
 network socket or a file system FIFO controlled and supervised by
 systemd, for socket-based activation.
+
 This man page lists the configuration options specific to
 this unit type. See
 L<systemd.unit(5)>
@@ -19,6 +20,7 @@ for the common options of all unit configuration files. The common
 configuration items are configured in the generic [Unit] and
 [Install] sections. The socket specific configuration options are
 configured in the [Socket] section.
+
 Additional options are listed in
 L<systemd.exec(5)>,
 which define the execution environment the
@@ -30,6 +32,7 @@ which define the way the processes are terminated, and in
 L<systemd.resource-control(5)>,
 which configure resource control settings for the processes of the
 socket.
+
 For each socket file, a matching service file must exist,
 describing the service to start on incoming traffic on the socket
 (see
@@ -48,12 +51,14 @@ C<Accept=false> is set. If
 C<Accept=true> is set, a service template file
 foo@.service must exist from which services
 are instantiated for each incoming connection.
+
 Unless C<DefaultDependencies> in the C<[Unit]> section is set to
 C<false>, socket units will implicitly have dependencies of type C<Requires> and
 C<After> on sysinit.target as well as dependencies of type
 C<Conflicts> and C<Before> on shutdown.target. These ensure
 that socket units pull in basic system initialization, and are terminated cleanly prior to system shutdown. Only
 sockets involved with early boot or late system shutdown should disable this option.
+
 Socket units will have a C<Before>
 dependency on the service which they trigger added implicitly. No
 implicit C<WantedBy> or
@@ -62,9 +67,11 @@ service is added. This means that the service may be started
 without the socket, in which case it must be able to open sockets
 by itself. To prevent this, an explicit
 C<Requires> dependency may be added.
+
 Socket units may be used to implement on-demand starting of
 services, as well as parallelized starting of services. See the
 blog stories linked at the end for an introduction.
+
 Note that the daemon software configured for socket
 activation with socket units needs to be able to accept sockets
 from systemd, either via systemd\'s native socket passing interface

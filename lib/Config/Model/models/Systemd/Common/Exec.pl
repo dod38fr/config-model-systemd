@@ -12,6 +12,7 @@
 points, and swap devices share a subset of configuration options
 which define the execution environment of spawned
 processes.
+
 This man page lists the configuration options shared by
 these four unit types. See
 L<systemd.unit(5)>
@@ -25,6 +26,7 @@ for more information on the specific unit configuration files. The
 execution specific configuration options are configured in the
 [Service], [Socket], [Mount], or [Swap] sections, depending on the
 unit type.
+
 In addition, options which control resources through Linux Control Groups (cgroups) are listed in
 L<systemd.resource-control(5)>.
 Those options complement options listed here.
