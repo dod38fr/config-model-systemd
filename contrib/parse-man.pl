@@ -154,6 +154,16 @@ sub parse_xml ($list, $map) {
     return \%data;
 }
 
+sub check_for_list ($element, $description) {
+    my $is_list =
+        $element =~ /^(Exec|Condition)/
+        # Requires list and its siblings parameters. See systemd.unit
+        or $element =~ /^(Requires|Requisite|Wants|BindsTo|PartOf)$/
+        or $description =~ /may be specified more than once/i ;
+
+    # Conflicts is a space separated list of units, no "may be specified more than once"
+    return $is_list ? qw/type=list cargo/ : () ;
+}
 
 sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $supersedes) {
 
@@ -200,9 +210,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
         push @load_extra , q!match="^\d+(?i)[KMG]$"!;
     }
 
-    if ($element =~ /^(Exec|Condition)/ or $desc =~ /may be specified more than once/) {
-        push @load, qw/type=list cargo/;
-    }
+    push @load, check_for_list($element, $desc);
 
     push @load, 'type=leaf', "value_type=$value_type";
 
