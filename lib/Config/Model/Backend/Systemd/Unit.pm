@@ -41,16 +41,7 @@ sub read {
         next unless $file->exists;
 
         $logger->debug("reading default layer from unit $unit_type name $unit_name from $file");
-        my $fh = new IO::File;
-        $fh->open($file);
-        $fh->binmode(":utf8");
-
-        my $res = $self->SUPER::read(
-            io_handle => $fh,
-            check => $args{check},
-        );
-        $fh->close;
-        die "failed $file read " unless $res;
+        $self->load_ini_file($file, $args{check});
     }
     $self->node->instance->layered_stop;
 
@@ -64,6 +55,21 @@ sub read {
         # mouse super() does not work...
         $self->SUPER::read(%args);
     }
+}
+
+sub load_ini_file {
+    my ($self, $file, $check) = @_ ;
+
+    my $fh = new IO::File;
+    $fh->open($file);
+    $fh->binmode(":utf8");
+
+    my $res = $self->SUPER::read(
+        io_handle => $fh,
+        check => $check,
+    );
+    $fh->close;
+    die "failed $file read " unless $res;
 }
 
 # overrides call to node->load_data
