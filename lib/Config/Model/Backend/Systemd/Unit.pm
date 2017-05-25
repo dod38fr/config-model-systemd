@@ -28,11 +28,6 @@ sub read {
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
-    if ($self->node->instance->layered) {
-        # avoid deep recursion in layered mode
-        return $self->SUPER::read(%args);
-    };
-
     my $unit_type = $self->node->element_name;
     my $unit_name   = $self->node->index_value;
 
@@ -50,7 +45,7 @@ sub read {
         $fh->open($file);
         $fh->binmode(":utf8");
 
-        my $res = $self->read(
+        my $res = $self->SUPER::read(
             io_handle => $fh,
             check => $args{check},
         );
