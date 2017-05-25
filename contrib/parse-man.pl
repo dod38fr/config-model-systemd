@@ -159,7 +159,7 @@ sub check_for_list ($element, $description) {
         $element =~ /^(Exec|Condition)/
         # Requires list and its siblings parameters. See systemd.unit
         or $element =~ /^(Requires|Requisite|Wants|BindsTo|PartOf)$/
-        or $description =~ /may be specified more than once/i ;
+        or $description =~ /may be (specified|used) more than once/i ;
 
     # Conflicts is a space separated list of units, no "may be specified more than once"
     return $is_list ? qw/type=list cargo/ : () ;
