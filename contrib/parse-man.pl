@@ -317,7 +317,7 @@ foreach my $cdata ($data->{element}->@*) {
 say "Tweaking systemd model...";
 
 $meta_root->load(
-    'class:Systemd::Section::Service
+    'class:Systemd::Section::Service generated_by="parse-man.pl from systemd doc"
      include:=Systemd::Common::ResourceControl,Systemd::Common::Exec,Systemd::Common::Kill'
 );
 
@@ -336,6 +336,7 @@ foreach my $service (@service_list) {
     $meta_root->load(
         qq!
         class:Systemd::$name
+          generated_by="parse-man.pl from systemd doc"
           element:$name
             type=warped_node
             config_class_name=$class
@@ -359,6 +360,7 @@ foreach my $service (@service_list) {
     $meta_root->load(
         qq!
         class:Systemd
+          generated_by="parse-man.pl from systemd doc"
           element:$service
             type=hash
             index_type=string
