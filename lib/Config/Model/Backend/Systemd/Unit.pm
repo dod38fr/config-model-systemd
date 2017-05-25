@@ -74,7 +74,6 @@ sub load_data {
     my $check = $args{check};
     my $data = $args{data} ;
 
-    # use ObjTreeScanner ?
     my $disp_leaf = sub {
         my ($scanner, $data, $node,$element_name,$index, $leaf_object) = @_ ;
         if (ref($data) eq 'ARRAY') {
