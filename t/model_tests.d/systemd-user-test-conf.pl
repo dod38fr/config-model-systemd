@@ -2,11 +2,13 @@
 
 $home_for_test='/home/joe';
 $conf_dir = '~/.config/systemd/user/';
+$config_file_name = 'systemd-user';
 
 # list of tests. This modules looks for @tests global variable
 @tests = (
     {
         name => 'basic-service',
+        backend_arg => 'gmail',
         file_contents_unlike => {
             "home/joe/.config/systemd/user/gmail-imap-tunnel@.service" 
             => qr/disable/ ,
@@ -15,6 +17,7 @@ $conf_dir = '~/.config/systemd/user/';
 
     {
         name => 'basic-socket',
+        backend_arg => 'gmail',
         file_contents_unlike => {
             "home/joe/.config/systemd/user/gmail-imap-tunnel.socket" 
             => qr/disable/ ,
@@ -23,6 +26,7 @@ $conf_dir = '~/.config/systemd/user/';
 
     {
         name => 'override-service',
+        backend_arg => 'obex',
         setup => {
             'main-obex' => '/usr/lib/systemd/user/obex.service',
             'user-obex' => '~/.config/systemd/user/obex.service',
@@ -41,6 +45,7 @@ $conf_dir = '~/.config/systemd/user/';
     },
     {
         name => 'delete-service',
+        backend_arg => 'obex.service',
         setup => {
             'main-obex' => '/usr/lib/systemd/user/obex.service',
             'user-obex' => '~/.config/systemd/user/obex.service',
@@ -61,6 +66,7 @@ $conf_dir = '~/.config/systemd/user/';
 
     {
         name => 'from-scratch',
+        backend_arg => 'test.service',
         load => 'service:test Unit Description="test from scratch"',
         file_contents_like => {
             "home/joe/.config/systemd/user/test.service" => qr/from scratch/ ,

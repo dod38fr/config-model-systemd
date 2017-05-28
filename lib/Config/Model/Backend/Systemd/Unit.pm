@@ -45,15 +45,21 @@ sub read {
     }
     $self->node->instance->layered_stop;
 
-    my $file_path = path($args{file_path});
+    # now read editable file (files that can be edited with systemctl edit <unit>.<type>
+    # for systemd -> /etc/ systemd/system/unit.type.d/override.conf
+    # for user -> ~/.local/systemd/user/*.conf
+    # for local file -> $args{filexx}
+
+    my $app = $self->instance->application;
+    $args{file_path} .= '.d/override.conf' if $app eq 'systemd';
+    my $file_path = path( $args{file_path} );
+
     if ($file_path->exists and $file_path->realpath eq '/dev/null') {
         $logger->debug("skipping  unit $unit_type name $unit_name from ".$args{config_dir});
     }
-    else {
-        $logger->debug("reading unit $unit_type name $unit_name from ".$args{config_dir});
-
-        # mouse super() does not work...
-        $self->SUPER::read(%args);
+    elsif ($file_path->exists) {
+        $logger->debug("reading unit $unit_type name $unit_name from ".$args{file_path});
+        $self->load_ini_file($args{file_path}, $args{check});
     }
 }
 
@@ -158,11 +164,25 @@ sub write {
             $fp->remove;
             symlink ('/dev/null', $fp->stringify);
         }
+        return 1;
     }
-    else {
-        # mouse super() does not work...
-        $self->SUPER::write(@_);
+
+    my $app = $self->instance->application;
+    if ($app eq 'systemd') {
+        my $dir = path ($args{file_path} . '.d');
+        $dir->mkpath;
+        my $file_path = $dir->child('override.conf');
+        $logger->debug(" open $file_path to write");
+        $args{file_path} = $file_path->stringify;
+        $args{io_handle} = $file_path->openw_utf8;
     }
+
+    my $unit_type = $self->node->element_name;
+    my $unit_name   = $self->node->index_value;
+
+    $logger->debug("writing unit $unit_type name $unit_name to ".$args{file_path});
+    # mouse super() does not work...
+    $self->SUPER::write(%args);
 }
 
 sub _write_leaf{

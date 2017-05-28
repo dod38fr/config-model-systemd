@@ -18,7 +18,22 @@ has config_dir => (
 );
 
 # TODO: accepts other systemd suffixes
-my $filter = qr/\.(service|socket)$/;
+my @service_types = qw/service socket/;
+my $joined_types = join('|', @service_types);
+my $filter = qr/\.($joined_types)(\.d)?$/;
+
+sub get_backend_arg {
+    my $self = shift ;
+
+    my $ba = $self->instance->backend_arg;
+    if (not $ba) {
+        Config::Model::Exception::User->throw(
+            objet => $self->node,
+            error => "Missing systemd unit to work on. This may be passed as 3rd argument to cme",
+        );
+    }
+    return $ba;
+}
 
 sub read {
     my $self = shift ;
@@ -32,15 +47,36 @@ sub read {
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
+    my $app = $self->instance->application;
 
-    # load layers
+    my $select_unit = $self->get_backend_arg;
+    if (not $select_unit) {
+        Config::Model::Exception::User->throw(
+            objet => $self->node,
+            error => "Missing systemd unit to work on. This may be passed as 3rd argument to cme",
+        );
+    }
+
+    if ($select_unit ne '*') {
+        $logger->warn( "Loading unit matching '$select_unit'");
+    } else {
+        $logger->warn("Loading all units...")
+    }
+
+    # load layers. layered mode is handled by Unit backend. Only a hash
+    # key is created here, so layered mode does not matter
     foreach my $layer ($self->default_directories) {
         my $dir = path ($args{root}.$layer);
         next unless $dir->is_dir;
-
         $self->config_dir($dir);
+
         foreach my $file ($dir->children($filter) ) {
             my $unit_name = $file->basename($filter);
+            $logger->trace( "checking unit $unit_name from $file (layered mode))");
+            if ($select_unit ne '*' and $unit_name !~ /$select_unit/) {
+                $logger->trace( "filtered out unit $unit_name from $file (layered mode))");
+                next;
+            }
             my ($unit_type) = ($file =~ $filter);
             $logger->debug( "registering unit $unit_type name $unit_name from $file (layered mode))");
             # force config_dir during init
@@ -56,16 +92,34 @@ sub read {
     }
 
     $self->config_dir($dir);
+    my $found = 0;
     foreach my $file ($dir->children($filter) ) {
-        my ($unit_type) = ($file =~ $filter);
+        my ($unit_type,$dot_d) = ($file =~ $filter);
         my $unit_name = $file->basename($filter);
+        next if ($select_unit ne '*' and $unit_name !~ /$select_unit/);
         if ($file->realpath eq '/dev/null') {
             $logger->debug("unit $unit_type name $unit_name from $file is disabled");
             $self->node->load(step => qq!$unit_type:"$unit_name" disable=1!, check => $args{check} ) ;
         }
+        elsif ($dot_d and $file->child('override.conf')->exists) {
+            $logger->debug("registering unit $unit_type name $unit_name from override file");
+            $self->node->load(step => qq!$unit_type:"$unit_name"!, check => $args{check} ) ;
+        }
         else {
             $logger->debug("registering unit $unit_type name $unit_name from $file");
             $self->node->load(step => qq!$unit_type:"$unit_name"!, check => $args{check} ) ;
+        }
+        $found++;
+    }
+
+    if (not $found) {
+        # no service exists, let's create them.
+        my ($service_name, $unit_type) =  split /\./, $select_unit;
+        my @to_create = $unit_type ? ($unit_type) : @service_types;
+        $service_name //= $select_unit;
+        foreach my $unit_type (@to_create) {
+            $logger->debug("registering unit $unit_type name $service_name from scratch");
+            $self->node->load(step => qq!$unit_type:"$service_name"!, check => $args{check} ) ;
         }
     }
     return 1 ;
@@ -86,10 +140,14 @@ sub write {
     my $dir = path($args{root}.$args{config_dir});
     die "Unknown directory $dir" unless $dir->is_dir;
 
+    my $select_unit = $self->get_backend_arg;
+
     # delete files for non-existing elements (deleted services)
     foreach my $file ($dir->children($filter) ) {
         my ($unit_type) = ($file =~ $filter);
         my $unit_name = $file->basename($filter);
+
+        next if ($select_unit ne '*' and $unit_name !~ /$select_unit/);
 
         my $unit_collection = $self->node->fetch_element($unit_type);
         if (not $unit_collection->defined($unit_name)) {

@@ -1,3 +1,4 @@
 model = Systemd
+require_config_file = 1
 config_dir = ~/.config/systemd/user/
 support_info = https://github.com/dod38fr/config-model-systemd/issues
