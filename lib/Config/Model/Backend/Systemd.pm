@@ -37,12 +37,55 @@ sub get_backend_arg {
 
 sub read {
     my $self = shift ;
+    my $app = $self->instance->application;
+
+    if ($app =~ /file/) {
+        $self->read_systemd_files(@_);
+    }
+    else {
+        $self->read_systemd_units(@_);
+    }
+}
+
+sub read_systemd_files {
+    my $self = shift ;
     my %args = @_ ;
 
     # args are:
     # root       => './my_test',  # fake root directory, used for tests
     # config_dir => /etc/foo',    # absolute path
-    # file       => 'foo.conf',   # file name
+    # config_file       => 'foo.conf',   # file name
+    # file_path  => './my_test/etc/foo/foo.conf'
+    # io_handle  => $io           # IO::File object
+    # check      => yes|no|skip
+
+    #use Tk::ObjScanner; Tk::ObjScanner::scan_object(\%args) ;
+    my $file = $self->get_backend_arg;
+    if (not $file) {
+        Config::Model::Exception::User->throw(
+            objet => $self->node,
+            error => "Missing systemd file to work on. This may be passed as 3rd argument to cme",
+        );
+    }
+
+    $logger->warn( "Loading unit '$file'");
+    my ($service_name, $unit_type) =  split /\./, $file;
+
+    my @to_create = $unit_type ? ($unit_type) : @service_types;
+    foreach my $unit_type (@to_create) {
+        $logger->debug("registering unit $unit_type name $service_name from file name");
+        $self->node->load(step => qq!$unit_type:"$service_name"!, check => $args{check} ) ;
+    }
+}
+
+sub read_systemd_units {
+    my $self = shift ;
+    my %args = @_ ;
+
+    # args are:
+    # root       => './my_test',  # fake root directory, used for tests
+    # config_dir => /etc/foo',    # absolute path
+    # config_file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf'
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
@@ -136,6 +179,9 @@ sub write {
     # file_path  => './my_test/etc/foo/foo.conf'
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
+
+    # file write is handled by Unit backend
+    return 1 if $self->instance->application =~ /file/;
 
     my $dir = path($args{root}.$args{config_dir});
     die "Unknown directory $dir" unless $dir->is_dir;

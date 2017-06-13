@@ -28,6 +28,14 @@ sub read {
     # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
+    # file write is handled by Unit backend
+    if ($self->instance->application =~ /file/) {
+        # allow non-existent file to let user start from scratch
+        return 1 unless  path( $args{file_path} )->exists;
+
+        return $self->load_ini_file(%args);
+    }
+
     my $unit_type = $self->node->element_name;
     my $unit_name   = $self->node->index_value;
 
@@ -41,7 +49,11 @@ sub read {
         next unless $file->exists;
 
         $logger->debug("reading default layer from unit $unit_type name $unit_name from $file");
-        $self->load_ini_file($file, $args{check});
+        $self->load_ini_file(%args, file_path => $file);
+
+        # TODO: may also need to read files in
+        # $unit_name.'.'.$unit_type.'.d' to get all default values
+        # (e.g. /lib/systemd/system/rc-local.service.d/debian.conf)
     }
     $self->node->instance->layered_stop;
 
@@ -49,6 +61,10 @@ sub read {
     # for systemd -> /etc/ systemd/system/unit.type.d/override.conf
     # for user -> ~/.local/systemd/user/*.conf
     # for local file -> $args{filexx}
+
+    # TODO: document limitations (can't read arbitrary files in /etc/
+    # systemd/system/unit.type.d/ and
+    # ~/.local/systemd/user/unit.type.d/*.conf
 
     my $app = $self->instance->application;
     $args{file_path} .= '.d/override.conf' if $app eq 'systemd';
@@ -59,20 +75,21 @@ sub read {
     }
     elsif ($file_path->exists) {
         $logger->debug("reading unit $unit_type name $unit_name from ".$args{file_path});
-        $self->load_ini_file($args{file_path}, $args{check});
+        $self->load_ini_file(%args);
     }
 }
 
 sub load_ini_file {
-    my ($self, $file, $check) = @_ ;
+    my ($self, %args) = @_ ;
 
-    my $fh = new IO::File;
-    $fh->open($file);
-    $fh->binmode(":utf8");
+    $logger->debug("opening file '".$args{file_path}."' to read");
+    my $file = path($args{file_path});
+
+    my $fh = $file->openr_utf8;
 
     my $res = $self->SUPER::read(
+        %args,
         io_handle => $fh,
-        check => $check,
     );
     $fh->close;
     die "failed $file read " unless $res;
@@ -175,6 +192,9 @@ sub write {
         $logger->debug(" open $file_path to write");
         $args{file_path} = $file_path->stringify;
         $args{io_handle} = $file_path->openw_utf8;
+    }
+    if ($app eq 'systemd-file') {
+        $args{io_handle} //= path($args{file_path})->openw_utf8;
     }
 
     my $unit_type = $self->node->element_name;
