@@ -21,27 +21,55 @@ __END__
 
 Requires L<App::Cme>:
 
+Handle all user units:
+
  $ cme edit systemd-user
  $ cme check systemd-user
 
+Handles all user units that match 'foo':
+
+ $ cme edit systemd-user-unit foo
+ $ cme check systemd-user-unit foo
+
+Handles all root units:
+
  # cme edit systemd
  # cme check systemd
+
+Handles all root units that match 'foo':
+
+ # cme edit systemd-unit foo
+ # cme check systemd-unit foo
+
+Handle a service file:
+
+ $ cme check systemd-service path/to/file.service
+ $ cme edit systemd-service path/to/file.service
+
+Timer and socket are also supported:
+
+ $ cme check systemd-socket path/to/file.socket
+ $ cme check systemd-timer path/to/file.
+
 
 =head2 Perl program
 
  use Config::Model qw/cme/;
  cme('systemd-user')->modify('socket:free-imap-tunnel Socket Accept=yes') ;
 
+ cme(application => 'systemd-service', config_file => 'foo.service')
+    ->modify('Unit Description="a service that does foo things"')
+
 =head1 DESCRIPTION
 
-This module provides a configuration editor for the configuration file
+This module provides a configuration editor for the configuration files
 of systemd, i.e. all files in C<~/.config/systemd/user/> or all files
 in C</etc/systemd/system/>
 
-Ok. I simplified. Actually, this module provides the configuration
+Ok. I simplified. In more details, this module provides the configuration
 models of Systemd configuration file that L<cme>, L<Config::Model> and
-L<Config::Model::TkUI> use to provide a configuration editor and
-checker.
+L<Config::Model::TkUI> use to provide a configuration editor (C<cme edit>) and
+checker (C<cme check>).
 
 =head2 invoke editor
 
@@ -55,12 +83,17 @@ files and launch a graphical editor:
 
  sudo cme edit systemd
 
+A developer can also edit a systemd file shipped with a software:
+
+ cme edit systemd-service software-thing.service
+
 =head2 Just check systemd configuration
 
 You can also use L<cme> to run sanity checks on the configuration file:
 
  cme check systemd-user
  cme check systemd
+ cme check systemd-service software-thing.service
 
 =head2 Use in Perl program
 
@@ -101,7 +134,6 @@ by systemd project. This list is expected to be rather complete.
 The properties of these parameters are inferred from the description
 of the parameters and are probably less accurate. In case of errors,
 please L<log a bug|https://github.com/dod38fr/config-model-systemd/issues>.
-.
 
 =head1 TODO
 
