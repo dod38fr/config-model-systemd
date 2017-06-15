@@ -4,6 +4,7 @@ use warnings;
 use Path::Tiny;
 
 use Test::More;
+use Test::File::Contents;
 use Config::Model qw/cme/;
 use Log::Log4perl qw(:easy :levels);
 
@@ -33,20 +34,38 @@ my $wr_root = path('wr_root');
 $wr_root->remove_tree;
 $wr_root->mkpath;
 
-{
+my $from_scratch_dir = $wr_root->child('from-scratch');
+$from_scratch_dir->mkpath;
+
+my $systemd_file = $from_scratch_dir->child('test.service');
+
+subtest 'create file from scratch' => sub {
+
     my $instance = cme(
-        application => 'systemd-file',
-        backend_arg => 'test.service',
-        root_dir => $wr_root->child('from-scratch')->stringify
+        application => 'systemd-service',
+        config_file => $systemd_file->basename,
+        root_dir => $from_scratch_dir->stringify
     );
 
+    ok($instance, "systemd-service instance created");
 
-    $instance->modify('service:test Unit Description="test single unit"');
+    $instance->modify('Unit Description="test single unit"');
     # test minimal modif (re-order)
     $instance->save(force => 1);
     ok(1,"data saved");
-}
 
+    file_contents_like($systemd_file->stringify, qr/test single unit/,"saved file ok");
+};
 
-done_testing;
+subtest 'read file' => sub {
+    my $instance = cme(
+        application => 'systemd-service',
+        config_file => $systemd_file->basename,
+        root_dir => $from_scratch_dir->stringify
+    );
+
+    is($instance->grab_value('Unit Description'),"test single unit","read file ok");
+};
+
+done_testing();
 

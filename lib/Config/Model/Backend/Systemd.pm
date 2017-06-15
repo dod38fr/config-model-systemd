@@ -60,7 +60,7 @@ sub read_systemd_files {
     # check      => yes|no|skip
 
     #use Tk::ObjScanner; Tk::ObjScanner::scan_object(\%args) ;
-    my $file = $self->get_backend_arg;
+    my $file = $args{file_path};
     if (not $file) {
         Config::Model::Exception::User->throw(
             objet => $self->node,
@@ -68,8 +68,8 @@ sub read_systemd_files {
         );
     }
 
-    $logger->warn( "Loading unit '$file'");
-    my ($service_name, $unit_type) =  split /\./, $file;
+    $logger->warn( "Loading unit file '$file'");
+    my ($service_name, $unit_type) =  split /\./, path($file)->basename;
 
     my @to_create = $unit_type ? ($unit_type) : @service_types;
     foreach my $unit_type (@to_create) {

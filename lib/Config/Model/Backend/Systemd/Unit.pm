@@ -29,11 +29,13 @@ sub read {
     # check      => yes|no|skip
 
     # file write is handled by Unit backend
-    if ($self->instance->application =~ /file/) {
+    if ($self->instance->application =~ /systemd-(?!user)/) {
+        # file_path overridden by model => how can config_dir be found ?
+        my $file = $args{file_path};
         # allow non-existent file to let user start from scratch
-        return 1 unless  path( $args{file_path} )->exists;
+        return 1 unless  path( $file )->exists;
 
-        return $self->load_ini_file(%args);
+        return $self->load_ini_file(%args, file_path => $file);
     }
 
     my $unit_type = $self->node->element_name;
@@ -189,18 +191,12 @@ sub write {
         my $dir = path ($args{file_path} . '.d');
         $dir->mkpath;
         my $file_path = $dir->child('override.conf');
-        $logger->debug(" open $file_path to write");
+        $logger->debug("open $file_path to write");
         $args{file_path} = $file_path->stringify;
         $args{io_handle} = $file_path->openw_utf8;
     }
-    if ($app eq 'systemd-file') {
-        $args{io_handle} //= path($args{file_path})->openw_utf8;
-    }
 
-    my $unit_type = $self->node->element_name;
-    my $unit_name   = $self->node->index_value;
-
-    $logger->debug("writing unit $unit_type name $unit_name to ".$args{file_path});
+    $logger->debug("writing unit to ".$args{file_path});
     # mouse super() does not work...
     $self->SUPER::write(%args);
 }
