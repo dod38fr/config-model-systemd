@@ -23,39 +23,42 @@ Requires L<App::Cme>:
 
 Handle all user units:
 
- $ cme edit systemd-user
- $ cme check systemd-user
+ $ cme edit systemd-user '*'
+ $ cme check systemd-user '*'
 
 Handles all user units that match 'foo':
 
- $ cme edit systemd-user-unit foo
- $ cme check systemd-user-unit foo
+ $ cme edit systemd-user foo
+ $ cme check systemd-user foo
 
-Handles all root units:
+Check all root units:
 
- # cme edit systemd
- # cme check systemd
+ # cme check systemd '*'
 
-Handles all root units that match 'foo':
+Check all root units that match 'foo':
 
- # cme edit systemd-unit foo
- # cme check systemd-unit foo
+ # cme check systemd foo
+
+Edit override file of C<foo.service>:
+
+ # cme edit systemd foo.service
 
 Handle a service file:
 
  $ cme check systemd-service path/to/file.service
  $ cme edit systemd-service path/to/file.service
 
-Timer and socket are also supported:
+Timer and socket units are also supported:
 
  $ cme check systemd-socket path/to/file.socket
- $ cme check systemd-timer path/to/file.
+ $ cme check systemd-timer path/to/file.timer
 
 
-=head2 Perl program
+=head2 Perl program (experimental)
 
  use Config::Model qw/cme/;
- cme('systemd-user')->modify('socket:free-imap-tunnel Socket Accept=yes') ;
+ cme(application => 'systemd-user' backend_arg => 'free')
+    ->modify('socket:free-imap-tunnel Socket Accept=yes') ;
 
  cme(application => 'systemd-service', config_file => 'foo.service')
     ->modify('Unit Description="a service that does foo things"')
@@ -76,12 +79,13 @@ checker (C<cme check>).
 The following command loads user systemd files (from
 C<~/.config/systemd/user/> and launch a graphical editor:
 
- cme edit systemd-user
+ cme edit systemd-user foo
 
 Likewise, the following command loads system systemd configuration
-files and launch a graphical editor:
+files and launch a graphical editor to updated an override file (like
+C<systemctl edit> command):
 
- sudo cme edit systemd
+ sudo cme edit systemd foo
 
 A developer can also edit a systemd file shipped with a software:
 
@@ -89,25 +93,31 @@ A developer can also edit a systemd file shipped with a software:
 
 =head2 Just check systemd configuration
 
-You can also use L<cme> to run sanity checks on the configuration file:
+You can also use L<cme> to run sanity checks on systemd configuration files:
 
- cme check systemd-user
- cme check systemd
+ cme check systemd-user '*'
+ cme check systemd '*' # may take time
  cme check systemd-service software-thing.service
 
-=head2 Use in Perl program
+=head2 Use in Perl program (experimental)
 
 As of L<Config::Model> 2.086, a L<cme/"cme(...)"> function is exported
 to modify configuration in a Perl program. For instance:
 
  use Config::Model qw/cme/; # also import cme function
  # call cme for systemd-user, modify ans save my-imap-tunnel.socket file.
- cme('systemd-user')->modify('socket:my-imap-tunnel Socket Accept=yes') ;
+ cme(
+   application => 'systemd-user',
+   backend_arg => 'my-imap-tunnel'
+ )->modify('socket:my-imap-tunnel Socket Accept=yes') ;
 
 Similarly, system Systemd files can be modified using C<systemd> application:
 
  use Config::Model qw/cme/;
- cme('systemd')->modify(...) ;
+ cme(
+   application => 'systemd',
+   backend_arg => 'foo'
+ )->modify(...) ;
 
 For more details and parameters, please see 
 L<cme|Config::Model/"cme ( ... )">,
