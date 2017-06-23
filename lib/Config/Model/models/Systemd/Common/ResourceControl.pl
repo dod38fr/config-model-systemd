@@ -415,6 +415,10 @@ prefixed with C<BlockIO> or C<StartupBlockIO>.',
       },
       'DeviceAllow',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Control access to specific device nodes by the
 executed processes. Takes two space-separated strings: a
 device node specifier followed by a combination of
@@ -445,8 +449,7 @@ C<char-alsa> are specifiers for all pseudo
 TTYs and all ALSA sound devices,
 respectively. C<char-cpu/*> is a specifier
 matching all CPU related device groups.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'DevicePolicy',
       {

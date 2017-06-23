@@ -26,6 +26,7 @@
         }
       }
     ],
+    'generated_by' => 'parse-man.pl from systemd doc',
     'include' => [
       'Systemd::CommonElements'
     ],

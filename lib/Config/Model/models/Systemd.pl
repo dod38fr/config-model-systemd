@@ -29,6 +29,7 @@
         'type' => 'hash'
       }
     ],
+    'generated_by' => 'parse-man.pl from systemd doc',
     'name' => 'Systemd',
     'read_config' => [
       {

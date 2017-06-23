@@ -25,6 +25,10 @@ aliasing.',
       },
       'WantedBy',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'This option may be used more than once, or a
 space-separated list of unit names may be given. A symbolic
 link is created in the .wants/ or
@@ -53,11 +57,14 @@ creating a
 getty.target.wants/getty@tty2.service
 link to getty@.service.
 ',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'Also',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'Additional units to install/deinstall when
 this unit is installed/deinstalled. If the user requests
 installation/deinstallation of a unit with this option
@@ -68,8 +75,7 @@ install/uninstall units listed in this option as well.
 This option may be used more than once, or a
 space-separated list of unit names may be
 given.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       },
       'DefaultInstance',
       {
@@ -83,6 +89,10 @@ must be usable as instance identifier.',
       },
       'RequiredBy',
       {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
         'description' => 'This option may be used more than once, or a
 space-separated list of unit names may be given. A symbolic
 link is created in the .wants/ or
@@ -111,8 +121,7 @@ creating a
 getty.target.wants/getty@tty2.service
 link to getty@.service.
 ',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
+        'type' => 'list'
       }
     ],
     'name' => 'Systemd::Section::Install'
