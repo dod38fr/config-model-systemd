@@ -377,7 +377,11 @@ foreach my $service (@service_list) {
             index_type=string
             cargo
               type=node
-              config_class_name=Systemd::$name - - !
+              config_class_name=Systemd::$name - -
+          read_config:0
+            backend=Systemd
+            auto_create=1 -
+          !
     );
 }
 
