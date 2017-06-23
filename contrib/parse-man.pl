@@ -155,13 +155,16 @@ sub parse_xml ($list, $map) {
 }
 
 sub check_for_list ($element, $description) {
-    my $is_list =
-        $element =~ /^(Exec|Condition)/
-        # Requires list and its siblings parameters. See systemd.unit
-        or $element =~ /^(Requires|Requisite|Wants|BindsTo|PartOf)$/
-        or $description =~ /may be (specified|used) more than once/i ;
+    my $is_list = 0;
+    $is_list ||= $element =~ /^(Exec|Condition)/ ;
+    # Requires list and its siblings parameters. See systemd.unit
+    $is_list ||= $element =~ /^(Requires|Requisite|Wants|BindsTo|PartOf|Conflicts)$/ ;
+    # see systemd.resource-control
+    $is_list ||= $element =~ /^(DeviceAllow)$/ ;
+    # see systemd.socket
+    $is_list ||= $element =~ /^Listen/ ;
+    $is_list ||= $description =~ /may be (specified|used) more than once/i ;
 
-    # Conflicts is a space separated list of units, no "may be specified more than once"
     return $is_list ? qw/type=list cargo/ : () ;
 }
 
