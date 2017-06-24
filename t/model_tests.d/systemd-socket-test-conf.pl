@@ -10,7 +10,7 @@ $model_to_test = "Systemd::Socket";
         config_file => 'gmail-imap-tunnel.socket',
         check => [
             'Unit Description' => "Socket for Gmail IMAP tunnel",
-            'Install WantedBy' => 'sockets.target',
+            'Install WantedBy:0' => 'sockets.target',
             'Socket ListenStream:0' => 9995,
             'Socket Accept' => "yes"
         ],
