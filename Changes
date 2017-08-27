@@ -71,7 +71,7 @@
   Systemd model update:
     * update with systemd 232
     * specify default value of some integer parameters
-    * can migrate depracated resource-control parameters
+    * can migrate deprecated resource-control parameters
       (for instance, cme replaces deprecated CPUWeight with CPUShares)
 
   Systemd parser update:
