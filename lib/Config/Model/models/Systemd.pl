@@ -31,12 +31,10 @@
     ],
     'generated_by' => 'parse-man.pl from systemd doc',
     'name' => 'Systemd',
-    'read_config' => [
-      {
-        'auto_create' => '1',
-        'backend' => 'Systemd'
-      }
-    ]
+    'rw_config' => {
+      'auto_create' => '1',
+      'backend' => 'Systemd'
+    }
   }
 ]
 ;

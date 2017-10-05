@@ -31,14 +31,12 @@
       'Systemd::CommonElements'
     ],
     'name' => 'Systemd::Socket',
-    'read_config' => [
-      {
-        'auto_create' => '1',
-        'auto_delete' => '1',
-        'backend' => 'Systemd::Unit',
-        'file' => '&index.socket'
-      }
-    ]
+    'rw_config' => {
+      'auto_create' => '1',
+      'auto_delete' => '1',
+      'backend' => 'Systemd::Unit',
+      'file' => '&index.socket'
+    }
   }
 ]
 ;
