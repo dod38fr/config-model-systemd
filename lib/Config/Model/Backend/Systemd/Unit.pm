@@ -225,14 +225,12 @@ __END__
 =head1 SYNOPSIS
 
  # in systemd service or socket model
- read_config => [
-   {
+ rw_config => {
      'auto_create' => '1',
      'auto_delete' => '1',
      'backend' => 'Systemd::Unit',
      'file' => '&index.service'
-   }
- ]
+ }
 
 =head1 DESCRIPTION
 

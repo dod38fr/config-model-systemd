@@ -219,11 +219,9 @@ __END__
 =head1 SYNOPSIS
 
  # in systemd model
- read_config => [
-      {
-        'backend' => 'Systemd'
-      }
-    ]
+ rw_config => {
+     'backend' => 'Systemd'
+ }
 
 =head1 DESCRIPTION
 
