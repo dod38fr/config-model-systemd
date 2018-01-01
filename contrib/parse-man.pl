@@ -113,7 +113,7 @@ sub parse_xml ($list, $map) {
 
     my $set_config_class = sub ($name) {
         $config_class = 'Systemd::'.( $map->{$name} || 'Section::'.ucfirst($name));
-        say  $file->basename(".xml").": Parsing class $config_class";
+        say "Parsing class $config_class from " . $file->basename(".xml") . ':';
     };
 
     my $parse_sub_title = sub {
