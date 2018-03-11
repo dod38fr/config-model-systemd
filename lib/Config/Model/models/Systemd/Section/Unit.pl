@@ -167,12 +167,25 @@ The unit file format is covered by the
 Interface
 Stability Promise.
 
-Additional units might be loaded into systemd (\"linked\")
-from directories not on the unit load path. See the
-link command for
+The set of load paths for the user manager instance may be augmented or
+changed using various environment variables. And environment variables may in
+turn be set using environment generators, see
+L<system.environment-generator(7)>.
+In particular, C<\$XDG_DATA_HOME> and
+C<\$XDG_DATA_DIRS> may be easily set using
+L<systemd-environment-d-generator(8)>.
+Thus, directories listed here are just the defaults. To see the actual list that
+would be used based on compilation options and current environment use
+
+
++-+systemd-analyze --user unit-paths
+
+
+
+Moreover, additional units might be loaded into systemd (\"linked\") from
+directories not on the unit load path. See the link command
+for
 L<systemctl(1)>.
-Also, some units are dynamically created via a
-L<systemd.generator(7)>.
 
 This configuration class was generated from systemd documentation.
 by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>
@@ -228,8 +241,8 @@ effect.',
         'description' => "Configures requirement dependencies on other units. If this unit gets activated, the units
 listed here will be activated as well. If one of the other units fails to activate, and an ordering dependency
 C<After> on the failing unit is set, this unit will not be started. Besides, with or without
-specifying C<After>, this unit will be deactivated if one of the other units get deactivated.
-This option may be specified more than once or multiple space-separated units may be
+specifying C<After>, this unit will be stopped if one of the other units is explicitly
+stopped. This option may be specified more than once or multiple space-separated units may be
 specified in one option in which case requirement dependencies for all listed names will be created. Note that
 requirement dependencies do not influence the order in which services are started or stopped.  This has to be
 configured independently with the C<After> or C<Before> options. If a unit
@@ -432,7 +445,9 @@ invoked and they either failed or reported start-up success.',
       {
         'description' => 'A space-separated list of one or more units
 that are activated when this unit enters the
-C<failed> state.',
+C<failed> state.  A service unit using
+C<Restart> enters the failed state only after
+the start limits are reached.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -819,9 +834,7 @@ semantics. Defaults to C<none>.',
       {
         'description' => 'Configure the action to take when the unit stops and enters a failed state or inactive
 state. Takes the same values as the setting C<StartLimitAction> setting and executes the same
-actions (see
-L<systemd.unit(5)>). Both options
-default to C<none>.',
+actions. Both options default to C<none>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -829,9 +842,7 @@ default to C<none>.',
       {
         'description' => 'Configure the action to take when the unit stops and enters a failed state or inactive
 state. Takes the same values as the setting C<StartLimitAction> setting and executes the same
-actions (see
-L<systemd.unit(5)>). Both options
-default to C<none>.',
+actions. Both options default to C<none>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -982,6 +993,8 @@ C<oracle>,
 C<xen>,
 C<bochs>,
 C<uml>,
+C<bhyve>,
+C<qnx>,
 C<openvz>,
 C<lxc>,
 C<lxc-libvirt>,
@@ -1080,6 +1093,44 @@ the kernel command line is searched for the word appearing as
 is, or as left hand side of an assignment. In the latter case,
 the exact assignment is looked for with right and left hand
 side matching.
+
+If multiple conditions are specified, the unit will be
+executed if all of them apply (i.e. a logical AND is applied).
+Condition checks can be prefixed with a pipe symbol (|) in
+which case a condition becomes a triggering condition. If at
+least one triggering condition is defined for a unit, then the
+unit will be executed if at least one of the triggering
+conditions apply and all of the non-triggering conditions. If
+you prefix an argument with the pipe symbol and an exclamation
+mark, the pipe symbol must be passed first, the exclamation
+second. Except for
+C<ConditionPathIsSymbolicLink=>, all path
+checks follow symlinks. If any of these options is assigned
+the empty string, the list of conditions is reset completely,
+all previous condition settings (of any kind) will have no
+effect.",
+        'type' => 'list'
+      },
+      'ConditionKernelVersion',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
+starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
+respected. A failing condition will not result in the unit being moved into a failure state. The condition is
+checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
+units that do not apply to the local running system, for example because the kernel or runtime environment
+doesn't require its functionality. Use the various C<AssertArchitecture=>,
+C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
+state and logs about the failed check (see below).
+
+C<ConditionKernelVersion=> may be used to check whether the kernel version (as reported
+by uname -r) matches a certain expression (or if prefixed with the exclamation mark does not
+match it). The argument must be a single string. If the string starts with one of C<<>,
+C<<=>, C<=>, C<>=>, C<>> a relative
+version comparison is done, otherwise the specified string is matched with shell-style globs.
 
 If multiple conditions are specified, the unit will be
 executed if all of them apply (i.e. a logical AND is applied).
@@ -1727,6 +1778,50 @@ all previous condition settings (of any kind) will have no
 effect.",
         'type' => 'list'
       },
+      'ConditionControlGroupController',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
+starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
+respected. A failing condition will not result in the unit being moved into a failure state. The condition is
+checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
+units that do not apply to the local running system, for example because the kernel or runtime environment
+doesn't require its functionality. Use the various C<AssertArchitecture=>,
+C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
+state and logs about the failed check (see below).
+
+C<ConditionControlGroupController=> takes a
+cgroup controller name (eg. C<cpu>), verifying that it is
+available for use on the system. For example, a particular controller
+may not be available if it was disabled on the kernel command line with
+C<cgroup_disable=>controller.
+Multiple controllers may be passed with a space separating them; in
+this case the condition will only pass if all listed controllers are
+available for use. Controllers unknown to systemd are ignored. Valid
+controllers are C<cpu>, C<cpuacct>,
+C<io>, C<blkio>, C<memory>,
+C<devices>, and C<pids>.
+
+If multiple conditions are specified, the unit will be
+executed if all of them apply (i.e. a logical AND is applied).
+Condition checks can be prefixed with a pipe symbol (|) in
+which case a condition becomes a triggering condition. If at
+least one triggering condition is defined for a unit, then the
+unit will be executed if at least one of the triggering
+conditions apply and all of the non-triggering conditions. If
+you prefix an argument with the pipe symbol and an exclamation
+mark, the pipe symbol must be passed first, the exclamation
+second. Except for
+C<ConditionPathIsSymbolicLink=>, all path
+checks follow symlinks. If any of these options is assigned
+the empty string, the list of conditions is reset completely,
+all previous condition settings (of any kind) will have no
+effect.",
+        'type' => 'list'
+      },
       'AssertArchitecture',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
@@ -1761,6 +1856,17 @@ the administrator or user should look into.",
         'value_type' => 'uniline'
       },
       'AssertKernelCommandLine',
+      {
+        'description' => "Similar to the C<ConditionArchitecture>,
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
+assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
+that is not met results in failure of the start job (which means this is logged loudly). Use assertion
+expressions for units that cannot operate when specific requirements are not met, and when this is something
+the administrator or user should look into.",
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'AssertKernelVersion',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
@@ -1937,6 +2043,17 @@ the administrator or user should look into.",
         'value_type' => 'uniline'
       },
       'AssertGroup',
+      {
+        'description' => "Similar to the C<ConditionArchitecture>,
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
+assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
+that is not met results in failure of the start job (which means this is logged loudly). Use assertion
+expressions for units that cannot operate when specific requirements are not met, and when this is something
+the administrator or user should look into.",
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'AssertControlGroupController',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
