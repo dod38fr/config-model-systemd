@@ -31,6 +31,9 @@ GetOptions (\%opt, "from=s") or die("Error in command line arguments\n");
 
 die "Missing '-from' option " unless $opt{from};
 
+# make sure that Systemd model is created from scratch
+path('lib/Config/Model/models')->remove_tree;
+
 my $systemd_path = path($opt{from});
 die "Can't open directory ".$opt{from}."\n" unless $systemd_path->is_dir;
 
