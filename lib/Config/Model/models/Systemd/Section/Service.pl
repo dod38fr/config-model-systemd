@@ -819,6 +819,13 @@ C<USBFunctionDescriptors>
 above.',
         'type' => 'leaf',
         'value_type' => 'uniline'
+      },
+      'FailureAction',
+      {
+        'status' => 'deprecated',
+        'type' => 'leaf',
+        'value_type' => 'uniline',
+        'warn' => 'FailureAction is now part of Unit. Migrating...'
       }
     ],
     'generated_by' => 'parse-man.pl from systemd doc',
