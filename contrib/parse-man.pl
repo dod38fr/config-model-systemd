@@ -416,6 +416,50 @@ foreach my $service (@service_list) {
     );
 }
 
+say "Handling move of FailureAction from service to unit (done in systemd 236)...";
+# create deprecated FailureAction in Service for backward compat
+$meta_root->load( steps => [
+    'class:Systemd::Section::Service',
+    'element:FailureAction type=leaf value_type=uniline status=deprecated',
+    'warn="FailureAction is now part of Unit. Migrating..."'
+]);
+
+# Due to the fact that Unit are used in Service, Timer, Socket but
+# only Service needs backward compat, a special Unit class is created
+# for each Service . All these
+
+# Saving FailureAction definition stored in FailureAction from data
+# extracted from Systemd doc
+my $failure_action_dump = $meta_root->grab("class:Systemd::Section::Unit element:FailureAction")->dump_tree;
+
+# remove FailureAction from common Unit class
+$meta_root->load('class:Systemd::Section::Unit element:.rm(FailureAction)');
+
+foreach my $service (@service_list) {
+    my $unit_class = "Systemd::Section::". ucfirst($service).'Unit';
+
+    # inject FailureAction in Special Unit class
+    $meta_root
+        ->grab("class:$unit_class element:FailureAction")
+        ->load($failure_action_dump);
+
+    # make sure that special Unit class provide all elements from
+    # common Unit class
+    $meta_root->load(steps => [
+        "class:$unit_class include=Systemd::Section::Unit",
+        'accept:".*" type=leaf value_type=uniline warn="Unknown parameter"'
+    ]);
+}
+
+# inject the migration instruction that retrieve FailureAction setting
+# from Service class (where it's deprecated) and copy them to the new
+# FailureAction in Unit class in a service file (hence this migration
+# instruction is done only in ServiceUnit class)
+$meta_root->load(
+    q!class:Systemd::Section::ServiceUnit element:FailureAction
+      migrate_from variables:old="- - Service FailureAction" formula="$old"!
+  );
+
 say "Saving systemd model...";
 $rw_obj->write_all;
 
