@@ -178,10 +178,17 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 
     my @log;
 
-    my $obj = $meta_root->grab(
-        step => "class:$config_class element:$element",
-        autoadd => 1
-    );
+    if (not $meta_root->fetch_element('class')->exists($config_class)) {
+        say "Creating model class $config_class";
+        $meta_root->load( steps => [
+            qq!class:$config_class!,
+            q!generated_by="parseman.pl from systemd doc"!,
+            qq!accept:".*" type=leaf value_type=uniline warn="Unknown parameter"!
+        ]);
+    }
+    my $step = "class:$config_class element:$element";
+
+    my $obj = $meta_root->grab(step => $step, autoadd => 1);
 
     # trim description (which is not saved in this sub) to simplify
     # the regexp below
@@ -302,6 +309,7 @@ foreach my $config_class ($meta_root->fetch_element('class')->fetch_all_indexes)
 say "Creating systemd model...";
 
 foreach my $config_class (keys $data->{class}->%*) {
+    say "Creating model class $config_class";
     my $desc_ref = $data->{class}{$config_class};
 
     # cleanup leading white space and add formatting
@@ -345,23 +353,40 @@ $meta_root->load(
                                  choice=0,1,2,3,none,realtime,best-effort,idle'
 );
 
+# these warping instructions are used for most services. Serives are
+# disables when a service file is a symlink to /dev/null
+my $common_warp = qq!warp follow:disable="- disable" rules:\$disable level=hidden - - !;
+
 foreach my $service (@service_list) {
     my $name = ucfirst($service);
     my $class = 'Systemd::'.( $map{$name} || 'Section::'.ucfirst($name));
 
+    my $unit_class = $name.'Unit';
+    # make sure that the unit class exists (and fill it later when needed)
+    $meta_root->load("class:Systemd::Section::$unit_class");
+
     # create class that hold the service created by parsing man page
-    $meta_root->load(
-        qq!
+    $meta_root->load(qq!
         class:Systemd::$name
           generated_by="parse-man.pl from systemd doc"
+          element:disable
+            type=leaf
+            value_type=boolean
+            upstream_default=0
+            summary="disable configuration file supplied by the vendor"
+            description="When true, cme will disable a configuration file supplied by the vendor by placing place a symlink to /dev/null with the same filename as the vendor configuration file. See L<systemd-system.conf> for details." -
           element:$name
             type=warped_node
             config_class_name=$class
-            warp
-              follow:disable="- disable"
-              rules:\$disable
-                level=hidden - - -
-          include:=Systemd::CommonElements
+            $common_warp -
+          element:Unit
+            type=warped_node
+            config_class_name=Systemd::Section::$unit_class
+            $common_warp -
+          element:Install
+            type=warped_node
+            config_class_name=Systemd::Section::Install
+            $common_warp -
           rw_config
             backend=Systemd::Unit
             file=&index.$service
