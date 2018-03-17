@@ -300,14 +300,14 @@ sub move_deprecated_element ($meta_root, $from, $to) {
     # only Service needs backward compat, a special Unit class is created
     # for each Service.
 
-    # Saving $from definition stored from data extracted from Systemd
+    # Saving $to definition stored from data extracted from Systemd
     # doc
     my $from_element_dump = $meta_root->grab(
-        "class:Systemd::Section::Unit element:$from"
+        "class:Systemd::Section::Unit element:$to"
     )->dump_tree;
 
     # remove $from element from common Unit class
-    $meta_root->load("class:Systemd::Section::Unit element:.rm($from)");
+    $meta_root->load("class:Systemd::Section::Unit element:.rm($to)");
 
     foreach my $service (@service_list) {
         my $unit_class = "Systemd::Section::". ucfirst($service).'Unit';
@@ -331,7 +331,7 @@ sub move_deprecated_element ($meta_root, $from, $to) {
     # instruction is done only in ServiceUnit class)
     $meta_root->load( steps => [
         qq!class:Systemd::Section::ServiceUnit element:$to!,
-        qq!migrate_from variables:old="- - Service $from" formula="\$old"!
+        qq!migrate_from variables:service="- - Service $from" formula="\$service"!
     ]);
 }
 
@@ -466,11 +466,28 @@ foreach my $service (@service_list) {
     );
 }
 
-my @moved = qw/FailureAction SuccessAction StartLimitBurst/;
+my @moved = qw/FailureAction SuccessAction StartLimitBurst StartLimitInterval/;
+my %move_target = qw/StartLimitInterval StartLimitIntervalSec/;
 
 foreach my $from (@moved) {
-    move_deprecated_element($meta_root, $from, $from)
+    my $to = $move_target{$from} || $from;
+    move_deprecated_element($meta_root, $from, $to);
 }
+
+# StartLimitInterval is also deprecated in Unit
+$meta_root->load( steps => [
+    'class:Systemd::Section::Unit',
+    qq!element:StartLimitInterval type=leaf value_type=uniline status=deprecated!,
+    qq!warn="StartLimitInterval is now StartLimitIntervalSec. Migrating..."!
+]);
+
+# handle migration from both service and unit
+$meta_root->load( steps => [
+    qq!class:Systemd::Section::ServiceUnit element:StartLimitIntervalSec!,
+    qq!migrate_from variables:unit="- StartLimitInterval"!,
+    # $service variable is defined in move_deprecated element function
+    q!use_eval=1 formula="$unit || $service"!
+]);
 
 say "Saving systemd model...";
 $rw_obj->write_all;
