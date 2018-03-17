@@ -826,6 +826,20 @@ above.',
         'type' => 'leaf',
         'value_type' => 'uniline',
         'warn' => 'FailureAction is now part of Unit. Migrating...'
+      },
+      'SuccessAction',
+      {
+        'status' => 'deprecated',
+        'type' => 'leaf',
+        'value_type' => 'uniline',
+        'warn' => 'SuccessAction is now part of Unit. Migrating...'
+      },
+      'StartLimitBurst',
+      {
+        'status' => 'deprecated',
+        'type' => 'leaf',
+        'value_type' => 'uniline',
+        'warn' => 'StartLimitBurst is now part of Unit. Migrating...'
       }
     ],
     'generated_by' => 'parse-man.pl from systemd doc',
