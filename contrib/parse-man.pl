@@ -466,7 +466,7 @@ foreach my $service (@service_list) {
     );
 }
 
-my @moved = qw/FailureAction SuccessAction StartLimitBurst StartLimitInterval/;
+my @moved = qw/FailureAction SuccessAction StartLimitBurst StartLimitInterval RebootArgument/;
 my %move_target = qw/StartLimitInterval StartLimitIntervalSec/;
 
 # check also src/core/load-fragment-gperf.gperf.m4 is systemd source
