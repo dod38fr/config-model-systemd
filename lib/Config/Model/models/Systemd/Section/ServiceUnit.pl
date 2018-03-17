@@ -106,6 +106,21 @@ has no effect.',
         },
         'type' => 'leaf',
         'value_type' => 'uniline'
+      },
+      'RebootArgument',
+      {
+        'description' => 'Configure the optional argument for the
+L<reboot(2)> system call if
+C<StartLimitAction> or C<FailureAction> is a reboot action. This
+works just like the optional argument to systemctl reboot command.',
+        'migrate_from' => {
+          'formula' => '$service',
+          'variables' => {
+            'service' => '- - Service RebootArgument'
+          }
+        },
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       }
     ],
     'include' => [

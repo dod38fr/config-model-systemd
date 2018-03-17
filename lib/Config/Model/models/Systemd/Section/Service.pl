@@ -847,6 +847,13 @@ above.',
         'type' => 'leaf',
         'value_type' => 'uniline',
         'warn' => 'service/StartLimitInterval is now Unit/StartLimitIntervalSec. Migrating...'
+      },
+      'RebootArgument',
+      {
+        'status' => 'deprecated',
+        'type' => 'leaf',
+        'value_type' => 'uniline',
+        'warn' => 'RebootArgument is now part of Unit. Migrating...'
       }
     ],
     'generated_by' => 'parse-man.pl from systemd doc',

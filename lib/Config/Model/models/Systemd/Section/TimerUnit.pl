@@ -80,6 +80,15 @@ flushed out too. This means that configuring start rate limiting for a unit that
 has no effect.',
         'type' => 'leaf',
         'value_type' => 'uniline'
+      },
+      'RebootArgument',
+      {
+        'description' => 'Configure the optional argument for the
+L<reboot(2)> system call if
+C<StartLimitAction> or C<FailureAction> is a reboot action. This
+works just like the optional argument to systemctl reboot command.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       }
     ],
     'include' => [

@@ -528,6 +528,12 @@ C<--job-mode=> option for details on the
 possible values. If this is set to C<isolate>,
 only a single unit may be listed in
 C<OnFailure>..',
+        'migrate_from' => {
+          'formula' => '$unit',
+          'variables' => {
+            'unit' => '- OnFailureIsolate'
+          }
+        },
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -773,15 +779,6 @@ C<poweroff-immediate> have the effect of powering down the system with similar
 semantics. Defaults to C<none>.',
         'type' => 'leaf',
         'value_type' => 'enum'
-      },
-      'RebootArgument',
-      {
-        'description' => 'Configure the optional argument for the
-L<reboot(2)> system call if
-C<StartLimitAction> or C<FailureAction> is a reboot action. This
-works just like the optional argument to systemctl reboot command.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
       },
       'ConditionArchitecture',
       {
@@ -2009,6 +2006,13 @@ units.',
         'type' => 'leaf',
         'value_type' => 'uniline',
         'warn' => 'StartLimitInterval is now StartLimitIntervalSec. Migrating...'
+      },
+      'OnFailureIsolate',
+      {
+        'status' => 'deprecated',
+        'type' => 'leaf',
+        'value_type' => 'uniline',
+        'warn' => 'OnFailureIsolate is now OnFailureJobMode. Migrating...'
       }
     ],
     'generated_by' => 'parse-man.pl from systemd doc',
