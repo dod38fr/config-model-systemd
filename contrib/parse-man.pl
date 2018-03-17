@@ -492,6 +492,18 @@ $meta_root->load( steps => [
     q!use_eval=1 formula="$unit || $service"!
 ]);
 
+# renamed element in Unit
+say "Handling move of OnFailureIsolate to OnFailureJobMode in unit";
+$meta_root->load( steps => [
+    'class:Systemd::Section::Unit',
+    q!element:OnFailureIsolate type=leaf value_type=uniline status=deprecated!,
+    q!warn="OnFailureIsolate is now OnFailureJobMode. Migrating..." -!,
+    q!element:OnFailureJobMode!,
+    q!migrate_from variables:unit="- OnFailureIsolate"!,
+    q!formula="$unit"!
+]);
+
+
 say "Saving systemd model...";
 $rw_obj->write_all;
 
