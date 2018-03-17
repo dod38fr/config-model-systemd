@@ -469,12 +469,15 @@ foreach my $service (@service_list) {
 my @moved = qw/FailureAction SuccessAction StartLimitBurst StartLimitInterval/;
 my %move_target = qw/StartLimitInterval StartLimitIntervalSec/;
 
+# check also src/core/load-fragment-gperf.gperf.m4 is systemd source
+# for "compatibility" elements
 foreach my $from (@moved) {
     my $to = $move_target{$from} || $from;
     move_deprecated_element($meta_root, $from, $to);
 }
 
 # StartLimitInterval is also deprecated in Unit
+say "Handling move of StartLimitInterval to StartLimitIntervalSec in unit";
 $meta_root->load( steps => [
     'class:Systemd::Section::Unit',
     qq!element:StartLimitInterval type=leaf value_type=uniline status=deprecated!,
