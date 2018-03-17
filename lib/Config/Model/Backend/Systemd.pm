@@ -17,6 +17,8 @@ has config_dir => (
     isa => 'Path::Tiny'
 );
 
+has 'annotation' => ( is => 'ro', isa => 'Bool', default => 1 );
+
 # TODO: accepts other systemd suffixes
 my @service_types = qw/service socket/;
 my $joined_types = join('|', @service_types);
