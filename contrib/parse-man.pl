@@ -285,6 +285,56 @@ sub extract_choices($choices) {
     return $choices =~ /C<([\w\-+]+)>/g;
 }
 
+sub move_deprecated_element ($meta_root, $from, $to) {
+    say "Handling move of service/$from to unit/$to...";
+    # create deprecated moved element in Service for backward compat
+    my $warn = $from eq $to ? "$from is now part of Unit. Migrating..."
+        : "service/$from is now Unit/$to. Migrating...";
+    $meta_root->load( steps => [
+        'class:Systemd::Section::Service',
+        qq!element:$from type=leaf value_type=uniline status=deprecated!,
+        qq!warn="$warn"!
+    ]);
+
+    # Due to the fact that Unit are used in Service, Timer, Socket but
+    # only Service needs backward compat, a special Unit class is created
+    # for each Service.
+
+    # Saving $from definition stored from data extracted from Systemd
+    # doc
+    my $from_element_dump = $meta_root->grab(
+        "class:Systemd::Section::Unit element:$from"
+    )->dump_tree;
+
+    # remove $from element from common Unit class
+    $meta_root->load("class:Systemd::Section::Unit element:.rm($from)");
+
+    foreach my $service (@service_list) {
+        my $unit_class = "Systemd::Section::". ucfirst($service).'Unit';
+
+        # inject $from element in Special Unit class
+        $meta_root
+            ->grab("class:$unit_class element:$to")
+            ->load($from_element_dump);
+
+        # make sure that special Unit class provide all elements from
+        # common Unit class
+        $meta_root->load(steps => [
+            "class:$unit_class include=Systemd::Section::Unit",
+            'accept:".*" type=leaf value_type=uniline warn="Unknown parameter"'
+        ]);
+    }
+
+    # inject the migration instruction that retrieve $from element setting
+    # from Service class (where it's deprecated) and copy them to the new
+    # $from element in Unit class in a service file (hence this migration
+    # instruction is done only in ServiceUnit class)
+    $meta_root->load( steps => [
+        qq!class:Systemd::Section::ServiceUnit element:$to!,
+        qq!migrate_from variables:old="- - Service $from" formula="\$old"!
+    ]);
+}
+
 my $data = parse_xml([@list, @service_list], \%map) ;
 
 # Itself constructor returns an object to read or write the data
@@ -418,52 +468,8 @@ foreach my $service (@service_list) {
 
 my @moved = qw/FailureAction SuccessAction StartLimitBurst/;
 
-foreach my $moved (@moved) {
-    say "Handling move of $moved from service to unit (done in systemd 236)...";
-    # create deprecated moved element in Service for backward compat
-    $meta_root->load( steps => [
-        'class:Systemd::Section::Service',
-        qq!element:$moved type=leaf value_type=uniline status=deprecated!,
-        qq!warn="$moved is now part of Unit. Migrating..."!
-    ]);
-
-    # Due to the fact that Unit are used in Service, Timer, Socket but
-    # only Service needs backward compat, a special Unit class is created
-    # for each Service.
-
-    # Saving $moved definition stored from data extracted from Systemd
-    # doc
-    my $moved_element_dump = $meta_root->grab(
-        "class:Systemd::Section::Unit element:$moved"
-    )->dump_tree;
-
-    # remove $moved element from common Unit class
-    $meta_root->load("class:Systemd::Section::Unit element:.rm($moved)");
-
-    foreach my $service (@service_list) {
-        my $unit_class = "Systemd::Section::". ucfirst($service).'Unit';
-
-        # inject $moved element in Special Unit class
-        $meta_root
-            ->grab("class:$unit_class element:$moved")
-            ->load($moved_element_dump);
-
-        # make sure that special Unit class provide all elements from
-        # common Unit class
-        $meta_root->load(steps => [
-            "class:$unit_class include=Systemd::Section::Unit",
-            'accept:".*" type=leaf value_type=uniline warn="Unknown parameter"'
-        ]);
-    }
-
-    # inject the migration instruction that retrieve $moved element setting
-    # from Service class (where it's deprecated) and copy them to the new
-    # $moved element in Unit class in a service file (hence this migration
-    # instruction is done only in ServiceUnit class)
-    $meta_root->load( steps => [
-        qq!class:Systemd::Section::ServiceUnit element:$moved!,
-        qq!migrate_from variables:old="- - Service $moved" formula="\$old"!
-    ]);
+foreach my $from (@moved) {
+    move_deprecated_element($meta_root, $from, $from)
 }
 
 say "Saving systemd model...";
