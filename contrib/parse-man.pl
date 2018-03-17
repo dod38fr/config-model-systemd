@@ -416,7 +416,7 @@ foreach my $service (@service_list) {
     );
 }
 
-my @moved = qw/FailureAction/;
+my @moved = qw/FailureAction SuccessAction StartLimitBurst/;
 
 foreach my $moved (@moved) {
     say "Handling move of $moved from service to unit (done in systemd 236)...";
