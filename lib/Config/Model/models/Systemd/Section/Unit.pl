@@ -746,34 +746,6 @@ system call.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
-      'StartLimitIntervalSec',
-      {
-        'description' => 'Configure unit start rate limiting. Units which are started more than
-burst times within an interval time interval are not
-permitted to start any more. Use C<StartLimitIntervalSec> to configure the checking interval
-(defaults to C<DefaultStartLimitIntervalSec> in manager configuration file, set it to 0 to
-disable any kind of rate limiting). Use C<StartLimitBurst> to configure how many starts per
-interval are allowed (defaults to C<DefaultStartLimitBurst> in manager configuration
-file). These configuration options are particularly useful in conjunction with the service setting
-C<Restart> (see
-L<systemd.service(5)>); however,
-they apply to all kinds of starts (including manual), not just those triggered by the
-C<Restart> logic. Note that units which are configured for C<Restart> and
-which reach the start limit are not attempted to be restarted anymore; however, they may still be restarted
-manually at a later point, after the interval has passed.  From this point on, the
-restart logic is activated again. Note that systemctl reset-failed will cause the restart
-rate counter for a service to be flushed, which is useful if the administrator wants to manually start a unit
-and the start limit interferes with that. Note that this rate-limiting is enforced after any unit condition
-checks are executed, and hence unit activations with failing conditions do not count towards this rate
-limit. This setting does not apply to slice, target, device, and scope units, since they are unit types whose
-activation may either never fail, or may succeed only a single time.
-
-When a unit is unloaded due to the garbage collection logic (see above) its rate limit counters are
-flushed out too. This means that configuring start rate limiting for a unit that is not referenced continously
-has no effect.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
       'StartLimitAction',
       {
         'choice' => [
@@ -2030,6 +2002,13 @@ files. This functionality should not be used in normal
 units.',
         'type' => 'leaf',
         'value_type' => 'uniline'
+      },
+      'StartLimitInterval',
+      {
+        'status' => 'deprecated',
+        'type' => 'leaf',
+        'value_type' => 'uniline',
+        'warn' => 'StartLimitInterval is now StartLimitIntervalSec. Migrating...'
       }
     ],
     'generated_by' => 'parse-man.pl from systemd doc',

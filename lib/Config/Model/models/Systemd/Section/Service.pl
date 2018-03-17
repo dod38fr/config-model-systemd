@@ -840,6 +840,13 @@ above.',
         'type' => 'leaf',
         'value_type' => 'uniline',
         'warn' => 'StartLimitBurst is now part of Unit. Migrating...'
+      },
+      'StartLimitInterval',
+      {
+        'status' => 'deprecated',
+        'type' => 'leaf',
+        'value_type' => 'uniline',
+        'warn' => 'service/StartLimitInterval is now Unit/StartLimitIntervalSec. Migrating...'
       }
     ],
     'generated_by' => 'parse-man.pl from systemd doc',
