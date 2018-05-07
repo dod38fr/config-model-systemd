@@ -58,7 +58,6 @@ sub read_systemd_files {
     # config_dir => /etc/foo',    # absolute path
     # config_file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf'
-    # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
     #use Tk::ObjScanner; Tk::ObjScanner::scan_object(\%args) ;
@@ -108,10 +107,12 @@ sub read_systemd_units {
         $logger->warn("Loading all units...")
     }
 
+    my $root_path = $args{root} || path('/');
+
     # load layers. layered mode is handled by Unit backend. Only a hash
     # key is created here, so layered mode does not matter
     foreach my $layer ($self->default_directories) {
-        my $dir = path ($args{root}.$layer);
+        my $dir = $root_path->child($layer);
         next unless $dir->is_dir;
         $self->config_dir($dir);
 
@@ -129,7 +130,7 @@ sub read_systemd_units {
         }
     }
 
-    my $dir = path($args{root}.$args{config_dir});
+    my $dir = $root_path->child($args{config_dir});
 
     if (not $dir->is_dir) {
         $logger->debug("skipping missing directory $dir");
@@ -179,13 +180,13 @@ sub write {
     # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf'
-    # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
     # file write is handled by Unit backend
     return 1 if $self->instance->application =~ /file/;
 
-    my $dir = path($args{root}.$args{config_dir});
+    my $root_path = $args{root} || path('/');
+    my $dir = $args{root}->path($args{config_dir});
     die "Unknown directory $dir" unless $dir->is_dir;
 
     my $select_unit = $self->get_backend_arg;

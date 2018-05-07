@@ -25,7 +25,6 @@ sub read {
     # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf'
-    # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
     # file write is handled by Unit backend
@@ -39,19 +38,21 @@ sub read {
     }
 
     my $unit_type = $self->node->element_name;
-    my $unit_name   = $self->node->index_value;
+    my $unit_name = $self->node->index_value;
 
     $self->node->instance->layered_start;
+    my $root = $args{root} || path('.');
+
     # load layers for this service
     foreach my $layer ($self->default_directories) {
-        my $dir = path ($args{root}.$layer);
-        next unless $dir->is_dir;
+        my $layer_dir = $root->child($layer);
+        next unless $layer_dir->is_dir;
 
-        my $file = $dir->child($unit_name.'.'.$unit_type);
-        next unless $file->exists;
+        my $layer_file = $layer_dir->child($unit_name.'.'.$unit_type);
+        next unless $layer_file->exists;
 
-        $logger->debug("reading default layer from unit $unit_type name $unit_name from $file");
-        $self->load_ini_file(%args, file_path => $file);
+        $logger->debug("reading default layer from unit $unit_type name $unit_name from $layer_file");
+        $self->load_ini_file(%args, file_path => $layer_file);
 
         # TODO: may also need to read files in
         # $unit_name.'.'.$unit_type.'.d' to get all default values
@@ -69,15 +70,21 @@ sub read {
     # ~/.local/systemd/user/unit.type.d/*.conf
 
     my $app = $self->instance->application;
-    $args{file_path} .= '.d/override.conf' if $app eq 'systemd';
-    my $file_path = path( $args{file_path} );
 
-    if ($file_path->exists and $file_path->realpath eq '/dev/null') {
-        $logger->debug("skipping  unit $unit_type name $unit_name from ".$args{config_dir});
+    my $service_path;
+    if ($app eq 'systemd') {
+        $service_path = $args{file_path}->parent->child("$unit_name.$unit_type.d/override.conf");
     }
-    elsif ($file_path->exists) {
-        $logger->debug("reading unit $unit_type name $unit_name from ".$args{file_path});
-        $self->load_ini_file(%args);
+    else {
+        $service_path = $args{file_path} ;
+    }
+
+    if ($service_path->exists and $service_path->realpath eq '/dev/null') {
+        $logger->debug("skipping unit $unit_type name $unit_name from $service_path");
+    }
+    elsif ($service_path->exists) {
+        $logger->debug("reading unit $unit_type name $unit_name from $service_path");
+        $self->load_ini_file(%args, file_path => $service_path);
     }
 }
 
@@ -85,16 +92,9 @@ sub load_ini_file {
     my ($self, %args) = @_ ;
 
     $logger->debug("opening file '".$args{file_path}."' to read");
-    my $file = path($args{file_path});
 
-    my $fh = $file->openr_utf8;
-
-    my $res = $self->SUPER::read(
-        %args,
-        io_handle => $fh,
-    );
-    $fh->close;
-    die "failed $file read " unless $res;
+    my $res = $self->SUPER::read( %args );
+    die "failed ". $args{file_path}." read" unless $res;
 }
 
 # overrides call to node->load_data
@@ -173,11 +173,10 @@ sub write {
     # config_dir => /etc/foo',    # absolute path
     # file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf'
-    # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
     if ($self->node->grab_value('disable')) {
-        my $fp = path($args{file_path});
+        my $fp = $args{file_path};
         if ($fp->realpath ne '/dev/null') {
             $logger->warn("symlinking file $fp to /dev/null");
             $fp->remove;
@@ -186,19 +185,23 @@ sub write {
         return 1;
     }
 
+    my $unit_name = $self->node->index_value;
+    my $unit_type = $self->node->element_name;
+
     my $app = $self->instance->application;
+    my $service_path;
     if ($app eq 'systemd') {
-        my $dir = path ($args{file_path} . '.d');
+        my $dir = $args{file_path}->parent->child("$unit_name.$unit_type.d");
         $dir->mkpath;
-        my $file_path = $dir->child('override.conf');
-        $logger->debug("open $file_path to write");
-        $args{file_path} = $file_path->stringify;
-        $args{io_handle} = $file_path->openw_utf8;
+        $service_path = $dir->child('override.conf');
+    }
+    else {
+        $service_path = $args{file_path};
     }
 
-    $logger->debug("writing unit to ".$args{file_path});
+    $logger->debug("writing unit to $service_path");
     # mouse super() does not work...
-    $self->SUPER::write(%args);
+    $self->SUPER::write(%args, file_path => $service_path);
 }
 
 sub _write_leaf{
