@@ -11,6 +11,7 @@ extends 'Config::Model::Backend::Any';
 with 'Config::Model::Backend::Systemd::Layers';
 
 my $logger = get_logger("Backend::Systemd");
+my $user_logger = get_logger("User");
 
 has config_dir => (
     is => 'rw',
@@ -69,7 +70,7 @@ sub read_systemd_files {
         );
     }
 
-    $logger->warn( "Loading unit file '$file'");
+    $user_logger->warn( "Loading unit file '$file'");
     my ($service_name, $unit_type) =  split /\./, path($file)->basename;
 
     my @to_create = $unit_type ? ($unit_type) : @service_types;
@@ -102,9 +103,9 @@ sub read_systemd_units {
     }
 
     if ($select_unit ne '*') {
-        $logger->warn( "Loading unit matching '$select_unit'");
+        $user_logger->warn( "Loading unit matching '$select_unit'");
     } else {
-        $logger->warn("Loading all units...")
+        $user_logger->warn("Loading all units...")
     }
 
     my $root_path = $args{root} || path('/');
@@ -200,7 +201,7 @@ sub write {
 
         my $unit_collection = $self->node->fetch_element($unit_type);
         if (not $unit_collection->defined($unit_name)) {
-            $logger->warn("removing file $file of deleted service");
+            $user_logger->warn("removing file $file of deleted service");
             $file->remove;
         }
     }

@@ -12,6 +12,7 @@ extends 'Config::Model::Backend::IniFile';
 with 'Config::Model::Backend::Systemd::Layers';
 
 my $logger = get_logger("Backend::Systemd::Unit");
+my $user_logger = get_logger("User");
 
 sub read {
     my $self = shift ;
@@ -178,7 +179,7 @@ sub write {
     if ($self->node->grab_value('disable')) {
         my $fp = $args{file_path};
         if ($fp->realpath ne '/dev/null') {
-            $logger->warn("symlinking file $fp to /dev/null");
+            $user_logger->warn("symlinking file $fp to /dev/null");
             $fp->remove;
             symlink ('/dev/null', $fp->stringify);
         }
