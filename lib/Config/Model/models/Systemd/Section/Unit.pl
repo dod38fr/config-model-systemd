@@ -56,23 +56,6 @@ ignored completely by systemd. Options within an ignored section
 do not need the prefix. Applications may use this to include
 additional information in the unit files.
 
-Boolean arguments used in unit files can be written in
-various formats. For positive settings the strings
-C<1>, C<yes>, C<true>
-and C<on> are equivalent. For negative settings, the
-strings C<0>, C<no>,
-C<false> and C<off> are
-equivalent.
-
-Time span values encoded in unit files can be written in various formats. A stand-alone
-number specifies a time in seconds.  If suffixed with a time unit, the unit is honored. A
-concatenation of multiple values with units is supported, in which case the values are added
-up. Example: C<50> refers to 50 seconds; C<2min\x{a0}200ms> refers to
-2 minutes and 200 milliseconds, i.e. 120200\x{a0}ms.  The following time units are understood:
-C<s>, C<min>, C<h>, C<d>,
-C<w>, C<ms>, C<us>.  For details see
-L<systemd.time(7)>.
-
 Units can be aliased (have an alternative name), by creating a symlink from the new name
 to the existing name in one of the unit search paths. For example,
 systemd-networkd.service has the alias
@@ -190,15 +173,20 @@ by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-
     'element' => [
       'Description',
       {
-        'description' => 'A free-form string describing the unit. This
-is intended for use in UIs to show descriptive information
-along with the unit name. The description should contain a
-name that means something to the end user. C<Apache2
-Web Server> is a good example. Bad examples are
-C<high-performance light-weight HTTP server>
-(too generic) or C<Apache2> (too specific and
-meaningless for people who do not know
-Apache).',
+        'description' => 'A human readable name for the unit. This is used by
+systemd (and other UIs) as the label for the unit, so this string should
+identify the unit rather than describe it, despite the name. C<Apache2 Web
+Server> is a good example. Bad examples are C<high-performance light-weight
+HTTP server> (too generic) or C<Apache2> (too specific and
+meaningless for people who do not know Apache). systemd will use this
+string as a noun in status messages (C<Starting
+description...>, C<Started
+description.>, C<Reached target
+description.>, C<Failed to start
+description.>), so it should be capitalized, and should
+not be a full sentence or a phrase with a continous verb. Bad examples include
+C<exiting the container> or C<updating the database once per
+day.>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -366,10 +354,10 @@ ordering dependencies.
 
 If a unit A that conflicts with a unit B is scheduled to
 be started at the same time as B, the transaction will either
-fail (in case both are required part of the transaction) or be
+fail (in case both are required parts of the transaction) or be
 modified to be fixed (in case one or both jobs are not a
 required part of the transaction). In the latter case, the job
-that is not the required will be removed, or in case both are
+that is not required will be removed, or in case both are
 not required, the unit that conflicts will be started and the
 unit that is conflicted is stopped.',
         'type' => 'list'
@@ -663,9 +651,31 @@ subsystem. Defaults to C<inactive>.",
         'type' => 'leaf',
         'value_type' => 'enum'
       },
+      'FailureActionExitStatus',
+      {
+        'description' => "Controls the exit status to propagate back to an invoking container manager (in case of a
+system service) or service manager (in case of a user manager) when the
+C<FailureAction>/C<SuccessAction> are set to C<exit> or
+C<exit-force> and the action is triggered. By default the exit status of the main process of the
+triggering unit (if this applies) is propagated. Takes a value in the range 0\x{2026}255 or the empty string to
+request default behaviour.",
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'SuccessActionExitStatus',
+      {
+        'description' => "Controls the exit status to propagate back to an invoking container manager (in case of a
+system service) or service manager (in case of a user manager) when the
+C<FailureAction>/C<SuccessAction> are set to C<exit> or
+C<exit-force> and the action is triggered. By default the exit status of the main process of the
+triggering unit (if this applies) is propagated. Takes a value in the range 0\x{2026}255 or the empty string to
+request default behaviour.",
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'JobTimeoutSec',
       {
-        'description' => 'When a job for this unit is queued, a time-out C<JobTimeoutSec> may be
+        'description' => 'When a job for this unit is queued, a timeout C<JobTimeoutSec> may be
 configured. Similarly, C<JobRunningTimeoutSec> starts counting when the queued job is actually
 started. If either time limit is reached, the job will be cancelled, the unit however will not change state or
 even enter the C<failed> mode. This value defaults to C<infinity> (job timeouts
@@ -674,19 +684,13 @@ C<DefaultTimeoutStartSec>). NB: this timeout is independent from any unit-specif
 (for example, the timeout set with C<TimeoutStartSec> in service units) as the job timeout has
 no effect on the unit itself, only on the job that might be pending for it. Or in other words: unit-specific
 timeouts are useful to abort unit state changes, and revert them. The job timeout set with this option however
-is useful to abort only the job waiting for the unit state to change.
-
-C<JobTimeoutAction> optionally configures an additional action to take when the time-out
-is hit. It takes the same values as C<StartLimitAction>. Defaults to C<none>.
-C<JobTimeoutRebootArgument> configures an optional reboot string to pass to the
-L<reboot(2)>
-system call.',
+is useful to abort only the job waiting for the unit state to change.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'JobRunningTimeoutSec',
       {
-        'description' => 'When a job for this unit is queued, a time-out C<JobTimeoutSec> may be
+        'description' => 'When a job for this unit is queued, a timeout C<JobTimeoutSec> may be
 configured. Similarly, C<JobRunningTimeoutSec> starts counting when the queued job is actually
 started. If either time limit is reached, the job will be cancelled, the unit however will not change state or
 even enter the C<failed> mode. This value defaults to C<infinity> (job timeouts
@@ -695,55 +699,31 @@ C<DefaultTimeoutStartSec>). NB: this timeout is independent from any unit-specif
 (for example, the timeout set with C<TimeoutStartSec> in service units) as the job timeout has
 no effect on the unit itself, only on the job that might be pending for it. Or in other words: unit-specific
 timeouts are useful to abort unit state changes, and revert them. The job timeout set with this option however
-is useful to abort only the job waiting for the unit state to change.
-
-C<JobTimeoutAction> optionally configures an additional action to take when the time-out
-is hit. It takes the same values as C<StartLimitAction>. Defaults to C<none>.
-C<JobTimeoutRebootArgument> configures an optional reboot string to pass to the
-L<reboot(2)>
-system call.',
+is useful to abort only the job waiting for the unit state to change.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'JobTimeoutAction',
       {
-        'description' => 'When a job for this unit is queued, a time-out C<JobTimeoutSec> may be
-configured. Similarly, C<JobRunningTimeoutSec> starts counting when the queued job is actually
-started. If either time limit is reached, the job will be cancelled, the unit however will not change state or
-even enter the C<failed> mode. This value defaults to C<infinity> (job timeouts
-disabled), except for device units (C<JobRunningTimeoutSec> defaults to
-C<DefaultTimeoutStartSec>). NB: this timeout is independent from any unit-specific timeout
-(for example, the timeout set with C<TimeoutStartSec> in service units) as the job timeout has
-no effect on the unit itself, only on the job that might be pending for it. Or in other words: unit-specific
-timeouts are useful to abort unit state changes, and revert them. The job timeout set with this option however
-is useful to abort only the job waiting for the unit state to change.
-
-C<JobTimeoutAction> optionally configures an additional action to take when the time-out
-is hit. It takes the same values as C<StartLimitAction>. Defaults to C<none>.
+        'description' => 'C<JobTimeoutAction> optionally configures an additional action to take when
+the timeout is hit, see description of C<JobTimeoutSec> and
+C<JobRunningTimeoutSec> above. It takes the same values as
+C<StartLimitAction>. Defaults to C<none>.
 C<JobTimeoutRebootArgument> configures an optional reboot string to pass to the
-L<reboot(2)>
-system call.',
+L<reboot(2)> system call.
+',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'JobTimeoutRebootArgument',
       {
-        'description' => 'When a job for this unit is queued, a time-out C<JobTimeoutSec> may be
-configured. Similarly, C<JobRunningTimeoutSec> starts counting when the queued job is actually
-started. If either time limit is reached, the job will be cancelled, the unit however will not change state or
-even enter the C<failed> mode. This value defaults to C<infinity> (job timeouts
-disabled), except for device units (C<JobRunningTimeoutSec> defaults to
-C<DefaultTimeoutStartSec>). NB: this timeout is independent from any unit-specific timeout
-(for example, the timeout set with C<TimeoutStartSec> in service units) as the job timeout has
-no effect on the unit itself, only on the job that might be pending for it. Or in other words: unit-specific
-timeouts are useful to abort unit state changes, and revert them. The job timeout set with this option however
-is useful to abort only the job waiting for the unit state to change.
-
-C<JobTimeoutAction> optionally configures an additional action to take when the time-out
-is hit. It takes the same values as C<StartLimitAction>. Defaults to C<none>.
+        'description' => 'C<JobTimeoutAction> optionally configures an additional action to take when
+the timeout is hit, see description of C<JobTimeoutSec> and
+C<JobRunningTimeoutSec> above. It takes the same values as
+C<StartLimitAction>. Defaults to C<none>.
 C<JobTimeoutRebootArgument> configures an optional reboot string to pass to the
-L<reboot(2)>
-system call.',
+L<reboot(2)> system call.
+',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -756,22 +736,15 @@ system call.',
           'reboot-immediate',
           'poweroff',
           'poweroff-force',
-          'poweroff-immediate'
+          'poweroff-immediate',
+          'exit',
+          'exit-force'
         ],
-        'description' => 'Configure the action to take if the rate limit configured with
-C<StartLimitIntervalSec> and C<StartLimitBurst> is hit. Takes one of
-C<none>, C<reboot>, C<reboot-force>,
-C<reboot-immediate>, C<poweroff>, C<poweroff-force> or
-C<poweroff-immediate>. If C<none> is set, hitting the rate limit will trigger no
-action besides that the start will not be permitted. C<reboot> causes a reboot following the
-normal shutdown procedure (i.e. equivalent to systemctl reboot).
-C<reboot-force> causes a forced reboot which will terminate all processes forcibly but should
-cause no dirty file systems on reboot (i.e. equivalent to systemctl reboot -f) and
-C<reboot-immediate> causes immediate execution of the
-L<reboot(2)> system call, which
-might result in data loss. Similarly, C<poweroff>, C<poweroff-force>,
-C<poweroff-immediate> have the effect of powering down the system with similar
-semantics. Defaults to C<none>.',
+        'description' => 'Configure an additional action to take if the rate limit configured with
+C<StartLimitIntervalSec> and C<StartLimitBurst> is hit.  Takes the same
+values as the setting C<FailureAction>/C<SuccessAction> settings and executes
+the same actions. If C<none> is set, hitting the rate limit will trigger no action besides that
+the start will not be permitted. Defaults to C<none>.',
         'type' => 'leaf',
         'value_type' => 'enum'
       },
@@ -814,12 +787,13 @@ semantics. Defaults to C<none>.',
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionArchitecture=> may be used to
 check whether the system is running on a specific
@@ -889,12 +863,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionVirtualization=> may be used
 to check whether the system is executed in a virtualized
@@ -954,12 +929,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionHost=> may be used to match
 against the hostname or machine ID of the host. This either
@@ -997,12 +973,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionKernelCommandLine=> may be
 used to check whether a specific kernel command line option is
@@ -1039,12 +1016,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionKernelVersion=> may be used to check whether the kernel version (as reported
 by uname -r) matches a certain expression (or if prefixed with the exclamation mark does not
@@ -1077,12 +1055,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionSecurity=> may be used to check
 whether the given security technology is enabled on the
@@ -1118,12 +1097,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionCapability=> may be used to
 check whether the given capability exists in the capability
@@ -1160,12 +1140,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionACPower=> may be used to
 check whether the system has AC power, or is exclusively
@@ -1203,12 +1184,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionNeedsUpdate=> takes one of
 /var or /etc as
@@ -1252,12 +1234,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionFirstBoot=> takes a boolean argument. This condition may be used to
 conditionalize units on whether the system is booting up with an unpopulated /etc
@@ -1290,12 +1273,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 With C<ConditionPathExists=> a file
 existence condition is checked before a unit is started. If
@@ -1331,12 +1315,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionPathExistsGlob=> is similar
 to C<ConditionPathExists=>, but checks for the
@@ -1368,12 +1353,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionPathIsDirectory=> is similar
 to C<ConditionPathExists=> but verifies
@@ -1404,12 +1390,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionPathIsSymbolicLink=> is
 similar to C<ConditionPathExists=> but
@@ -1441,12 +1428,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionPathIsMountPoint=> is similar
 to C<ConditionPathExists=> but verifies
@@ -1477,12 +1465,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionPathIsReadWrite=> is similar
 to C<ConditionPathExists=> but verifies
@@ -1514,12 +1503,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionDirectoryNotEmpty=> is
 similar to C<ConditionPathExists=> but
@@ -1551,12 +1541,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionFileNotEmpty=> is similar to
 C<ConditionPathExists=> but verifies whether a
@@ -1588,12 +1579,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionFileIsExecutable=> is similar
 to C<ConditionPathExists=> but verifies
@@ -1625,12 +1617,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionUser=> takes a numeric
 C<UID>, a UNIX user name, or the special value
@@ -1666,12 +1659,13 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionGroup=> is similar
 to C<ConditionUser=> but verifies that the
@@ -1704,23 +1698,24 @@ effect.",
         },
         'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
 starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into a failure state. The condition is
-checked at the time the queued start job is to be executed. Use condition expressions in order to silently skip
-units that do not apply to the local running system, for example because the kernel or runtime environment
-doesn't require its functionality. Use the various C<AssertArchitecture=>,
-C<AssertVirtualization=>, \x{2026} options for a similar mechanism that puts the unit in a failure
-state and logs about the failed check (see below).
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
 
 C<ConditionControlGroupController=> takes a
 cgroup controller name (eg. C<cpu>), verifying that it is
 available for use on the system. For example, a particular controller
 may not be available if it was disabled on the kernel command line with
-C<cgroup_disable=>controller.
-Multiple controllers may be passed with a space separating them; in
-this case the condition will only pass if all listed controllers are
-available for use. Controllers unknown to systemd are ignored. Valid
-controllers are C<cpu>, C<cpuacct>,
-C<io>, C<blkio>, C<memory>,
+C<cgroup_disable=controller>. Multiple controllers may
+be passed with a space separating them; in this case the condition will
+only pass if all listed controllers are available for use. Controllers
+unknown to systemd are ignored. Valid controllers are
+C<cpu>, C<cpuacct>, C<io>,
+C<blkio>, C<memory>,
 C<devices>, and C<pids>.
 
 If multiple conditions are specified, the unit will be
@@ -1745,9 +1740,16 @@ effect.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1756,9 +1758,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1767,9 +1776,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1778,9 +1794,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1789,9 +1812,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1800,9 +1830,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1811,9 +1848,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1822,9 +1866,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1833,9 +1884,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1844,9 +1902,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1855,9 +1920,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1866,9 +1938,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1877,9 +1956,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1888,9 +1974,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1899,9 +1992,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1910,9 +2010,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1921,9 +2028,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1932,9 +2046,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1943,9 +2064,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1954,9 +2082,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1965,9 +2100,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1976,9 +2118,16 @@ the administrator or user should look into.",
         'description' => "Similar to the C<ConditionArchitecture>,
 C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
 assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Use assertion
-expressions for units that cannot operate when specific requirements are not met, and when this is something
-the administrator or user should look into.",
+that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
+configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
+any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
+cannot operate when specific requirements are not met, and when this is something the administrator or user
+should look into.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note that both
+are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
+queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
+dependencies.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
