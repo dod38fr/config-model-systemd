@@ -200,6 +200,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
         : $desc =~ /Takes time \(in seconds\)/   ? 'integer'
         : $desc =~ /allowed range/i              ? 'integer'
         : $desc =~ /Takes one of/                ? 'enum'
+        : $desc =~ /Takes the same values as/    ? 'enum'
         : $extra_info =~ /\w\|\w/                ? 'enum'
         :                                          'uniline';
 
@@ -235,7 +236,15 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 
     if ($value_type eq 'enum') {
         my @choices;
-        if ($extra_info =~ /\w\|\w/) {
+
+        # handle "Takes the same settings as ..." (seen only for enum)
+        if ($desc =~ /takes the same values as the setting C<(\w+)>/i) {
+            my $other = $1;
+            my $other_obj = $obj->grab("- element:$other");
+            @choices = $other_obj->fetch_element('choice')->fetch;
+            say "Copy enum choices from $other to ", $obj->location;
+        }
+        elsif ($extra_info =~ /\w\|\w/) {
             @choices = split /\|/, $extra_info ;
         }
         elsif ($desc =~ /Takes a boolean argument or /) {
