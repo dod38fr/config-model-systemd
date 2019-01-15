@@ -470,7 +470,8 @@ foreach my $service (@service_list) {
               config_class_name=Systemd::$name - -
           rw_config
             backend=Systemd
-            auto_create=1 -
+            auto_create=1
+            auto_delete=1 -
           !
     );
 }
