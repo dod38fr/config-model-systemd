@@ -5,7 +5,7 @@ use warnings;
 
 use 5.10.1;
 
-use Config::Model 2.123;
+use Config::Model 2.133;
 
 1;
 
