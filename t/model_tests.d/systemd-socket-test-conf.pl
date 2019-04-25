@@ -1,8 +1,5 @@
 # systemd tests for user
 
-# can be removed once Config::model::tester 3.002 is out
-$model_to_test = "Systemd::Socket";
-
 # list of tests. This modules looks for @tests global variable
 @tests = (
     {

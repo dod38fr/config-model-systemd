@@ -1,8 +1,5 @@
 # systemd tests (system files)
 
-# can be removed once Config::model::tester 3.002 is out
-$model_to_test = "Systemd";
-
 $conf_dir = '/etc/systemd/system/';
 
 # list of tests. This modules looks for @tests global variable
