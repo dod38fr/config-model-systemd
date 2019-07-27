@@ -118,10 +118,11 @@ sub read_systemd_units {
         $self->config_dir($dir);
 
         foreach my $file ($dir->children($filter) ) {
+            my $file_name = $file->basename();
             my $unit_name = $file->basename($filter);
-            $logger->trace( "checking unit $unit_name from $file (layered mode))");
-            if ($select_unit ne '*' and $unit_name !~ /$select_unit/) {
-                $logger->trace( "filtered out unit $unit_name from $file (layered mode))");
+            $logger->trace( "checking unit $file_name from $file (layered mode) against $select_unit");
+            if ($select_unit ne '*' and $file_name !~ /$select_unit/) {
+                $logger->trace( "filtered out unit $file_name from $file (layered mode))");
                 next;
             }
             my ($unit_type) = ($file =~ $filter);
@@ -142,8 +143,11 @@ sub read_systemd_units {
     my $found = 0;
     foreach my $file ($dir->children($filter) ) {
         my ($unit_type,$dot_d) = ($file =~ $filter);
+        my $file_name = $file->basename();
         my $unit_name = $file->basename($filter);
-        next if ($select_unit ne '*' and $unit_name !~ /$select_unit/);
+
+        next if ($select_unit ne '*' and $file_name !~ /$select_unit/);
+
         if ($file->realpath eq '/dev/null') {
             $logger->debug("unit $unit_type name $unit_name from $file is disabled");
             $self->node->load(step => qq!$unit_type:"$unit_name" disable=1!, check => $args{check} ) ;
