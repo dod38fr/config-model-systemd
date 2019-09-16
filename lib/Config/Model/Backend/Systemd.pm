@@ -149,15 +149,15 @@ sub read_systemd_units {
         next if ($select_unit ne '*' and $file_name !~ /$select_unit/);
 
         if ($file->realpath eq '/dev/null') {
-            $logger->debug("unit $unit_type name $unit_name from $file is disabled");
+            $logger->warn("unit $unit_type name $unit_name from $file is disabled");
             $self->node->load(step => qq!$unit_type:"$unit_name" disable=1!, check => $args{check} ) ;
         }
         elsif ($dot_d and $file->child('override.conf')->exists) {
-            $logger->debug("registering unit $unit_type name $unit_name from override file");
+            $logger->warn("registering unit $unit_type name $unit_name from override file");
             $self->node->load(step => qq!$unit_type:"$unit_name"!, check => $args{check} ) ;
         }
         else {
-            $logger->debug("registering unit $unit_type name $unit_name from $file");
+            $logger->warn("registering unit $unit_type name $unit_name from $file");
             $self->node->load(step => qq!$unit_type:"$unit_name"!, check => $args{check} ) ;
         }
         $found++;
