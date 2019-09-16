@@ -165,7 +165,7 @@ sub read_systemd_units {
 
     if (not $found) {
         # no service exists, let's create them.
-        $user_logger->warn( "No unit '$select_unit' found, creating one...");
+        $user_logger->warn( "No unit '$select_unit' found in $dir, creating one...");
         my ($service_name, $unit_type) =  split /\./, $select_unit;
         my @to_create = $unit_type ? ($unit_type) : @service_types;
         $service_name //= $select_unit;
