@@ -297,8 +297,8 @@ sub extract_choices($choices) {
 sub move_deprecated_element ($meta_root, $from, $to) {
     say "Handling move of service/$from to unit/$to...";
     # create deprecated moved element in Service for backward compat
-    my $warn = $from eq $to ? "$from is now part of Unit. Migrating..."
-        : "service/$from is now Unit/$to. Migrating...";
+    my $warn = $from eq $to ? "$from is now part of Unit."
+        : "service/$from is now Unit/$to.";
     $meta_root->load( steps => [
         'class:Systemd::Section::Service',
         qq!element:$from type=leaf value_type=uniline status=deprecated!,
@@ -491,7 +491,7 @@ say "Handling move of StartLimitInterval to StartLimitIntervalSec in unit";
 $meta_root->load( steps => [
     'class:Systemd::Section::Unit',
     qq!element:StartLimitInterval type=leaf value_type=uniline status=deprecated!,
-    qq!warn="StartLimitInterval is now StartLimitIntervalSec. Migrating..."!
+    qq!warn="StartLimitInterval is now StartLimitIntervalSec."!
 ]);
 
 # handle migration from both service and unit
@@ -507,7 +507,7 @@ say "Handling move of OnFailureIsolate to OnFailureJobMode in unit";
 $meta_root->load( steps => [
     'class:Systemd::Section::Unit',
     q!element:OnFailureIsolate type=leaf value_type=uniline status=deprecated!,
-    q!warn="OnFailureIsolate is now OnFailureJobMode. Migrating..." -!,
+    q!warn="OnFailureIsolate is now OnFailureJobMode." -!,
     q!element:OnFailureJobMode!,
     q!migrate_from variables:unit="- OnFailureIsolate"!,
     q!formula="$unit"!
