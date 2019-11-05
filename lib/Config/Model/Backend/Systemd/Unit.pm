@@ -52,7 +52,7 @@ sub read {
         my $layer_file = $layer_dir->child($unit_name.'.'.$unit_type);
         next unless $layer_file->exists;
 
-        $logger->debug("reading default layer from unit $unit_type name $unit_name from $layer_file");
+        $logger->warn("reading default layer from unit $unit_type name $unit_name from $layer_file");
         $self->load_ini_file(%args, file_path => $layer_file);
 
         # TODO: may also need to read files in
