@@ -42,11 +42,13 @@ sub read {
     my $unit_name = $self->node->index_value;
 
     $self->node->instance->layered_start;
-    my $root = $args{root} || path('.');
+    my $root = $args{root} || path('/');
+    my $cwd = $args{root} || path('.');
 
     # load layers for this service
     foreach my $layer ($self->default_directories) {
-        my $layer_dir = $root->child($layer);
+        my $local_root = $layer =~ m!^/! ? $root : $cwd;
+        my $layer_dir = $local_root->child($layer);
         next unless $layer_dir->is_dir;
 
         my $layer_file = $layer_dir->child($unit_name.'.'.$unit_type);
