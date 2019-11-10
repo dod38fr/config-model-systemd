@@ -122,7 +122,7 @@ sub read_systemd_units {
             my $unit_name = $file->basename($filter);
             $logger->trace( "checking unit $file_name from $file (layered mode) against $select_unit");
             if ($select_unit ne '*' and $file_name !~ /$select_unit/) {
-                $logger->trace( "filtered out unit $file_name from $file (layered mode))");
+                $logger->trace( "unit $file_name from $file (layered mode) does not match $select_unit");
                 next;
             }
             my ($unit_type) = ($file =~ $filter);
@@ -147,6 +147,7 @@ sub read_systemd_units {
         my $unit_name = $file->basename($filter);
 
         next if ($select_unit ne '*' and $file_name !~ /$select_unit/);
+        $logger->trace( "checking $file against $select_unit");
 
         if ($file->realpath eq '/dev/null') {
             $logger->warn("unit $unit_type name $unit_name from $file is disabled");
