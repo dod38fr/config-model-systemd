@@ -9,6 +9,15 @@ $conf_dir = '/etc/systemd/system/';
         backend_arg => 'sshd',
         setup => {
             'main-sshd' => $conf_dir.'sshd.service.d/override.conf',
+            # create symlink from array elements to target file (the last of the array)
+            # TODO: update C::M::Tester version require
+            'ssh.service' => [ $conf_dir.'/sshd.service', '/lib/systemd/system/ssh.service' ]
+        },
+        check => {
+            'service:sshd Service ExecStartPre:0' => { mode => 'layered', value => '/usr/sbin/sshd -t'},
+            'service:sshd Service ExecReload:0' => { mode => 'layered', value => '/usr/sbin/sshd -t'},
+            'service:sshd Service ExecReload:1' => { mode => 'layered', value => '/bin/kill -HUP $MAINPID'},
+            'service:sshd Unit Description' => "OpenBSD Secure Shell server - test override",
         }
     },
 
