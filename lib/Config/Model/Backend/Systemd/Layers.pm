@@ -24,6 +24,8 @@ sub default_directories {
             '/etc/systemd/system.conf.d/',
             '/run/systemd/system.conf.d/',
             '/lib/systemd/system.conf.d/',
+            # not documented but used to symlink to real files
+            '/etc/systemd/system/',
             # path found on Debian
             '/lib/systemd/system/',
         );
