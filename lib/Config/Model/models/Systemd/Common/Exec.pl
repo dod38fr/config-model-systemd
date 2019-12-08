@@ -1364,7 +1364,7 @@ see below.',
 names must be relative, and may not include C<..>. If set, one or more
 directories by the specified names will be created (including their parents) below the locations
 defined in the following table, when the unit is started. Also, the corresponding environment variable
-is defined with the full path of directories. If multiple directories are set, then int the environment variable
+is defined with the full path of directories. If multiple directories are set, then in the environment variable
 the paths are concatenated with colon (C<:>).
 
 In case of C<RuntimeDirectory> the lowest subdirectories are removed when the unit is
@@ -1431,7 +1431,7 @@ C<STATE_DIRECTORY> is set with C</var/lib/aaa/bbb:/var/lib/ccc>.',
 names must be relative, and may not include C<..>. If set, one or more
 directories by the specified names will be created (including their parents) below the locations
 defined in the following table, when the unit is started. Also, the corresponding environment variable
-is defined with the full path of directories. If multiple directories are set, then int the environment variable
+is defined with the full path of directories. If multiple directories are set, then in the environment variable
 the paths are concatenated with colon (C<:>).
 
 In case of C<RuntimeDirectory> the lowest subdirectories are removed when the unit is
@@ -1498,7 +1498,7 @@ C<STATE_DIRECTORY> is set with C</var/lib/aaa/bbb:/var/lib/ccc>.',
 names must be relative, and may not include C<..>. If set, one or more
 directories by the specified names will be created (including their parents) below the locations
 defined in the following table, when the unit is started. Also, the corresponding environment variable
-is defined with the full path of directories. If multiple directories are set, then int the environment variable
+is defined with the full path of directories. If multiple directories are set, then in the environment variable
 the paths are concatenated with colon (C<:>).
 
 In case of C<RuntimeDirectory> the lowest subdirectories are removed when the unit is
@@ -1565,7 +1565,7 @@ C<STATE_DIRECTORY> is set with C</var/lib/aaa/bbb:/var/lib/ccc>.',
 names must be relative, and may not include C<..>. If set, one or more
 directories by the specified names will be created (including their parents) below the locations
 defined in the following table, when the unit is started. Also, the corresponding environment variable
-is defined with the full path of directories. If multiple directories are set, then int the environment variable
+is defined with the full path of directories. If multiple directories are set, then in the environment variable
 the paths are concatenated with colon (C<:>).
 
 In case of C<RuntimeDirectory> the lowest subdirectories are removed when the unit is
@@ -1632,7 +1632,7 @@ C<STATE_DIRECTORY> is set with C</var/lib/aaa/bbb:/var/lib/ccc>.',
 names must be relative, and may not include C<..>. If set, one or more
 directories by the specified names will be created (including their parents) below the locations
 defined in the following table, when the unit is started. Also, the corresponding environment variable
-is defined with the full path of directories. If multiple directories are set, then int the environment variable
+is defined with the full path of directories. If multiple directories are set, then in the environment variable
 the paths are concatenated with colon (C<:>).
 
 In case of C<RuntimeDirectory> the lowest subdirectories are removed when the unit is
@@ -2241,13 +2241,19 @@ L<shmat(2)> system calls with
 C<SHM_EXEC> set. Note that this option is incompatible with programs and libraries that
 generate program code dynamically at runtime, including JIT execution engines, executable stacks, and code
 "trampoline" feature of various C compilers. This option improves service security, as it makes harder for
-software exploits to change running code dynamically. Note that this feature is fully available on x86-64, and
-partially on x86. Specifically, the shmat() protection is not available on x86. Note that
-on systems supporting multiple ABIs (such as x86/x86-64) it is recommended to turn off alternative ABIs for
-services, so that they cannot be used to circumvent the restrictions of this option. Specifically, it is
-recommended to combine this option with C<SystemCallArchitectures=native> or similar. If
-running in user mode, or in system mode, but without the C<CAP_SYS_ADMIN> capability
-(e.g. setting C<User>), C<NoNewPrivileges=yes> is implied.',
+software exploits to change running code dynamically. However, the protection can be circumvented, if
+the service can write to a filesystem, which is not mounted with C<noexec> (such as
+/dev/shm), or it can use memfd_create().  This can be
+prevented by making such file systems inaccessible to the service
+(e.g. C<InaccessiblePaths=/dev/shm>) and installing further system call filters
+(C<SystemCallFilter=~memfd_create>). Note that this feature is fully available on
+x86-64, and partially on x86. Specifically, the shmat() protection is not
+available on x86. Note that on systems supporting multiple ABIs (such as x86/x86-64) it is
+recommended to turn off alternative ABIs for services, so that they cannot be used to circumvent the
+restrictions of this option. Specifically, it is recommended to combine this option with
+C<SystemCallArchitectures=native> or similar. If running in user mode, or in system
+mode, but without the C<CAP_SYS_ADMIN> capability (e.g. setting
+C<User>), C<NoNewPrivileges=yes> is implied.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -2669,7 +2675,7 @@ of C<inherit>, C<null>, C<tty>, C<journal>,
 C<syslog>, C<kmsg>, C<journal+console>,
 C<syslog+console>, C<kmsg+console>,
 C<file:path>, C<append:path>,
-C<socket> orC<fd:name>.
+C<socket> or C<fd:name>.
 
 C<inherit> duplicates the file descriptor of standard input for standard output.
 
