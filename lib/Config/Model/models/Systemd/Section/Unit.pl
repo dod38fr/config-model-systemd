@@ -1,4 +1,7 @@
-[
+use strict;
+use warnings;
+
+return [
   {
     'accept' => [
       '.*',
@@ -2147,14 +2150,14 @@ units.',
         'status' => 'deprecated',
         'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'StartLimitInterval is now StartLimitIntervalSec. Migrating...'
+        'warn' => 'StartLimitInterval is now StartLimitIntervalSec.'
       },
       'OnFailureIsolate',
       {
         'status' => 'deprecated',
         'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'OnFailureIsolate is now OnFailureJobMode. Migrating...'
+        'warn' => 'OnFailureIsolate is now OnFailureJobMode.'
       }
     ],
     'generated_by' => 'parse-man.pl from systemd doc',

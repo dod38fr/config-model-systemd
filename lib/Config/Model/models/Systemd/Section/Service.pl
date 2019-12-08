@@ -1,4 +1,7 @@
-[
+use strict;
+use warnings;
+
+return [
   {
     'accept' => [
       '.*',
@@ -760,35 +763,35 @@ above.',
         'status' => 'deprecated',
         'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'FailureAction is now part of Unit. Migrating...'
+        'warn' => 'FailureAction is now part of Unit.'
       },
       'SuccessAction',
       {
         'status' => 'deprecated',
         'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'SuccessAction is now part of Unit. Migrating...'
+        'warn' => 'SuccessAction is now part of Unit.'
       },
       'StartLimitBurst',
       {
         'status' => 'deprecated',
         'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'StartLimitBurst is now part of Unit. Migrating...'
+        'warn' => 'StartLimitBurst is now part of Unit.'
       },
       'StartLimitInterval',
       {
         'status' => 'deprecated',
         'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'service/StartLimitInterval is now Unit/StartLimitIntervalSec. Migrating...'
+        'warn' => 'service/StartLimitInterval is now Unit/StartLimitIntervalSec.'
       },
       'RebootArgument',
       {
         'status' => 'deprecated',
         'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'RebootArgument is now part of Unit. Migrating...'
+        'warn' => 'RebootArgument is now part of Unit.'
       }
     ],
     'generated_by' => 'parse-man.pl from systemd doc',
