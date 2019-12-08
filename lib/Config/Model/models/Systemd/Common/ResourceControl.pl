@@ -118,6 +118,23 @@ Example: C<CPUQuota=20%> ensures that the executed processes will never get more
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
+      'CPUQuotaPeriodSec',
+      {
+        'description' => 'Assign the duration over which the CPU time quota specified by C<CPUQuota> is measured.
+Takes a time duration value in seconds, with an optional suffix such as "ms" for milliseconds (or "s" for seconds.)
+The default setting is 100ms. The period is clamped to the range supported by the kernel, which is [1ms, 1000ms].
+Additionally, the period is adjusted up so that the quota interval is also at least 1ms.
+Setting C<CPUQuotaPeriodSec> to an empty value resets it to the default.
+
+This controls the second field of C<cpu.max> attribute on the unified control group hierarchy
+and C<cpu.cfs_period_us> on legacy. For details about these control group attributes, see
+cgroup-v2.txt and
+sched-design-CFS.txt.
+
+Example: C<CPUQuotaPeriodSec=10ms> to request that the CPU quota is measured in periods of 10ms.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'MemoryAccounting',
       {
         'description' => 'Turn on process and kernel memory accounting for this
@@ -445,15 +462,20 @@ L<systemd-system.conf(5)>.",
       },
       'IPAddressAllow',
       {
-        'description' => "Turn on address range network traffic filtering for packets sent and received over AF_INET and AF_INET6
-sockets.  Both directives take a space separated list of IPv4 or IPv6 addresses, each optionally suffixed
-with an address prefix length (separated by a C</> character). If the latter is omitted, the
-address is considered a host address, i.e. the prefix covers the whole address (32 for IPv4, 128 for IPv6).
+        'description' => "Turn on address range network traffic filtering for IP packets sent and received over
+C<AF_INET> and C<AF_INET6> sockets.  Both directives take a
+space separated list of IPv4 or IPv6 addresses, each optionally suffixed with an address prefix
+length in bits (separated by a C</> character). If the latter is omitted, the
+address is considered a host address, i.e. the prefix covers the whole address (32 for IPv4, 128
+for IPv6).
 
-The access lists configured with this option are applied to all sockets created by processes of this
-unit (or in the case of socket units, associated with it). The lists are implicitly combined with any lists
-configured for any of the parent slice units this unit might be a member of. By default all access lists are
-empty. When configured the lists are enforced as follows:
+The access lists configured with this option are applied to all sockets created by processes
+of this unit (or in the case of socket units, associated with it). The lists are implicitly
+combined with any lists configured for any of the parent slice units this unit might be a member
+of. By default all access lists are empty. Both ingress and egress traffic is filtered by these
+settings. In case of ingress traffic the source IP address is checked against these access lists,
+in case of egress traffic the destination IP address is checked. When configured the lists are
+enforced as follows:
 
 In order to implement a whitelisting IP firewall, it is recommended to use a
 C<IPAddressDeny>C<any> setting on an upper-level slice unit (such as the
@@ -485,15 +507,20 @@ them for IP security.",
       },
       'IPAddressDeny',
       {
-        'description' => "Turn on address range network traffic filtering for packets sent and received over AF_INET and AF_INET6
-sockets.  Both directives take a space separated list of IPv4 or IPv6 addresses, each optionally suffixed
-with an address prefix length (separated by a C</> character). If the latter is omitted, the
-address is considered a host address, i.e. the prefix covers the whole address (32 for IPv4, 128 for IPv6).
+        'description' => "Turn on address range network traffic filtering for IP packets sent and received over
+C<AF_INET> and C<AF_INET6> sockets.  Both directives take a
+space separated list of IPv4 or IPv6 addresses, each optionally suffixed with an address prefix
+length in bits (separated by a C</> character). If the latter is omitted, the
+address is considered a host address, i.e. the prefix covers the whole address (32 for IPv4, 128
+for IPv6).
 
-The access lists configured with this option are applied to all sockets created by processes of this
-unit (or in the case of socket units, associated with it). The lists are implicitly combined with any lists
-configured for any of the parent slice units this unit might be a member of. By default all access lists are
-empty. When configured the lists are enforced as follows:
+The access lists configured with this option are applied to all sockets created by processes
+of this unit (or in the case of socket units, associated with it). The lists are implicitly
+combined with any lists configured for any of the parent slice units this unit might be a member
+of. By default all access lists are empty. Both ingress and egress traffic is filtered by these
+settings. In case of ingress traffic the source IP address is checked against these access lists,
+in case of egress traffic the destination IP address is checked. When configured the lists are
+enforced as follows:
 
 In order to implement a whitelisting IP firewall, it is recommended to use a
 C<IPAddressDeny>C<any> setting on an upper-level slice unit (such as the

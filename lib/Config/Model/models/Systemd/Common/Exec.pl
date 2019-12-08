@@ -83,14 +83,15 @@ partition table, or a file system within an MBR/MS-DOS or GPT partition table wi
 Linux-compatible partition, or a set of file systems within a GPT partition table that follows the Discoverable Partitions
 Specification.
 
-When C<DevicePolicy> is set to C<closed> or C<strict>,
-or set to C<auto> and C<DeviceAllow> is set, then this setting adds
-/dev/loop-control with C<rw> mode, C<block-loop> and
-C<block-blkext> with C<rwm> mode to C<DeviceAllow>. See
+When C<DevicePolicy> is set to C<closed> or
+C<strict>, or set to C<auto> and C<DeviceAllow> is
+set, then this setting adds /dev/loop-control with C<rw> mode,
+C<block-loop> and C<block-blkext> with C<rwm> mode
+to C<DeviceAllow>. See
 L<systemd.resource-control(5)>
 for the details about C<DevicePolicy> or C<DeviceAllow>. Also, see
-C<PrivateDevices> below, as it may change the setting of C<DevicePolicy>.
-',
+C<PrivateDevices> below, as it may change the setting of
+C<DevicePolicy>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -228,40 +229,51 @@ is applied at boot or package install time.",
       },
       'DynamicUser',
       {
-        'description' => "Takes a boolean parameter. If set, a UNIX user and group pair is allocated dynamically when the
-unit is started, and released as soon as it is stopped. The user and group will not be added to
-/etc/passwd or /etc/group, but are managed transiently during
-runtime. The L<nss-systemd(8)>
-glibc NSS module provides integration of these dynamic users/groups into the system's user and group
+        'description' => "Takes a boolean parameter. If set, a UNIX user and group pair is allocated
+dynamically when the unit is started, and released as soon as it is stopped. The user and group will
+not be added to /etc/passwd or /etc/group, but are managed
+transiently during runtime. The
+L<nss-systemd(8)> glibc
+NSS module provides integration of these dynamic users/groups into the system's user and group
 databases. The user and group name to use may be configured via C<User> and
-C<Group> (see above). If these options are not used and dynamic user/group allocation is
-enabled for a unit, the name of the dynamic user/group is implicitly derived from the unit name. If the unit
-name without the type suffix qualifies as valid user name it is used directly, otherwise a name incorporating a
-hash of it is used. If a statically allocated user or group of the configured name already exists, it is used
-and no dynamic user/group is allocated. Note that if C<User> is specified and the static group
-with the name exists, then it is required that the static user with the name already exists. Similarly, if
-C<Group> is specified and the static user with the name exists, then it is required that the
-static group with the name already exists. Dynamic users/groups are allocated from the UID/GID range
-61184\x{2026}65519. It is recommended to avoid this range for regular system or login users.  At any point in time
-each UID/GID from this range is only assigned to zero or one dynamically allocated users/groups in
-use. However, UID/GIDs are recycled after a unit is terminated. Care should be taken that any processes running
-as part of a unit for which dynamic users/groups are enabled do not leave files or directories owned by these
-users/groups around, as a different unit might get the same UID/GID assigned later on, and thus gain access to
-these files or directories. If C<DynamicUser> is enabled, C<RemoveIPC>,
-C<PrivateTmp> are implied. This ensures that the lifetime of IPC objects and temporary files
-created by the executed processes is bound to the runtime of the service, and hence the lifetime of the dynamic
-user/group. Since /tmp and /var/tmp are usually the only
-world-writable directories on a system this ensures that a unit making use of dynamic user/group allocation
-cannot leave files around after unit termination. Moreover C<ProtectSystem=strict> and
-C<ProtectHome=read-only> are implied, thus prohibiting the service to write to arbitrary file
-system locations. In order to allow the service to write to certain directories, they have to be whitelisted
-using C<ReadWritePaths>, but care must be taken so that UID/GID recycling doesn't create
-security issues involving files created by the service. Use C<RuntimeDirectory> (see below) in
-order to assign a writable runtime directory to a service, owned by the dynamic user/group and removed
-automatically when the unit is terminated. Use C<StateDirectory>,
-C<CacheDirectory> and C<LogsDirectory> in order to assign a set of writable
-directories for specific purposes to the service in a way that they are protected from vulnerabilities due to
-UID reuse (see below). Defaults to off.",
+C<Group> (see above). If these options are not used and dynamic user/group
+allocation is enabled for a unit, the name of the dynamic user/group is implicitly derived from the
+unit name. If the unit name without the type suffix qualifies as valid user name it is used directly,
+otherwise a name incorporating a hash of it is used. If a statically allocated user or group of the
+configured name already exists, it is used and no dynamic user/group is allocated. Note that if
+C<User> is specified and the static group with the name exists, then it is required
+that the static user with the name already exists. Similarly, if C<Group> is
+specified and the static user with the name exists, then it is required that the static group with
+the name already exists. Dynamic users/groups are allocated from the UID/GID range 61184\x{2026}65519. It is
+recommended to avoid this range for regular system or login users.  At any point in time each UID/GID
+from this range is only assigned to zero or one dynamically allocated users/groups in use. However,
+UID/GIDs are recycled after a unit is terminated. Care should be taken that any processes running as
+part of a unit for which dynamic users/groups are enabled do not leave files or directories owned by
+these users/groups around, as a different unit might get the same UID/GID assigned later on, and thus
+gain access to these files or directories. If C<DynamicUser> is enabled,
+C<RemoveIPC>, C<PrivateTmp> are implied. This ensures that the
+lifetime of IPC objects and temporary files created by the executed processes is bound to the runtime
+of the service, and hence the lifetime of the dynamic user/group. Since /tmp and
+/var/tmp are usually the only world-writable directories on a system this
+ensures that a unit making use of dynamic user/group allocation cannot leave files around after unit
+termination. Furthermore C<NoNewPrivileges> and C<RestrictSUIDSGID>
+are implicitly enabled to ensure that processes invoked cannot take benefit or create SUID/SGID files
+or directories. Moreover C<ProtectSystem=strict> and
+C<ProtectHome=read-only> are implied, thus prohibiting the service to write to
+arbitrary file system locations. In order to allow the service to write to certain directories, they
+have to be whitelisted using C<ReadWritePaths>, but care must be taken so that
+UID/GID recycling doesn't create security issues involving files created by the service. Use
+C<RuntimeDirectory> (see below) in order to assign a writable runtime directory to a
+service, owned by the dynamic user/group and removed automatically when the unit is terminated. Use
+C<StateDirectory>, C<CacheDirectory> and
+C<LogsDirectory> in order to assign a set of writable directories for specific
+purposes to the service in a way that they are protected from vulnerabilities due to UID reuse (see
+below). If this option is enabled, care should be taken that the unit's processes do not get access
+to directories outside of these explicitly configured and managed ones. Specifically, do not use
+C<BindPaths> and be careful with C<AF_UNIX> file descriptor
+passing for directory file descriptors, as this would permit processes to create files or directories
+owned by the dynamic user/group that are not subject to the lifecycle and access guarantees of the
+service. Defaults to off.",
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -364,19 +376,20 @@ C<+>.',
       },
       'NoNewPrivileges',
       {
-        'description' => 'Takes a boolean argument. If true, ensures that the service process and all its children can
-never gain new privileges through execve() (e.g. via setuid or setgid bits, or filesystem
-capabilities). This is the simplest and most effective way to ensure that a process and its children can never
-elevate privileges again. Defaults to false, but certain settings override this and ignore the value of this
-setting.  This is the case when C<SystemCallFilter>,
-C<SystemCallArchitectures>, C<RestrictAddressFamilies>,
-C<RestrictNamespaces>, C<PrivateDevices>,
-C<ProtectKernelTunables>, C<ProtectKernelModules>,
-C<MemoryDenyWriteExecute>, C<RestrictRealtime>, or
-C<LockPersonality> are specified. Note that even if this setting is overridden by them,
-systemctl show shows the original value of this setting. Also see
-No New Privileges
-Flag.  ',
+        'description' => 'Takes a boolean argument. If true, ensures that the service process and all its
+children can never gain new privileges through execve() (e.g. via setuid or
+setgid bits, or filesystem capabilities). This is the simplest and most effective way to ensure that
+a process and its children can never elevate privileges again. Defaults to false, but certain
+settings override this and ignore the value of this setting.  This is the case when
+C<SystemCallFilter>, C<SystemCallArchitectures>,
+C<RestrictAddressFamilies>, C<RestrictNamespaces>,
+C<PrivateDevices>, C<ProtectKernelTunables>,
+C<ProtectKernelModules>, C<MemoryDenyWriteExecute>,
+C<RestrictRealtime>, C<RestrictSUIDSGID>,
+C<DynamicUser> or C<LockPersonality> are specified. Note that even
+if this setting is overridden by them, systemctl show shows the original value of
+this setting. Also see No New Privileges
+Flag.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -1367,10 +1380,10 @@ defined in the following table, when the unit is started. Also, the correspondin
 is defined with the full path of directories. If multiple directories are set, then in the environment variable
 the paths are concatenated with colon (C<:>).
 
-In case of C<RuntimeDirectory> the lowest subdirectories are removed when the unit is
-stopped. It is possible to preserve the specified directories in this case if
-C<RuntimeDirectoryPreserve> is configured to C<restart> or C<yes>
-(see below). The directories specified with C<StateDirectory>,
+In case of C<RuntimeDirectory> the innermost subdirectories are removed when
+the unit is stopped. It is possible to preserve the specified directories in this case if
+C<RuntimeDirectoryPreserve> is configured to C<restart> or
+C<yes> (see below). The directories specified with C<StateDirectory>,
 C<CacheDirectory>, C<LogsDirectory>,
 C<ConfigurationDirectory> are not removed when the unit is stopped.
 
@@ -1434,10 +1447,10 @@ defined in the following table, when the unit is started. Also, the correspondin
 is defined with the full path of directories. If multiple directories are set, then in the environment variable
 the paths are concatenated with colon (C<:>).
 
-In case of C<RuntimeDirectory> the lowest subdirectories are removed when the unit is
-stopped. It is possible to preserve the specified directories in this case if
-C<RuntimeDirectoryPreserve> is configured to C<restart> or C<yes>
-(see below). The directories specified with C<StateDirectory>,
+In case of C<RuntimeDirectory> the innermost subdirectories are removed when
+the unit is stopped. It is possible to preserve the specified directories in this case if
+C<RuntimeDirectoryPreserve> is configured to C<restart> or
+C<yes> (see below). The directories specified with C<StateDirectory>,
 C<CacheDirectory>, C<LogsDirectory>,
 C<ConfigurationDirectory> are not removed when the unit is stopped.
 
@@ -1501,10 +1514,10 @@ defined in the following table, when the unit is started. Also, the correspondin
 is defined with the full path of directories. If multiple directories are set, then in the environment variable
 the paths are concatenated with colon (C<:>).
 
-In case of C<RuntimeDirectory> the lowest subdirectories are removed when the unit is
-stopped. It is possible to preserve the specified directories in this case if
-C<RuntimeDirectoryPreserve> is configured to C<restart> or C<yes>
-(see below). The directories specified with C<StateDirectory>,
+In case of C<RuntimeDirectory> the innermost subdirectories are removed when
+the unit is stopped. It is possible to preserve the specified directories in this case if
+C<RuntimeDirectoryPreserve> is configured to C<restart> or
+C<yes> (see below). The directories specified with C<StateDirectory>,
 C<CacheDirectory>, C<LogsDirectory>,
 C<ConfigurationDirectory> are not removed when the unit is stopped.
 
@@ -1568,10 +1581,10 @@ defined in the following table, when the unit is started. Also, the correspondin
 is defined with the full path of directories. If multiple directories are set, then in the environment variable
 the paths are concatenated with colon (C<:>).
 
-In case of C<RuntimeDirectory> the lowest subdirectories are removed when the unit is
-stopped. It is possible to preserve the specified directories in this case if
-C<RuntimeDirectoryPreserve> is configured to C<restart> or C<yes>
-(see below). The directories specified with C<StateDirectory>,
+In case of C<RuntimeDirectory> the innermost subdirectories are removed when
+the unit is stopped. It is possible to preserve the specified directories in this case if
+C<RuntimeDirectoryPreserve> is configured to C<restart> or
+C<yes> (see below). The directories specified with C<StateDirectory>,
 C<CacheDirectory>, C<LogsDirectory>,
 C<ConfigurationDirectory> are not removed when the unit is stopped.
 
@@ -1635,10 +1648,10 @@ defined in the following table, when the unit is started. Also, the correspondin
 is defined with the full path of directories. If multiple directories are set, then in the environment variable
 the paths are concatenated with colon (C<:>).
 
-In case of C<RuntimeDirectory> the lowest subdirectories are removed when the unit is
-stopped. It is possible to preserve the specified directories in this case if
-C<RuntimeDirectoryPreserve> is configured to C<restart> or C<yes>
-(see below). The directories specified with C<StateDirectory>,
+In case of C<RuntimeDirectory> the innermost subdirectories are removed when
+the unit is stopped. It is possible to preserve the specified directories in this case if
+C<RuntimeDirectoryPreserve> is configured to C<restart> or
+C<yes> (see below). The directories specified with C<StateDirectory>,
 C<CacheDirectory>, C<LogsDirectory>,
 C<ConfigurationDirectory> are not removed when the unit is stopped.
 
@@ -2039,13 +2052,35 @@ the unit\'s processes (however, those located in the file system will continue t
 
 Note that the implementation of this setting might be impossible (for example if network namespaces are
 not available), and the unit should be written in a way that does not solely rely on this setting for
-security.',
+security.
+
+When this option is used on a socket unit any sockets bound on behalf of this unit will be
+bound within a private network namespace. This may be combined with
+C<JoinsNamespaceOf> to listen on sockets inside of network namespaces of other
+services.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
           'no',
           'yes'
         ]
+      },
+      'NetworkNamespacePath',
+      {
+        'description' => 'Takes an absolute file system path refererring to a Linux network namespace
+pseudo-file (i.e. a file like /proc/$PID/ns/net or a bind mount or symlink to
+one). When set the invoked processes are added to the network namespace referenced by that path. The
+path has to point to a valid namespace file at the moment the processes are forked off. If this
+option is used C<PrivateNetwork> has no effect. If this option is used together with
+C<JoinsNamespaceOf> then it only has an effect if this unit is started before any of
+the listed units that have C<PrivateNetwork> or
+C<NetworkNamespacePath> configured, as otherwise the network namespace of those
+units is reused.
+
+When this option is used on a socket unit any sockets bound on behalf of this unit will be
+bound within the specified network namespace.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       },
       'PrivateUsers',
       {
@@ -2070,6 +2105,25 @@ are C<root>, C<nobody> and the unit\'s own user and group.
 Note that the implementation of this setting might be impossible (for example if user namespaces are not
 available), and the unit should be written in a way that does not solely rely on this setting for
 security.',
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      },
+      'ProtectHostname',
+      {
+        'description' => 'Takes a boolean argument. When set, sets up a new UTS namespace for the executed
+processes. In addition, changing hostname or domainname is prevented. Defaults to off.
+
+Note that the implementation of this setting might be impossible (for example if UTS namespaces
+are not available), and the unit should be written in a way that does not solely rely on this setting
+for security.
+
+Note that when this option is enabled for a service hostname changes no longer propagate from
+the system into the service, it is hence not suitable for services that need to take notice of system
+hostname changes dynamically.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -2273,6 +2327,26 @@ C<NoNewPrivileges=yes> is implied. Realtime scheduling policies may be used to m
 time for longer periods of time, and may hence be used to lock up or otherwise trigger Denial-of-Service
 situations on the system. It is hence recommended to restrict access to realtime scheduling to the few programs
 that actually require them. Defaults to off.',
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      },
+      'RestrictSUIDSGID',
+      {
+        'description' => 'Takes a boolean argument. If set, any attempts to set the set-user-ID (SUID) or
+set-group-ID (SGID) bits on files or directories will be denied (for details on these bits see
+L<inode(7)>). If
+running in user mode, or in system mode, but without the C<CAP_SYS_ADMIN>
+capability (e.g. setting C<User>), C<NoNewPrivileges=yes> is
+implied. As the SUID/SGID bits are mechanisms to elevate privileges, and allows users to acquire the
+identity of other users, it is recommended to restrict creation of SUID/SGID files to the few
+programs that actually require them. Note that this restricts marking of any type of file system
+object with these bits, including both regular files and directories (where the SGID is a different
+meaning than for files, see documentation). This option is implied if C<DynamicUser>
+is enabled. Defaults to off.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [

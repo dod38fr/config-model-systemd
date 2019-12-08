@@ -463,23 +463,18 @@ settings.',
       },
       'JoinsNamespaceOf',
       {
-        'description' => 'For units that start processes (such as
-service units), lists one or more other units whose network
-and/or temporary file namespace to join. This only applies to
-unit types which support the
-C<PrivateNetwork> and
+        'description' => 'For units that start processes (such as service units), lists one or more other units
+whose network and/or temporary file namespace to join. This only applies to unit types which support
+the C<PrivateNetwork>, C<NetworkNamespacePath> and
 C<PrivateTmp> directives (see
-L<systemd.exec(5)>
-for details). If a unit that has this setting set is started,
-its processes will see the same /tmp,
-/var/tmp and network namespace as one
-listed unit that is started. If multiple listed units are
-already started, it is not defined which namespace is joined.
-Note that this setting only has an effect if
-C<PrivateNetwork> and/or
-C<PrivateTmp> is enabled for both the unit
-that joins the namespace and the unit whose namespace is
-joined.',
+L<systemd.exec(5)> for
+details). If a unit that has this setting set is started, its processes will see the same
+/tmp, /var/tmp and network namespace as one listed unit
+that is started. If multiple listed units are already started, it is not defined which namespace is
+joined.  Note that this setting only has an effect if
+C<PrivateNetwork>/C<NetworkNamespacePath> and/or
+C<PrivateTmp> is enabled for both the unit that joins the namespace and the unit
+whose namespace is joined.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -898,7 +893,9 @@ C<lxc>,
 C<lxc-libvirt>,
 C<systemd-nspawn>,
 C<docker>,
-C<rkt> to test
+C<rkt>,
+C<wsl>,
+C<acrn> to test
 against a specific implementation, or
 C<private-users> to check whether we are running in a user namespace. See
 L<systemd-detect-virt(1)>
@@ -1027,11 +1024,12 @@ C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
 (instead of being silently processed). For details about assertion conditions see below.
 
-C<ConditionKernelVersion=> may be used to check whether the kernel version (as reported
-by uname -r) matches a certain expression (or if prefixed with the exclamation mark does not
-match it). The argument must be a single string. If the string starts with one of C<<>,
-C<<=>, C<=>, C<>=>, C<>> a relative
-version comparison is done, otherwise the specified string is matched with shell-style globs.
+C<ConditionKernelVersion=> may be used to check whether the kernel version (as
+reported by uname -r) matches a certain expression (or if prefixed with the
+exclamation mark does not match it). The argument must be a single string. If the string starts with
+one of C<<>, C<<=>, C<=>,
+C<!=>, C<>=>, C<>> a relative version
+comparison is done, otherwise the specified string is matched with shell-style globs.
 
 If multiple conditions are specified, the unit will be
 executed if all of them apply (i.e. a logical AND is applied).
@@ -1720,6 +1718,90 @@ unknown to systemd are ignored. Valid controllers are
 C<cpu>, C<cpuacct>, C<io>,
 C<blkio>, C<memory>,
 C<devices>, and C<pids>.
+
+If multiple conditions are specified, the unit will be
+executed if all of them apply (i.e. a logical AND is applied).
+Condition checks can be prefixed with a pipe symbol (|) in
+which case a condition becomes a triggering condition. If at
+least one triggering condition is defined for a unit, then the
+unit will be executed if at least one of the triggering
+conditions apply and all of the non-triggering conditions. If
+you prefix an argument with the pipe symbol and an exclamation
+mark, the pipe symbol must be passed first, the exclamation
+second. Except for
+C<ConditionPathIsSymbolicLink=>, all path
+checks follow symlinks. If any of these options is assigned
+the empty string, the list of conditions is reset completely,
+all previous condition settings (of any kind) will have no
+effect.",
+        'type' => 'list'
+      },
+      'ConditionMemory',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
+starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
+
+C<ConditionMemory=> verifies if the specified amount of system memory is
+available to the current system. Takes a memory size in bytes as argument, optionally prefixed with a
+comparison operator C<<>, C<<=>, C<=>,
+C<!=>, C<>=>, C<>>. On bare-metal systems
+compares the amount of physical memory in the system with the specified size, adhering to the
+specified comparison operator. In containers compares the amount of memory assigned to the container
+instead.
+
+If multiple conditions are specified, the unit will be
+executed if all of them apply (i.e. a logical AND is applied).
+Condition checks can be prefixed with a pipe symbol (|) in
+which case a condition becomes a triggering condition. If at
+least one triggering condition is defined for a unit, then the
+unit will be executed if at least one of the triggering
+conditions apply and all of the non-triggering conditions. If
+you prefix an argument with the pipe symbol and an exclamation
+mark, the pipe symbol must be passed first, the exclamation
+second. Except for
+C<ConditionPathIsSymbolicLink=>, all path
+checks follow symlinks. If any of these options is assigned
+the empty string, the list of conditions is reset completely,
+all previous condition settings (of any kind) will have no
+effect.",
+        'type' => 'list'
+      },
+      'ConditionCPUs',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
+starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
+respected. A failing condition will not result in the unit being moved into the C<failed>
+state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
+in order to silently skip units that do not apply to the local running system, for example because the kernel
+or runtime environment doesn't require their functionality. Use the various
+C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
+mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
+(instead of being silently processed). For details about assertion conditions see below.
+
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparision operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.
 
 If multiple conditions are specified, the unit will be
 executed if all of them apply (i.e. a logical AND is applied).

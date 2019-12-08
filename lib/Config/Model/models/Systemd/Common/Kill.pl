@@ -65,22 +65,17 @@ Processes remaining alive after stop are left in their control
 group and the control group continues to exist after stop
 unless it is empty.
 
-Processes will first be terminated via
-C<SIGTERM> (unless the signal to send is
-changed via C<KillSignal>). Optionally, this
-is immediately followed by a C<SIGHUP> (if
-enabled with C<SendSIGHUP>). If then, after a
-delay (configured via the C<TimeoutStopSec>
-option), processes still remain, the termination request is
-repeated with the C<SIGKILL> signal or the
-signal specified via C<FinalKillSignal> (unless
-this is disabled via the C<SendSIGKILL>
-option). See
-L<kill(2)>
-for more information.
+Processes will first be terminated via C<SIGTERM> (unless the signal to send
+is changed via C<KillSignal>). Optionally, this is immediately followed by a
+C<SIGHUP> (if enabled with C<SendSIGHUP>). If processes still
+remain after the main process of a unit has exited or the delay configured via the
+C<TimeoutStopSec> has passed, the termination request is repeated with the
+C<SIGKILL> signal or the signal specified via C<FinalKillSignal>
+(unless this is disabled via the C<SendSIGKILL> option). See
+L<kill(2)> for more
+information.
 
-Defaults to
-C<control-group>.',
+Defaults to C<control-group>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -123,8 +118,11 @@ severed. Takes a boolean value. Defaults to "no".
 C<SIGKILL> (or the signal specified by
 C<FinalKillSignal>) to remaining processes
 after a timeout, if the normal shutdown procedure left
-processes of the service around. Takes a boolean value.
-Defaults to "yes".
+processes of the service around. When disabled, a
+C<KillMode> of C<control-group>
+or C<mixed> service will not restart if
+processes from prior services exist within the control group.
+Takes a boolean value. Defaults to "yes".
 ',
         'type' => 'leaf',
         'value_type' => 'boolean',

@@ -43,6 +43,10 @@ This is useful for compatibility with SysV. Note that this
 compatibility is quite comprehensive but not 100%. For details
 about the incompatibilities, see the Incompatibilities
 with SysV document.
+
+The L<systemd-run(1)>
+command allows creating .service and .scope units dynamically
+and transiently from the command line.
 This configuration class was generated from systemd documentation.
 by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>
 ',
@@ -158,7 +162,7 @@ For each of the specified commands, the first argument must be either an absolut
 or a simple file name without any slashes. Optionally, this filename may be prefixed with a number of special
 characters:
 
-C<@>, C<->, and one of
+C<@>, C<->, C<:>, and one of
 C<+>/C<!>/C<!!> may be used together and they can appear in any
 order. However, only one of C<+>, C<!>, C<!!> may be used at a
 time. Note that these prefixes are also supported for the other command line settings,
@@ -317,14 +321,18 @@ started successfully first. They are not invoked if the service was never starte
 start-up failed, for example because any of the commands specified in C<ExecStart>,
 C<ExecStartPre> or C<ExecStartPost> failed (and weren\'t prefixed with
 C<->, see above) or timed out. Use C<ExecStopPost> to invoke commands when a
-service failed to start up correctly and is shut down again. Also note that, service restart requests are
-implemented as stop operations followed by start operations. This means that C<ExecStop> and
-C<ExecStopPost> are executed during a service restart operation.
+service failed to start up correctly and is shut down again. Also note that the stop operation is always
+performed if the service started successfully, even if the processes in the service terminated on their
+own or were killed. The stop commands must be prepared to deal with that case. C<$MAINPID>
+will be unset if systemd knows that the main process exited by the time the stop commands are called.
 
-It is recommended to use this setting for commands that communicate with the service requesting clean
-termination. When the commands specified with this option are executed it should be assumed that the service is
-still fully up and is able to react correctly to all commands. For post-mortem clean-up steps use
-C<ExecStopPost> instead.',
+Service restart requests are implemented as stop operations followed by start operations. This
+means that C<ExecStop> and C<ExecStopPost> are executed during a
+service restart operation.
+
+It is recommended to use this setting for commands that communicate with the service requesting
+clean termination. For post-mortem clean-up steps use C<ExecStopPost> instead.
+',
         'type' => 'list'
       },
       'ExecStopPost',
@@ -591,24 +599,25 @@ effect.',
       },
       'RestartPreventExitStatus',
       {
-        'description' => 'Takes a list of exit status definitions that,
-when returned by the main service process, will prevent
-automatic service restarts, regardless of the restart setting
-configured with C<Restart>. Exit status
-definitions can either be numeric exit codes or termination
-signal names, and are separated by spaces. Defaults to the
-empty list, so that, by default, no exit status is excluded
-from the configured restart logic. For example:
+        'description' => "Takes a list of exit status definitions that, when returned by the main service
+process, will prevent automatic service restarts, regardless of the restart setting configured with
+C<Restart>. Exit status definitions can either be numeric exit codes or termination
+signal names, and are separated by spaces. Defaults to the empty list, so that, by default, no exit
+status is excluded from the configured restart logic. For example:
 
     RestartPreventExitStatus=1 6 SIGABRT
 
-ensures that exit codes 1 and 6 and the termination signal
-C<SIGABRT> will not result in automatic
-service restarting. This option may appear more than once, in
-which case the list of restart-preventing statuses is
-merged. If the empty string is assigned to this option, the
-list is reset and all prior assignments of this option will
-have no effect.',
+ensures that exit codes 1 and 6 and the termination signal C<SIGABRT> will not
+result in automatic service restarting. This option may appear more than once, in which case the list
+of restart-preventing statuses is merged. If the empty string is assigned to this option, the list is
+reset and all prior assignments of this option will have no effect.
+
+Note that this setting has no effect on processes configured via
+C<ExecStartPre>, C<ExecStartPost>, C<ExecStop>,
+C<ExecStopPost> or C<ExecReload>, but only on the main service
+process, i.e. either the one invoked by C<ExecStart> or (depending on
+C<Type>, C<PIDFile>, \x{2026}) the otherwise configured main
+process.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
