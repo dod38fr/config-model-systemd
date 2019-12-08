@@ -1,7 +1,9 @@
 # systemd tests for user
+use strict;
+use warnings;
 
-# list of tests. This modules looks for @tests global variable
-@tests = (
+# list of tests.
+my @tests = (
     {
         name => 'basic-socket',
         config_file => 'gmail-imap-tunnel.socket',
@@ -17,4 +19,4 @@
     },
 );
 
-1; # to keep Perl happy
+return { tests => \@tests } ;

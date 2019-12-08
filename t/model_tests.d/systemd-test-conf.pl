@@ -1,9 +1,12 @@
 # systemd tests (system files)
 
-$conf_dir = '/etc/systemd/system/';
+use strict;
+use warnings;
 
-# list of tests. This modules looks for @tests global variable
-@tests = (
+my $conf_dir = '/etc/systemd/system/';
+
+# list of tests.
+my @tests = (
     {
         name => 'sshd-service',
         backend_arg => 'sshd',
@@ -63,4 +66,7 @@ $conf_dir = '/etc/systemd/system/';
 
 );
 
-1; # to keep Perl happy
+return {
+    tests => \@tests,
+    conf_dir => $conf_dir,
+}

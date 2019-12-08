@@ -1,11 +1,9 @@
 # systemd tests for user
+use strict;
+use warnings;
 
-$home_for_test='/home/joe';
-$conf_dir = '~/.config/systemd/user/';
-$config_file_name = 'systemd-user';
-
-# list of tests. This modules looks for @tests global variable
-@tests = (
+# list of tests.
+my @tests = (
     {
         name => 'basic-service',
         backend_arg => 'gmail',
@@ -74,4 +72,10 @@ $config_file_name = 'systemd-user';
     }
 );
 
-1; # to keep Perl happy
+return {
+    tests => \@tests,
+    home_for_test=>'/home/joe',
+    conf_dir => '~/.config/systemd/user/',
+    config_file_name => 'systemd-user',
+}
+
