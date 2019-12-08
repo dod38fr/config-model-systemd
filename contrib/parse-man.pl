@@ -372,7 +372,7 @@ foreach my $config_class (keys $data->{class}->%*) {
     my $desc_ref = $data->{class}{$config_class};
 
     # cleanup leading white space and add formatting
-    my $desc_text = join("\n\n", map { s/\n[\t ]+/\n/g; s/C<([A-Z]\w+)=>/C<$1>/g; $_;} $desc_ref->@*);
+    my $desc_text = join("\n\n", map { s/\n[\t ]+/\n/gr =~ s/C<([A-Z]\w+)=>/C<$1>/gr;} $desc_ref->@*);
 
     $desc_text.="\nThis configuration class was generated from systemd documentation.\n"
         ."by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>\n";
