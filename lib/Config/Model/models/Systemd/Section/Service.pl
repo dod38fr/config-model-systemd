@@ -260,6 +260,29 @@ C<->, see above) or time out before the service is fully up, execution continues
 specified in C<ExecStopPost>, the commands in C<ExecStop> are skipped.',
         'type' => 'list'
       },
+      'ExecCondition',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => 'Optional commands that are executed before the command(s) in C<ExecStartPre>.
+Syntax is the same as for C<ExecStart>, except that multiple command lines are allowed and the
+commands are executed one after the other, serially.
+
+The behavior is like an C<ExecStartPre> and condition check hybrid: when an
+C<ExecCondition> command exits with exit code 1 through 254 (inclusive), the remaining
+commands are skipped and the unit is not marked as failed. However, if an
+C<ExecCondition> command exits with 255 or abnormally (e.g. timeout, killed by a
+signal, etc.), the unit will be considered failed (and remaining commands will be skipped). Exit code of 0 or
+those matching C<SuccessExitStatus> will continue execution to the next command(s).
+
+The same recommendations about not running long-running processes in C<ExecStartPre>
+also applies to C<ExecCondition>. C<ExecCondition> will also run the commands
+in C<ExecStopPost>, as part of stopping the service, in the case of any non-zero or abnormal
+exits, like the ones described above.',
+        'type' => 'list'
+      },
       'ExecReload',
       {
         'cargo' => {
@@ -422,12 +445,51 @@ the service repeats C<EXTEND_TIMEOUT_USEC=\x{2026}> within the interval specifie
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
+      'TimeoutAbortSec',
+      {
+        'description' => "This option configures the time to wait for the service to terminate when it was aborted due to a
+watchdog timeout (see C<WatchdogSec>). If the service has a short C<TimeoutStopSec>
+this option can be used to give the system more time to write a core dump of the service. Upon expiration the service
+will be forcibly terminated by C<SIGKILL> (see C<KillMode> in
+L<systemd.kill(5)>). The core file will
+be truncated in this case. Use C<TimeoutAbortSec> to set a sensible timeout for the core dumping per
+service that is large enough to write all expected data while also being short enough to handle the service failure
+in due time.
+
+Takes a unit-less value in seconds, or a time span value such as \"5min 20s\". Pass an empty value to skip
+the dedicated watchdog abort timeout handling and fall back C<TimeoutStopSec>. Pass
+C<infinity> to disable the timeout logic. Defaults to C<DefaultTimeoutAbortSec> from
+the manager configuration file (see
+L<systemd-system.conf(5)>).
+
+If a service of C<Type=notify> handles C<SIGABRT> itself (instead of relying
+on the kernel to write a core dump) it can send C<EXTEND_TIMEOUT_USEC=\x{2026}> to
+extended the abort time beyond C<TimeoutAbortSec>. The first receipt of this message
+must occur before C<TimeoutAbortSec> is exceeded, and once the abort time has exended beyond
+C<TimeoutAbortSec>, the service manager will allow the service to continue to abort, provided
+the service repeats C<EXTEND_TIMEOUT_USEC=\x{2026}> within the interval specified, or terminates itself
+(see L<sd_notify(3)>).
+",
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'TimeoutSec',
       {
         'description' => 'A shorthand for configuring both
 C<TimeoutStartSec> and
 C<TimeoutStopSec> to the specified value.
 ',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'TimeoutCleanSec',
+      {
+        'description' => "Configures a timeout on the clean-up operation requested through systemctl
+clean \x{2026}, see
+L<systemctl(1)> for
+details. Takes the usual time values and defaults to C<infinity>, i.e. by default
+no time-out is applied. If a time-out is configured the clean operation will be aborted forcibly when
+the time-out is reached, potentially leaving resources on disk.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -574,26 +636,26 @@ C<on-abnormal> is an alternative choice.',
       },
       'SuccessExitStatus',
       {
-        'description' => 'Takes a list of exit status definitions that,
-when returned by the main service process, will be considered
-successful termination, in addition to the normal successful
-exit code 0 and the signals C<SIGHUP>,
-C<SIGINT>, C<SIGTERM>, and
-C<SIGPIPE>. Exit status definitions can
-either be numeric exit codes or termination signal names,
-separated by spaces. For example:
-
-    SuccessExitStatus=1 2 8 SIGKILL
-
-ensures that exit codes 1, 2, 8 and
-the termination signal C<SIGKILL> are
-considered clean service terminations.
+        'description' => 'Takes a list of exit status definitions that, when returned by the main service
+process, will be considered successful termination, in addition to the normal successful exit code 0
+and the signals C<SIGHUP>, C<SIGINT>,
+C<SIGTERM>, and C<SIGPIPE>. Exit status definitions can be
+numeric exit codes, termination code names, or termination signal names, separated by spaces. See the
+Process Exit Codes section in
+L<systemd.exec(5)> for
+a list of termination codes names (for this setting only the part without the
+C<EXIT_> or C<EX_> prefix should be used). See
+L<signal(7)> for
+a list of signal names.
 
 This option may appear more than once, in which case the
 list of successful exit statuses is merged. If the empty
 string is assigned to this option, the list is reset, all
 prior assignments of this option will have no
-effect.',
+effect.
+
+Note: systemd-analyze exit-codes may be used to list exit
+codes and translate between numerical code values and names.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -717,11 +779,9 @@ C<Service> setting of
 inverse of the C<Sockets> setting of the
 .service it refers to.
 
-This option may appear more than once, in which case the
-list of socket units is merged. If the empty string is
-assigned to this option, the list of sockets is reset, and all
-prior uses of this setting will have no
-effect.',
+This option may appear more than once, in which case the list of socket units is merged. Note
+that once set, clearing the list of sockets again (for example, by assigning the empty string to this
+option) is not supported.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -764,6 +824,29 @@ opened.',
 USB FunctionFS strings.  Behavior is similar to
 C<USBFunctionDescriptors>
 above.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'OOMPolicy',
+      {
+        'description' => 'Configure the Out-Of-Memory (OOM) killer policy. On Linux, when memory becomes scarce
+the kernel might decide to kill a running process in order to free up memory and reduce memory
+pressure. This setting takes one of C<continue>, C<stop> or
+C<kill>. If set to C<continue> and a process of the service is
+killed by the kernel\'s OOM killer this is logged but the service continues running. If set to
+C<stop> the event is logged but the service is terminated cleanly by the service
+manager. If set to C<kill> and one of the service\'s processes is killed by the OOM
+killer the kernel is instructed to kill all remaining processes of the service, too. Defaults to the
+setting C<DefaultOOMPolicy> in
+L<system.conf(5)> is
+set to, except for services where C<Delegate> is turned on, where it defaults to
+C<continue>.
+
+Use the C<OOMScoreAdjust> setting to configure whether processes of the unit
+shall be considered preferred or less preferred candidates for process termination by the Linux OOM
+killer logic. See
+L<systemd.exec(5)> for
+details.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },

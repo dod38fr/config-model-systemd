@@ -164,7 +164,11 @@ system. This controls the C<memory.min> control group attribute. For details abo
 control group attribute, see cgroup-v2.txt.
 
 This setting is supported only if the unified control group hierarchy is used and disables
-C<MemoryLimit>.',
+C<MemoryLimit>.
+
+Units may have their children use a default C<memory.min> value by specifying
+C<DefaultMemoryMin>, which has the same semantics as C<MemoryMin>. This setting
+does not affect C<memory.min> in the unit itself.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -181,7 +185,11 @@ system. This controls the C<memory.low> control group attribute. For details abo
 control group attribute, see cgroup-v2.txt.
 
 This setting is supported only if the unified control group hierarchy is used and disables
-C<MemoryLimit>.',
+C<MemoryLimit>.
+
+Units may have their children use a default C<memory.low> value by specifying
+C<DefaultMemoryLow>, which has the same semantics as C<MemoryLow>. This setting
+does not affect C<memory.low> in the unit itself.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -550,42 +558,108 @@ them for IP security.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
+      'IPIngressFilterPath',
+      {
+        'description' => 'Add custom network traffic filters implemented as BPF programs, applying to all IP packets
+sent and received over C<AF_INET> and C<AF_INET6> sockets.
+Takes an absolute path to a pinned BPF program in the BPF virtual filesystem (/sys/fs/bpf/).
+
+The filters configured with this option are applied to all sockets created by processes
+of this unit (or in the case of socket units, associated with it). The filters are loaded in addition
+to filters any of the parent slice units this unit might be a member of as well as any
+C<IPAddressAllow> and C<IPAddressDeny> filters in any of these units.
+By default there are no filters specified.
+
+If these settings are used multiple times in the same unit all the specified programs are attached. If an
+empty string is assigned to these settings the program list is reset and all previous specified programs ignored.
+
+Note that for socket-activated services, the IP filter programs configured on the socket unit apply to
+all sockets associated with it directly, but not to any sockets created by the ultimately activated services
+for it. Conversely, the IP filter programs configured for the service are not applied to any sockets passed into
+the service via socket activation. Thus, it is usually a good idea, to replicate the IP filter programs on both
+the socket and the service unit, however it often makes sense to maintain one configuration more open and the other
+one more restricted, depending on the usecase.
+
+Note that these settings might not be supported on some systems (for example if eBPF control group
+support is not enabled in the underlying kernel or container manager). These settings will fail the service in
+that case. If compatibility with such systems is desired it is hence recommended to attach your filter manually
+(requires C<Delegate>C<yes>) instead of using this setting.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'IPEgressFilterPath',
+      {
+        'description' => 'Add custom network traffic filters implemented as BPF programs, applying to all IP packets
+sent and received over C<AF_INET> and C<AF_INET6> sockets.
+Takes an absolute path to a pinned BPF program in the BPF virtual filesystem (/sys/fs/bpf/).
+
+The filters configured with this option are applied to all sockets created by processes
+of this unit (or in the case of socket units, associated with it). The filters are loaded in addition
+to filters any of the parent slice units this unit might be a member of as well as any
+C<IPAddressAllow> and C<IPAddressDeny> filters in any of these units.
+By default there are no filters specified.
+
+If these settings are used multiple times in the same unit all the specified programs are attached. If an
+empty string is assigned to these settings the program list is reset and all previous specified programs ignored.
+
+Note that for socket-activated services, the IP filter programs configured on the socket unit apply to
+all sockets associated with it directly, but not to any sockets created by the ultimately activated services
+for it. Conversely, the IP filter programs configured for the service are not applied to any sockets passed into
+the service via socket activation. Thus, it is usually a good idea, to replicate the IP filter programs on both
+the socket and the service unit, however it often makes sense to maintain one configuration more open and the other
+one more restricted, depending on the usecase.
+
+Note that these settings might not be supported on some systems (for example if eBPF control group
+support is not enabled in the underlying kernel or container manager). These settings will fail the service in
+that case. If compatibility with such systems is desired it is hence recommended to attach your filter manually
+(requires C<Delegate>C<yes>) instead of using this setting.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'DeviceAllow',
       {
         'cargo' => {
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => 'Control access to specific device nodes by the
-executed processes. Takes two space-separated strings: a
-device node specifier followed by a combination of
-C<r>, C<w>,
-C<m> to control
-reading, writing,
-or creation of the specific device node(s) by the unit
-(mknod), respectively. This controls
-the C<devices.allow> and
-C<devices.deny> control group
-attributes. For details about these control group
-attributes, see devices.txt.
+        'description' => "Control access to specific device nodes by the executed processes. Takes two space-separated
+strings: a device node specifier followed by a combination of C<r>,
+C<w>, C<m> to control reading,
+writing, or creation of the specific device node(s) by the unit
+(mknod), respectively. On cgroup-v1 this controls the
+C<devices.allow> control group attribute. For details about this control group
+attribute, see devices.txt. On
+cgroup-v2 this functionality is implemented using eBPF filtering.
 
-The device node specifier is either a path to a device
-node in the file system, starting with
-/dev/, or a string starting with either
-C<char-> or C<block->
-followed by a device group name, as listed in
-/proc/devices. The latter is useful to
-whitelist all current and future devices belonging to a
-specific device group at once. The device group is matched
-according to filename globbing rules, you may hence use the
-C<*> and C<?>
-wildcards. Examples: /dev/sda5 is a
-path to a device node, referring to an ATA or SCSI block
-device. C<char-pts> and
-C<char-alsa> are specifiers for all pseudo
-TTYs and all ALSA sound devices,
-respectively. C<char-cpu/*> is a specifier
-matching all CPU related device groups.',
+The device node specifier is either a path to a device node in the file system, starting with
+/dev/, or a string starting with either C<char-> or
+C<block-> followed by a device group name, as listed in
+/proc/devices. The latter is useful to whitelist all current and future
+devices belonging to a specific device group at once. The device group is matched according to
+filename globbing rules, you may hence use the C<*> and C<?>
+wildcards. (Note that such globbing wildcards are not available for device node path
+specifications!) In order to match device nodes by numeric major/minor, use device node paths in
+the /dev/char/ and /dev/block/ directories. However,
+matching devices by major/minor is generally not recommended as assignments are neither stable nor
+portable between systems or different kernel versions.
+
+Examples: /dev/sda5 is a path to a device node, referring to an ATA or
+SCSI block device. C<char-pts> and C<char-alsa> are specifiers for
+all pseudo TTYs and all ALSA sound devices, respectively. C<char-cpu/*> is a
+specifier matching all CPU related device groups.
+
+Note that whitelists defined this way should only reference device groups which are
+resolvable at the time the unit is started. Any device groups not resolvable then are not added to
+the device whitelist. In order to work around this limitation, consider extending service units
+with an ExecStartPre=/sbin/modprobe\x{2026} line that loads the necessary
+kernel module implementing the device group if missing. Example:
+    \x{2026}
+    [Service]
+    ExecStartPre=-/sbin/modprobe -abq loop
+    DeviceAllow=block-loop
+    DeviceAllow=/dev/loop-control
+    \x{2026}
+",
         'type' => 'list'
       },
       'DevicePolicy',

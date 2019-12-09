@@ -43,7 +43,7 @@ C<poweroff>, C<poweroff-force>, C<poweroff-immediate> have the effect
 of powering down the system with similar semantics. C<exit> causes the manager to exit following
 the normal shutdown procedure, and C<exit-force> causes it terminate without shutting down
 services. When C<exit> or C<exit-force> is used by default the exit status of the
-main process of the unit (if this applies) is returned from the service manager. However, this may be overriden
+main process of the unit (if this applies) is returned from the service manager. However, this may be overridden
 with C<FailureActionExitStatus>/C<SuccessActionExitStatus>, see
 below.',
         'type' => 'leaf',
@@ -80,7 +80,7 @@ C<poweroff>, C<poweroff-force>, C<poweroff-immediate> have the effect
 of powering down the system with similar semantics. C<exit> causes the manager to exit following
 the normal shutdown procedure, and C<exit-force> causes it terminate without shutting down
 services. When C<exit> or C<exit-force> is used by default the exit status of the
-main process of the unit (if this applies) is returned from the service manager. However, this may be overriden
+main process of the unit (if this applies) is returned from the service manager. However, this may be overridden
 with C<FailureActionExitStatus>/C<SuccessActionExitStatus>, see
 below.',
         'type' => 'leaf',

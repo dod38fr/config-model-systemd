@@ -11,7 +11,7 @@ return [
         'warn' => 'Unknown parameter'
       }
     ],
-    'class_description' => "A unit file is a plain text ini-style file that encodes information about a service, a
+    'class_description' => 'A unit file is a plain text ini-style file that encodes information about a service, a
 socket, a device, a mount point, an automount point, a swap file or partition, a start-up
 target, a watched file system path, a timer controlled and supervised by
 L<systemd(1)>, a
@@ -40,16 +40,24 @@ L<systemd.slice(5)>,
 L<systemd.scope(5)>.
 
 
-Unit files are loaded from a set of paths determined during
-compilation, described in the next section.
+Unit files are loaded from a set of paths determined during compilation, described in the next
+section.
 
-Unit files can be parameterized by a single argument called the \"instance name\". The unit
-is then constructed based on a \"template file\" which serves as the definition of multiple
-services or other units. A template unit must have a single C<\@> at the end of
-the name (right before the type suffix). The name of the full unit is formed by inserting the
-instance name between C<\@> and the unit type suffix. In the unit file itself,
-the instance parameter may be referred to using C<%i> and other specifiers, see
-below.
+Valid unit names consist of a "name prefix" and a dot and a suffix specifying the unit type. The
+"unit prefix" must consist of one or more valid characters (ASCII letters, digits, C<:>,
+C<->, C<_>, C<.>, and C<\\>). The total
+length of the unit name including the suffix must not exceed 256 characters. The type suffix must be one
+of C<.service>, C<.socket>, C<.device>,
+C<.mount>, C<.automount>, C<.swap>,
+C<.target>, C<.path>, C<.timer>,
+C<.slice>, or C<.scope>.
+
+Units names can be parameterized by a single argument called the "instance name". The unit is then
+constructed based on a "template file" which serves as the definition of multiple services or other
+units. A template unit must have a single C<@> at the end of the name (right before the
+type suffix). The name of the full unit is formed by inserting the instance name between
+C<@> and the unit type suffix. In the unit file itself, the instance parameter may be
+referred to using C<%i> and other specifiers, see below.
 
 Unit files may contain additional options on top of those
 listed here. If systemd encounters an unknown option, it will
@@ -59,42 +67,48 @@ ignored completely by systemd. Options within an ignored section
 do not need the prefix. Applications may use this to include
 additional information in the unit files.
 
-Units can be aliased (have an alternative name), by creating a symlink from the new name
-to the existing name in one of the unit search paths. For example,
-systemd-networkd.service has the alias
-dbus-org.freedesktop.network1.service, created during installation as the
-symlink /usr/lib/systemd/system/dbus-org.freedesktop.network1.service. In
-addition, unit files may specify aliases through the C<Alias> directive in the
-[Install] section; those aliases are only effective when the unit is enabled. When the unit is
-enabled, symlinks will be created for those names, and removed when the unit is disabled. For
-example, reboot.target specifies
-C<Alias=ctrl-alt-del.target>, so when enabled it will be invoked whenever
-CTRL+ALT+DEL is pressed. Alias names may be used in commands like enable,
-disable, start, stop,
-status, \x{2026}, and in unit dependency directives C<Wants>,
-C<Requires>, C<Before>, C<After>, \x{2026}, with the
-limitation that aliases specified through C<Alias> are only effective when the
-unit is enabled. Aliases cannot be used with the preset command.
+Units can be aliased (have an alternative name), by creating a symlink from the new name to the
+existing name in one of the unit search paths. For example, systemd-networkd.service
+has the alias dbus-org.freedesktop.network1.service, created during installation as
+a symlink, so when systemd is asked through D-Bus to load
+dbus-org.freedesktop.network1.service, it\'ll load
+systemd-networkd.service. Alias names may be used in commands like
+enable, disable, start, stop,
+status, and similar, and in all unit dependency directives, including
+C<Wants>, C<Requires>, C<Before>,
+C<After>. Aliases cannot be used with the preset command.
+
+Unit files may specify aliases through the C<Alias> directive in the [Install]
+section. When the unit is enabled, symlinks will be created for those names, and removed when the unit is
+disabled. For example, reboot.target specifies
+C<Alias=ctrl-alt-del.target>, so when enabled, the symlink
+/etc/systemd/systemd/ctrl-alt-del.service pointing to the
+reboot.target file will be created, and when
+CtrlAltDel is invoked,
+systemd will look for the ctrl-alt-del.service and execute
+reboot.service. systemd does not look at the [Install] section at
+all during normal operation, so any directives in that section only have an effect through the symlinks
+created during enablement.
 
 Along with a unit file foo.service, the directory
-foo.service.wants/ may exist. All unit files symlinked from such a
-directory are implicitly added as dependencies of type C<Wants> to the unit.
-This is useful to hook units into the start-up of other units, without having to modify their
-unit files. For details about the semantics of C<Wants>, see below. The
-preferred way to create symlinks in the .wants/ directory of a unit file is
-with the enable command of the
-L<systemctl(1)>
-tool which reads information from the [Install] section of unit files (see below). A similar
-functionality exists for C<Requires> type dependencies as well, the directory
-suffix is .requires/ in this case.
+foo.service.wants/ may exist. All unit files symlinked from such a directory are
+implicitly added as dependencies of type C<Wants> to the unit. Similar functionality
+exists for C<Requires> type dependencies as well, the directory suffix is
+.requires/ in this case. This functionality is useful to hook units into the
+start-up of other units, without having to modify their unit files. For details about the semantics of
+C<Wants>, see below. The preferred way to create symlinks in the
+.wants/ or .requires/ directory of a unit file is by embedding
+the dependency in [Install] section of the target unit, and creating the symlink in the file system with
+the with the enable or preset commands of
+L<systemctl(1)>.
 
-Along with a unit file foo.service, a \"drop-in\" directory
+Along with a unit file foo.service, a "drop-in" directory
 foo.service.d/ may exist. All files with the suffix C<.conf> from this
 directory will be parsed after the unit file itself is parsed. This is useful to alter or add configuration
 settings for a unit, without having to modify unit files. Drop-in files must contain appropriate section
 headers. For instantiated units, this logic will first look for the instance C<.d/> subdirectory
-(e.g. C<foo\@bar.service.d/>) and read its C<.conf> files, followed by the template
-C<.d/> subdirectory (e.g. C<foo\@.service.d/>) and the C<.conf>
+(e.g. C<foo@bar.service.d/>) and read its C<.conf> files, followed by the template
+C<.d/> subdirectory (e.g. C<foo@.service.d/>) and the C<.conf>
 files there. Moreover for units names containing dashes (C<->), the set of directories generated by
 truncating the unit name after all dashes is searched too. Specifically, for a unit name
 foo-bar-baz.service not only the regular drop-in directory
@@ -123,11 +137,11 @@ resulting in a both simpler and more flexible system.
 As mentioned above, a unit may be instantiated from a template file. This allows creation
 of multiple units from a single configuration file. If systemd looks for a unit configuration
 file, it will first search for the literal unit name in the file system. If that yields no
-success and the unit name contains an C<\@> character, systemd will look for a
+success and the unit name contains an C<@> character, systemd will look for a
 unit template that shares the same name but with the instance string (i.e. the part between the
-C<\@> character and the suffix) removed. Example: if a service
-getty\@tty3.service is requested and no file by that name is found, systemd
-will look for getty\@.service and instantiate a service from that
+C<@> character and the suffix) removed. Example: if a service
+getty@tty3.service is requested and no file by that name is found, systemd
+will look for getty@.service and instantiate a service from that
 configuration file if it is found.
 
 To refer to the instance string from within the
@@ -150,8 +164,8 @@ The set of load paths for the user manager instance may be augmented or
 changed using various environment variables. And environment variables may in
 turn be set using environment generators, see
 L<systemd.environment-generator(7)>.
-In particular, C<\$XDG_DATA_HOME> and
-C<\$XDG_DATA_DIRS> may be easily set using
+In particular, C<$XDG_DATA_HOME> and
+C<$XDG_DATA_DIRS> may be easily set using
 L<systemd-environment-d-generator(8)>.
 Thus, directories listed here are just the defaults. To see the actual list that
 would be used based on compilation options and current environment use
@@ -161,14 +175,14 @@ would be used based on compilation options and current environment use
 
 
 
-Moreover, additional units might be loaded into systemd (\"linked\") from
+Moreover, additional units might be loaded into systemd ("linked") from
 directories not on the unit load path. See the link command
 for
 L<systemctl(1)>.
 
 This configuration class was generated from systemd documentation.
 by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>
-",
+',
     'copyright' => [
       '2010-2016 Lennart Poettering and others',
       '2016 Dominique Dumont'
@@ -187,7 +201,7 @@ description...>, C<Started
 description.>, C<Reached target
 description.>, C<Failed to start
 description.>), so it should be capitalized, and should
-not be a full sentence or a phrase with a continous verb. Bad examples include
+not be a full sentence or a phrase with a continuous verb. Bad examples include
 C<exiting the container> or C<updating the database once per
 day.>.',
         'type' => 'leaf',
@@ -609,7 +623,7 @@ C<false>.',
       'DefaultDependencies',
       {
         'description' => 'Takes a boolean argument. If
-C<true>, (the default), a few default
+C<yes>, (the default), a few default
 dependencies will implicitly be created for the unit. The
 actual dependencies created depend on the unit type. For
 example, for service units, these dependencies ensure that the
@@ -617,9 +631,9 @@ service is started only after basic system initialization is
 completed and is properly terminated on system shutdown. See
 the respective man pages for details. Generally, only services
 involved with early boot or late shutdown should set this
-option to C<false>. It is highly recommended to
+option to C<no>. It is highly recommended to
 leave this option enabled for the majority of common units. If
-set to C<false>, this option does not disable
+set to C<no>, this option does not disable
 all implicit dependencies, just non-essential
 ones.',
         'type' => 'leaf',
@@ -791,7 +805,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionArchitecture=> may be used to
 check whether the system is running on a specific
@@ -836,21 +852,15 @@ architecture name C<native> is mapped to the
 architecture the system manager itself is compiled for. The
 test may be negated by prepending an exclamation mark.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionVirtualization',
@@ -867,7 +877,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionVirtualization=> may be used
 to check whether the system is executed in a virtualized
@@ -893,6 +905,7 @@ C<lxc>,
 C<lxc-libvirt>,
 C<systemd-nspawn>,
 C<docker>,
+C<podman>,
 C<rkt>,
 C<wsl>,
 C<acrn> to test
@@ -904,21 +917,15 @@ identifiers. If multiple virtualization technologies are
 nested, only the innermost is considered. The test may be
 negated by prepending an exclamation mark.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionHost',
@@ -935,7 +942,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionHost=> may be used to match
 against the hostname or machine ID of the host. This either
@@ -948,21 +957,15 @@ L<machine-id(5)>).
 The test may be negated by prepending an exclamation
 mark.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionKernelCommandLine',
@@ -979,7 +982,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionKernelCommandLine=> may be
 used to check whether a specific kernel command line option is
@@ -991,21 +996,15 @@ is, or as left hand side of an assignment. In the latter case,
 the exact assignment is looked for with right and left hand
 side matching.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionKernelVersion',
@@ -1022,30 +1021,27 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionKernelVersion=> may be used to check whether the kernel version (as
 reported by uname -r) matches a certain expression (or if prefixed with the
-exclamation mark does not match it). The argument must be a single string. If the string starts with
-one of C<<>, C<<=>, C<=>,
-C<!=>, C<>=>, C<>> a relative version
-comparison is done, otherwise the specified string is matched with shell-style globs.
+exclamation mark does not match it). The argument must be a list of (potentially quoted) expressions.
+For each of the expressions, if it starts with one of C<<>,
+C<<=>, C<=>, C<!=>, C<>=>,
+C<>> a relative version comparison is done, otherwise the specified string is
+matched with shell-style globs.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionSecurity',
@@ -1062,7 +1058,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionSecurity=> may be used to check
 whether the given security technology is enabled on the
@@ -1073,21 +1071,15 @@ C<smack>, C<audit> and
 C<uefi-secureboot>. The test may be negated by
 prepending an exclamation mark.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionCapability',
@@ -1104,7 +1096,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionCapability=> may be used to
 check whether the given capability exists in the capability
@@ -1116,21 +1110,15 @@ for details). Pass a capability name such as
 C<CAP_MKNOD>, possibly prefixed with an
 exclamation mark to negate the check.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionACPower',
@@ -1147,7 +1135,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionACPower=> may be used to
 check whether the system has AC power, or is exclusively
@@ -1160,21 +1150,15 @@ C<false>, the condition will hold only if
 there is at least one AC connector known and all AC connectors
 are disconnected from a power source.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionNeedsUpdate',
@@ -1191,7 +1175,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionNeedsUpdate=> takes one of
 /var or /etc as
@@ -1210,21 +1196,15 @@ L<systemd-update-done.service(8)>,
 to make sure they run before the stamp file's modification
 time gets reset indicating a completed update.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionFirstBoot',
@@ -1241,7 +1221,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionFirstBoot=> takes a boolean argument. This condition may be used to
 conditionalize units on whether the system is booting up with an unpopulated /etc
@@ -1249,21 +1231,15 @@ directory (specifically: an /etc with no /etc/machine-id). This may
 be used to populate /etc on the first boot after factory reset, or when a new system
 instance boots up for the first time.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionPathExists',
@@ -1280,7 +1256,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 With C<ConditionPathExists=> a file
 existence condition is checked before a unit is started. If
@@ -1291,21 +1269,15 @@ exclamation mark (C<!>), the test is negated,
 and the unit is only started if the path does not
 exist.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionPathExistsGlob',
@@ -1322,28 +1294,24 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionPathExistsGlob=> is similar
 to C<ConditionPathExists=>, but checks for the
 existence of at least one file or directory matching the
 specified globbing pattern.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionPathIsDirectory',
@@ -1360,27 +1328,23 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionPathIsDirectory=> is similar
 to C<ConditionPathExists=> but verifies
 whether a certain path exists and is a directory.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionPathIsSymbolicLink',
@@ -1397,28 +1361,31 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
-C<ConditionPathIsSymbolicLink=> is
-similar to C<ConditionPathExists=> but
-verifies whether a certain path exists and is a symbolic
-link.
+If multiple conditions are specified, the unit will be executed if all of them apply (i.e. a
+logical AND is applied). Condition checks can be prefixed with a pipe symbol (C<|>)
+in which case a condition becomes a triggering condition. If at least one triggering condition is
+defined for a unit, then the unit will be executed if at least one of the triggering conditions apply
+and all of the non-triggering conditions. If you prefix an argument with the pipe symbol and an
+exclamation mark, the pipe symbol must be passed first, the exclamation second. Except for
+C<ConditionPathIsSymbolicLink=>, all path checks follow symlinks. If any of these
+options is assigned the empty string, the list of conditions is reset completely, all previous
+condition settings (of any kind) will have no effect. The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionPathIsMountPoint',
@@ -1435,27 +1402,23 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionPathIsMountPoint=> is similar
 to C<ConditionPathExists=> but verifies
 whether a certain path exists and is a mount point.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionPathIsReadWrite',
@@ -1472,28 +1435,24 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionPathIsReadWrite=> is similar
 to C<ConditionPathExists=> but verifies
 whether the underlying file system is readable and writable
 (i.e. not mounted read-only).
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionDirectoryNotEmpty',
@@ -1510,28 +1469,24 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionDirectoryNotEmpty=> is
 similar to C<ConditionPathExists=> but
 verifies whether a certain path exists and is a non-empty
 directory.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionFileNotEmpty',
@@ -1548,28 +1503,24 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionFileNotEmpty=> is similar to
 C<ConditionPathExists=> but verifies whether a
 certain path exists and refers to a regular file with a
 non-zero size.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionFileIsExecutable',
@@ -1586,28 +1537,24 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionFileIsExecutable=> is similar
 to C<ConditionPathExists=> but verifies
 whether a certain path exists, is a regular file and marked
 executable.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionUser',
@@ -1624,7 +1571,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionUser=> takes a numeric
 C<UID>, a UNIX user name, or the special value
@@ -1635,21 +1584,15 @@ if the user id is within the system user range. This option is not
 useful for system services, as the system manager exclusively
 runs as the root user, and thus the test result is constant.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionGroup',
@@ -1666,7 +1609,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionGroup=> is similar
 to C<ConditionUser=> but verifies that the
@@ -1674,21 +1619,15 @@ service manager's real or effective group, or any of its
 auxiliary groups match the specified group or GID. This setting
 does not have a special value C<\@system>.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionControlGroupController',
@@ -1705,7 +1644,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionControlGroupController=> takes a
 cgroup controller name (eg. C<cpu>), verifying that it is
@@ -1719,21 +1660,15 @@ C<cpu>, C<cpuacct>, C<io>,
 C<blkio>, C<memory>,
 C<devices>, and C<pids>.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionMemory',
@@ -1750,7 +1685,9 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionMemory=> verifies if the specified amount of system memory is
 available to the current system. Takes a memory size in bytes as argument, optionally prefixed with a
@@ -1760,21 +1697,15 @@ compares the amount of physical memory in the system with the specified size, ad
 specified comparison operator. In containers compares the amount of memory assigned to the container
 instead.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'ConditionCPUs',
@@ -1791,33 +1722,29 @@ in order to silently skip units that do not apply to the local running system, f
 or runtime environment doesn't require their functionality. Use the various
 C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
 mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below.
+(instead of being silently processed). For details about assertion conditions see below. Units with failed
+conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
+This means, that when queried, the condition failure may or may not show up in the state of the unit.
 
 C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
 current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
 C<<>, C<<=>, C<=>, C<!=>,
 C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
 configured of the service manager itself with the specified number, adhering to the specified
-comparision operator. On physical systems the number of CPUs in the affinity mask of the service
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
 manager usually matches the number of physical CPUs, but in special and virtual environments might
 differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
 the container and not the physically available ones.
 
-If multiple conditions are specified, the unit will be
-executed if all of them apply (i.e. a logical AND is applied).
-Condition checks can be prefixed with a pipe symbol (|) in
-which case a condition becomes a triggering condition. If at
-least one triggering condition is defined for a unit, then the
-unit will be executed if at least one of the triggering
-conditions apply and all of the non-triggering conditions. If
-you prefix an argument with the pipe symbol and an exclamation
-mark, the pipe symbol must be passed first, the exclamation
-second. Except for
-C<ConditionPathIsSymbolicLink=>, all path
-checks follow symlinks. If any of these options is assigned
-the empty string, the list of conditions is reset completely,
-all previous condition settings (of any kind) will have no
-effect.",
+C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
+current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+C<<>, C<<=>, C<=>, C<!=>,
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
+configured of the service manager itself with the specified number, adhering to the specified
+comparison operator. On physical systems the number of CPUs in the affinity mask of the service
+manager usually matches the number of physical CPUs, but in special and virtual environments might
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
+the container and not the physically available ones.",
         'type' => 'list'
       },
       'AssertArchitecture',
@@ -1834,7 +1761,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1852,7 +1783,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1870,7 +1805,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1888,7 +1827,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1906,7 +1849,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1924,7 +1871,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1942,7 +1893,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1960,7 +1915,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1978,7 +1937,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1996,7 +1959,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2014,7 +1981,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2032,7 +2003,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2050,7 +2025,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2068,7 +2047,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2086,7 +2069,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2104,7 +2091,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2122,7 +2113,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2140,7 +2135,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2158,7 +2157,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2176,7 +2179,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2194,7 +2201,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2212,7 +2223,11 @@ should look into.
 Note that neither assertion nor condition expressions result in unit state changes. Also note that both
 are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
 queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.",
+dependencies.
+
+The condition verb of
+L<systemd-analyze(1)>
+can be used to test condition and assert expressions.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },

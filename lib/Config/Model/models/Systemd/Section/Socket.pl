@@ -20,9 +20,9 @@ This man page lists the configuration options specific to
 this unit type. See
 L<systemd.unit(5)>
 for the common options of all unit configuration files. The common
-configuration items are configured in the generic [Unit] and
-[Install] sections. The socket specific configuration options are
-configured in the [Socket] section.
+configuration items are configured in the generic C<[Unit]> and
+C<[Install]> sections. The socket specific configuration options are
+configured in the C<[Socket]> section.
 
 Additional options are listed in
 L<systemd.exec(5)>,
@@ -36,11 +36,11 @@ L<systemd.resource-control(5)>,
 which configure resource control settings for the processes of the
 socket.
 
-For each socket file, a matching service file must exist,
+For each socket unit, a matching service unit must exist,
 describing the service to start on incoming traffic on the socket
 (see
 L<systemd.service(5)>
-for more information about .service files). The name of the
+for more information about .service units). The name of the
 .service unit is by default the same as the name of the .socket
 unit, but can be altered with the C<Service> option
 described below. Depending on the setting of the
@@ -51,7 +51,7 @@ or it must be a template unit named the same way. Example: a
 socket file foo.socket needs a matching
 service foo.service if
 C<Accept=no> is set. If
-C<Accept=yes> is set, a service template file
+C<Accept=yes> is set, a service template
 foo@.service must exist from which services
 are instantiated for each incoming connection.
 
@@ -418,7 +418,7 @@ C<USBFunctionStrings> options set.
         'description' => 'Takes one of C<udplite>
 or C<sctp>. Specifies a socket protocol
 (C<IPPROTO_UDPLITE>) UDP-Lite
-(C<IPPROTO_SCTP>) SCTP socket respectively. ',
+(C<IPPROTO_SCTP>) SCTP socket respectively.',
         'type' => 'leaf',
         'value_type' => 'enum'
       },
@@ -827,7 +827,7 @@ This configuration option only affects sockets with
 C<Accept> mode set to
 C<true>. Also note that this option is useful
 only when MLS/MCS SELinux policy is deployed. Defaults to
-C<false>. ',
+C<false>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [

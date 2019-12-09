@@ -20,9 +20,9 @@ This man page lists the configuration options specific to
 this unit type. See
 L<systemd.unit(5)>
 for the common options of all unit configuration files. The common
-configuration items are configured in the generic [Unit] and
-[Install] sections. The timer specific configuration options are
-configured in the [Timer] section.
+configuration items are configured in the generic C<[Unit]> and
+C<[Install]> sections. The timer specific configuration options are
+configured in the C<[Timer]> section.
 
 For each timer file, a matching unit file must exist,
 describing the unit to activate when the timer elapses. By
@@ -361,16 +361,18 @@ suffix.',
       },
       'Persistent',
       {
-        'description' => 'Takes a boolean argument. If true, the time
-when the service unit was last triggered is stored on disk.
-When the timer is activated, the service unit is triggered
-immediately if it would have been triggered at least once
-during the time when the timer was inactive. This is useful to
-catch up on missed runs of the service when the machine was
-off. Note that this setting only has an effect on timers
-configured with C<OnCalendar>. Defaults
-to C<false>.
-',
+        'description' => "Takes a boolean argument. If true, the time when the service unit was last triggered
+is stored on disk.  When the timer is activated, the service unit is triggered immediately if it
+would have been triggered at least once during the time when the timer was inactive. This is useful
+to catch up on missed runs of the service when the system was powered down. Note that this setting
+only has an effect on timers configured with C<OnCalendar>. Defaults to
+C<false>.
+
+Use systemctl clean --what=state \x{2026} on the timer unit to remove the timestamp
+file maintained by this option from disk. In particular, use this command before uninstalling a timer
+unit. See
+L<systemctl(1)> for
+details.",
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -380,13 +382,14 @@ to C<false>.
       },
       'WakeSystem',
       {
-        'description' => 'Takes a boolean argument. If true, an elapsing
-timer will cause the system to resume from suspend, should it
-be suspended and if the system supports this. Note that this
-option will only make sure the system resumes on the
-appropriate times, it will not take care of suspending it
-again after any work that is to be done is finished. Defaults
-to C<false>.',
+        'description' => 'Takes a boolean argument. If true, an elapsing timer will cause the system to resume
+from suspend, should it be suspended and if the system supports this. Note that this option will only
+make sure the system resumes on the appropriate times, it will not take care of suspending it again
+after any work that is to be done is finished. Defaults to
+C<false>.
+
+Note that this functionality requires privileges and is thus generally only available in the
+system service manager.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -397,7 +400,7 @@ to C<false>.',
       'RemainAfterElapse',
       {
         'description' => 'Takes a boolean argument. If true, an elapsed
-timer will stay loaded, and its state remains queriable. If
+timer will stay loaded, and its state remains queryable. If
 false, an elapsed timer unit that cannot elapse anymore is
 unloaded. Turning this off is particularly useful for
 transient timer units that shall disappear after they first

@@ -60,7 +60,7 @@ main process while the subsequent C<SIGKILL>
 signal (see below) is sent to all remaining processes of the
 unit\'s control group. If set to C<none>, no
 process is killed. In this case, only the stop command will be
-executed on unit stop, but no process be killed otherwise.
+executed on unit stop, but no process will be killed otherwise.
 Processes remaining alive after stop are left in their control
 group and the control group continues to exist after stop
 unless it is empty.
@@ -87,7 +87,7 @@ of shutting down a unit (see above), and is usually followed
 by C<SIGKILL> (see above and below). For a
 list of valid signals, see
 L<signal(7)>.
-Defaults to C<SIGTERM>. 
+Defaults to C<SIGTERM>.
 
 Note that, right after sending the signal specified in
 this setting, systemd will always send
