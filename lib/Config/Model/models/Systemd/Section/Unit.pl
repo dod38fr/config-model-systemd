@@ -73,10 +73,10 @@ has the alias dbus-org.freedesktop.network1.service, created during installation
 a symlink, so when systemd is asked through D-Bus to load
 dbus-org.freedesktop.network1.service, it\'ll load
 systemd-networkd.service. Alias names may be used in commands like
-enable, disable, start, stop,
-status, and similar, and in all unit dependency directives, including
-C<Wants>, C<Requires>, C<Before>,
-C<After>. Aliases cannot be used with the preset command.
+disable, start, stop, status,
+and similar, and in all unit dependency directives, including C<Wants>,
+C<Requires>, C<Before>, C<After>. Aliases cannot be
+used with the preset command.
 
 Unit files may specify aliases through the C<Alias> directive in the [Install]
 section. When the unit is enabled, symlinks will be created for those names, and removed when the unit is
@@ -99,7 +99,7 @@ start-up of other units, without having to modify their unit files. For details 
 C<Wants>, see below. The preferred way to create symlinks in the
 .wants/ or .requires/ directory of a unit file is by embedding
 the dependency in [Install] section of the target unit, and creating the symlink in the file system with
-the with the enable or preset commands of
+the enable or preset commands of
 L<systemctl(1)>.
 
 Along with a unit file foo.service, a "drop-in" directory
@@ -127,6 +127,15 @@ take precedence over those in /run which in turn take precedence over those
 in /usr/lib. Drop-in files under any of these directories take precedence
 over unit files wherever located. Multiple drop-in files with different names are applied in
 lexicographic order, regardless of which of the directories they reside in.
+
+Units also support a top-level drop-in with type.d/,
+where type may be e.g. C<service> or C<socket>,
+that allows altering or adding to the settings of all corresponding unit files on the system.
+The formatting and precedence of applying drop-in configurations follow what is defined above.
+Configurations in type.d/ have the lowest precedence
+compared to settings in the name specific override directories. So the contents of
+foo-.service.d/10-override.conf would override
+service.d/10-override.conf.
 
 Note that while systemd offers a flexible dependency system
 between units it is recommended to use this functionality only
@@ -230,25 +239,50 @@ and all prior assignments will have no
 effect.',
         'type' => 'list'
       },
+      'Wants',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => 'Configures requirement dependencies on other units. This option may be specified more
+than once or multiple space-separated units may be specified in one option in which case dependencies
+for all listed names will be created. Dependencies of this type may also be configured outside of the
+unit configuration file by adding a symlink to a .wants/ directory accompanying
+the unit file. For details, see above.
+
+Units listed in this option will be started if the configuring unit is. However, if the listed
+units fail to start or cannot be added to the transaction, this has no impact on the validity of the
+transaction as a whole, and this unit will still be started. This is the recommended way to hook
+start-up of one unit to the start-up of another unit.
+
+Note that requirement dependencies do not influence the order in which services are started or
+stopped. This has to be configured independently with the C<After> or
+C<Before> options. If unit foo.service pulls in unit
+bar.service as configured with C<Wants> and no ordering is
+configured with C<After> or C<Before>, then both units will be
+started simultaneously and without any delay between them if foo.service is
+activated.',
+        'type' => 'list'
+      },
       'Requires',
       {
         'cargo' => {
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Configures requirement dependencies on other units. If this unit gets activated, the units
-listed here will be activated as well. If one of the other units fails to activate, and an ordering dependency
-C<After> on the failing unit is set, this unit will not be started. Besides, with or without
-specifying C<After>, this unit will be stopped if one of the other units is explicitly
-stopped. This option may be specified more than once or multiple space-separated units may be
-specified in one option in which case requirement dependencies for all listed names will be created. Note that
-requirement dependencies do not influence the order in which services are started or stopped.  This has to be
-configured independently with the C<After> or C<Before> options. If a unit
-foo.service requires a unit bar.service as configured with
-C<Requires> and no ordering is configured with C<After> or
-C<Before>, then both units will be started simultaneously and without any delay between them
-if foo.service is activated. Often, it is a better choice to use C<Wants>
-instead of C<Requires> in order to achieve a system that is more robust when dealing with
+        'description' => "Similar to C<Wants>, but declares a stronger
+dependency. Dependencies of this type may also be configured by adding a symlink to a
+.requires/ directory accompanying the unit file.
+
+If this unit gets activated, the units listed will be activated as well. If one of
+the other units fails to activate, and an ordering dependency C<After> on the
+failing unit is set, this unit will not be started. Besides, with or without specifying
+C<After>, this unit will be stopped if one of the other units is explicitly
+stopped.
+
+Often, it is a better choice to use C<Wants> instead of
+C<Requires> in order to achieve a system that is more robust when dealing with
 failing services.
 
 Note that this dependency type does not imply that the other unit always has to be in active state when
@@ -258,11 +292,7 @@ C<Requires> dependency on it to fail. Also, some unit types may deactivate on th
 example, a service process may decide to exit cleanly, or a device may be unplugged by the user), which is not
 propagated to units having a C<Requires> dependency. Use the C<BindsTo>
 dependency type together with C<After> to ensure that a unit may never be in active state
-without a specific other unit also in active state (see below).
-
-Note that dependencies of this type may also be configured outside of the unit configuration file by
-adding a symlink to a .requires/ directory accompanying the unit file. For details, see
-above.",
+without a specific other unit also in active state (see below).",
         'type' => 'list'
       },
       'Requisite',
@@ -283,27 +313,6 @@ a.service, this dependency will show as
 C<RequisiteOf=a.service> in property listing of
 b.service. C<RequisiteOf>
 dependency cannot be specified directly.',
-        'type' => 'list'
-      },
-      'Wants',
-      {
-        'cargo' => {
-          'type' => 'leaf',
-          'value_type' => 'uniline'
-        },
-        'description' => 'A weaker version of
-C<Requires>. Units listed in this option will
-be started if the configuring unit is. However, if the listed
-units fail to start or cannot be added to the transaction,
-this has no impact on the validity of the transaction as a
-whole. This is the recommended way to hook start-up of one
-unit to the start-up of another unit.
-
-Note that dependencies of this type may also be
-configured outside of the unit configuration file by adding
-symlinks to a .wants/ directory
-accompanying the unit file. For details, see
-above.',
         'type' => 'list'
       },
       'BindsTo',
@@ -361,15 +370,18 @@ dependency cannot be specified directly.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => 'A space-separated list of unit names.
-Configures negative requirement dependencies. If a unit has a
-C<Conflicts> setting on another unit,
-starting the former will stop the latter and vice versa. Note
-that this setting is independent of and orthogonal to the
-C<After> and C<Before>
-ordering dependencies.
+        'description' => 'A space-separated list of unit names. Configures negative requirement
+dependencies. If a unit has a C<Conflicts> setting on another unit, starting the
+former will stop the latter and vice versa.
 
-If a unit A that conflicts with a unit B is scheduled to
+Note that this setting does not imply an ordering dependency, similarly to the
+C<Wants> and C<Requires> dependencies described above. This means
+that to ensure that the conflicting unit is stopped before the other unit is started, an
+C<After> or C<Before> dependency must be declared. It doesn\'t
+matter which of the two ordering dependencies is used, because stop jobs are always ordered before
+start jobs, see the discussion in C<Before>/C<After> below.
+
+If unit A that conflicts with unit B is scheduled to
 be started at the same time as B, the transaction will either
 fail (in case both are required parts of the transaction) or be
 modified to be fixed (in case one or both jobs are not a
@@ -385,29 +397,36 @@ unit that is conflicted is stopped.',
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => 'These two settings expect a space-separated list of unit names. They configure ordering
-dependencies between units. If a unit foo.service contains a setting
-C<Before=bar.service> and both units are being started, bar.service\'s
-start-up is delayed until foo.service has finished starting up.  Note that this setting is
-independent of and orthogonal to the requirement dependencies as configured by C<Requires>,
-C<Wants> or C<BindsTo>. It is a common pattern to include a unit name in both
-the C<After> and C<Requires> options, in which case the unit listed will be
-started before the unit that is configured with these options. This option may be specified more than once, in
-which case ordering dependencies for all listed names are created. C<After> is the inverse of
-C<Before>, i.e. while C<After> ensures that the configured unit is started
-after the listed unit finished starting up, C<Before> ensures the opposite, that the
-configured unit is fully started up before the listed unit is started. Note that when two units with an
-ordering dependency between them are shut down, the inverse of the start-up order is applied. i.e. if a unit is
-configured with C<After> on another unit, the former is stopped before the latter if both are
-shut down. Given two units with any ordering dependency between them, if one unit is shut down and the other is
-started up, the shutdown is ordered before the start-up. It doesn\'t matter if the ordering dependency is
-C<After> or C<Before>, in this case. It also doesn\'t matter which of the two
-is shut down, as long as one is shut down and the other is started up. The shutdown is ordered before the
-start-up in all cases. If two units have no ordering dependencies between them, they are shut down or started
-up simultaneously, and no ordering takes place. It depends on the unit type when precisely a unit has finished
-starting up. Most importantly, for service units start-up is considered completed for the purpose of
-C<Before>/C<After> when all its configured start-up commands have been
-invoked and they either failed or reported start-up success.',
+        'description' => 'These two settings expect a space-separated list of unit names. They may be specified
+more than once, in which case dependencies for all listed names are created.
+
+Those two setttings configure ordering dependencies between units. If unit
+foo.service contains the setting C<Before=bar.service> and both
+units are being started, bar.service\'s start-up is delayed until
+foo.service has finished starting up. C<After> is the inverse
+of C<Before>, i.e. while C<Before> ensures that the configured unit
+is started before the listed unit begins starting up, C<After> ensures the opposite,
+that the listed unit is fully started up before the configured unit is started.
+
+When two units with an ordering dependency between them are shut down, the inverse of the
+start-up order is applied. i.e. if a unit is configured with C<After> on another
+unit, the former is stopped before the latter if both are shut down. Given two units with any
+ordering dependency between them, if one unit is shut down and the other is started up, the shutdown
+is ordered before the start-up. It doesn\'t matter if the ordering dependency is
+C<After> or C<Before>, in this case. It also doesn\'t matter which
+of the two is shut down, as long as one is shut down and the other is started up; the shutdown is
+ordered before the start-up in all cases. If two units have no ordering dependencies between them,
+they are shut down or started up simultaneously, and no ordering takes place. It depends on the unit
+type when precisely a unit has finished starting up. Most importantly, for service units start-up is
+considered completed for the purpose of C<Before>/C<After> when all
+its configured start-up commands have been invoked and they either failed or reported start-up
+success.
+
+Note that those settings are independent of and orthogonal to the requirement dependencies as
+configured by C<Requires>, C<Wants>, C<Requisite>,
+or C<BindsTo>. It is a common pattern to include a unit name in both the
+C<After> and C<Wants> options, in which case the unit listed will
+be started before the unit that is configured with these options.',
         'type' => 'list'
       },
       'After',
@@ -416,29 +435,36 @@ invoked and they either failed or reported start-up success.',
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => 'These two settings expect a space-separated list of unit names. They configure ordering
-dependencies between units. If a unit foo.service contains a setting
-C<Before=bar.service> and both units are being started, bar.service\'s
-start-up is delayed until foo.service has finished starting up.  Note that this setting is
-independent of and orthogonal to the requirement dependencies as configured by C<Requires>,
-C<Wants> or C<BindsTo>. It is a common pattern to include a unit name in both
-the C<After> and C<Requires> options, in which case the unit listed will be
-started before the unit that is configured with these options. This option may be specified more than once, in
-which case ordering dependencies for all listed names are created. C<After> is the inverse of
-C<Before>, i.e. while C<After> ensures that the configured unit is started
-after the listed unit finished starting up, C<Before> ensures the opposite, that the
-configured unit is fully started up before the listed unit is started. Note that when two units with an
-ordering dependency between them are shut down, the inverse of the start-up order is applied. i.e. if a unit is
-configured with C<After> on another unit, the former is stopped before the latter if both are
-shut down. Given two units with any ordering dependency between them, if one unit is shut down and the other is
-started up, the shutdown is ordered before the start-up. It doesn\'t matter if the ordering dependency is
-C<After> or C<Before>, in this case. It also doesn\'t matter which of the two
-is shut down, as long as one is shut down and the other is started up. The shutdown is ordered before the
-start-up in all cases. If two units have no ordering dependencies between them, they are shut down or started
-up simultaneously, and no ordering takes place. It depends on the unit type when precisely a unit has finished
-starting up. Most importantly, for service units start-up is considered completed for the purpose of
-C<Before>/C<After> when all its configured start-up commands have been
-invoked and they either failed or reported start-up success.',
+        'description' => 'These two settings expect a space-separated list of unit names. They may be specified
+more than once, in which case dependencies for all listed names are created.
+
+Those two setttings configure ordering dependencies between units. If unit
+foo.service contains the setting C<Before=bar.service> and both
+units are being started, bar.service\'s start-up is delayed until
+foo.service has finished starting up. C<After> is the inverse
+of C<Before>, i.e. while C<Before> ensures that the configured unit
+is started before the listed unit begins starting up, C<After> ensures the opposite,
+that the listed unit is fully started up before the configured unit is started.
+
+When two units with an ordering dependency between them are shut down, the inverse of the
+start-up order is applied. i.e. if a unit is configured with C<After> on another
+unit, the former is stopped before the latter if both are shut down. Given two units with any
+ordering dependency between them, if one unit is shut down and the other is started up, the shutdown
+is ordered before the start-up. It doesn\'t matter if the ordering dependency is
+C<After> or C<Before>, in this case. It also doesn\'t matter which
+of the two is shut down, as long as one is shut down and the other is started up; the shutdown is
+ordered before the start-up in all cases. If two units have no ordering dependencies between them,
+they are shut down or started up simultaneously, and no ordering takes place. It depends on the unit
+type when precisely a unit has finished starting up. Most importantly, for service units start-up is
+considered completed for the purpose of C<Before>/C<After> when all
+its configured start-up commands have been invoked and they either failed or reported start-up
+success.
+
+Note that those settings are independent of and orthogonal to the requirement dependencies as
+configured by C<Requires>, C<Wants>, C<Requisite>,
+or C<BindsTo>. It is a common pattern to include a unit name in both the
+C<After> and C<Wants> options, in which case the unit listed will
+be started before the unit that is configured with these options.',
         'type' => 'list'
       },
       'OnFailure',

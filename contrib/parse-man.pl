@@ -31,6 +31,11 @@ GetOptions (\%opt, "from=s") or die("Error in command line arguments\n");
 
 die "Missing '-from' option " unless $opt{from};
 
+my ($systemd_version) = (`systemctl --version` =~ m/(\d+)/) ;
+die "Cannot find systemd version" unless $systemd_version;
+
+say "Parsing man pages of systemd $systemd_version";
+
 # make sure that Systemd model is created from scratch
 path('lib/Config/Model/models')->remove_tree;
 
@@ -380,9 +385,8 @@ foreach my $config_class (keys $data->{class}->%*) {
     my $steps = "class:$config_class class_description";
     $meta_root->grab(step => $steps, autoadd => 1)->store($desc_text);
 
-    # TODO: indicates systemd version
     $meta_root->load( steps => [
-        qq!class:$config_class generated_by="parse-man.pl from systemd doc"!,
+        qq!class:$config_class generated_by="parse-man.pl from systemd $systemd_version doc"!,
         qq!copyright:0="2010-2016 Lennart Poettering and others"!,
         qq!copyright:1="2016 Dominique Dumont"!,
         qq!license="LGPLv2.1+"!,

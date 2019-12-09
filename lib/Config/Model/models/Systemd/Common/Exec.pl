@@ -367,8 +367,9 @@ Example: if a unit has the following,
     CapabilityBoundingSet=CAP_A CAP_B
     CapabilityBoundingSet=CAP_B CAP_C
 
-then C<CAP_A>, C<CAP_B>, and C<CAP_C> are set.
-If the second line is prefixed with C<~>, e.g.,
+then C<CAP_A>, C<CAP_B>, and
+C<CAP_C> are set.  If the second line is prefixed with
+C<~>, e.g.,
 
     CapabilityBoundingSet=CAP_A CAP_B
     CapabilityBoundingSet=~CAP_B CAP_C
@@ -408,11 +409,11 @@ settings override this and ignore the value of this setting.  This is the case w
 C<SystemCallFilter>, C<SystemCallArchitectures>,
 C<RestrictAddressFamilies>, C<RestrictNamespaces>,
 C<PrivateDevices>, C<ProtectKernelTunables>,
-C<ProtectKernelModules>, C<MemoryDenyWriteExecute>,
-C<RestrictRealtime>, C<RestrictSUIDSGID>,
-C<DynamicUser> or C<LockPersonality> are specified. Note that even
-if this setting is overridden by them, systemctl show shows the original value of
-this setting. Also see No New Privileges
+C<ProtectKernelModules>, C<ProtectKernelLogs>,
+C<MemoryDenyWriteExecute>, C<RestrictRealtime>,
+C<RestrictSUIDSGID>, C<DynamicUser> or C<LockPersonality>
+are specified. Note that even if this setting is overridden by them, systemctl show shows the
+original value of this setting. Also see No New Privileges
 Flag.',
         'type' => 'leaf',
         'value_type' => 'boolean',
@@ -1490,8 +1491,9 @@ Example: if a system service unit has the following,
     RuntimeDirectory=foo/bar baz
 
 the service manager creates /run/foo (if it does not exist),
-/run/foo/bar, and /run/baz. The directories
-/run/foo/bar and /run/baz except /run/foo are
+/run/foo/bar, and /run/baz. The
+directories /run/foo/bar and
+/run/baz except /run/foo are
 owned by the user and group specified in C<User> and C<Group>, and removed
 when the service is stopped.
 
@@ -1571,8 +1573,9 @@ Example: if a system service unit has the following,
     RuntimeDirectory=foo/bar baz
 
 the service manager creates /run/foo (if it does not exist),
-/run/foo/bar, and /run/baz. The directories
-/run/foo/bar and /run/baz except /run/foo are
+/run/foo/bar, and /run/baz. The
+directories /run/foo/bar and
+/run/baz except /run/foo are
 owned by the user and group specified in C<User> and C<Group>, and removed
 when the service is stopped.
 
@@ -1652,8 +1655,9 @@ Example: if a system service unit has the following,
     RuntimeDirectory=foo/bar baz
 
 the service manager creates /run/foo (if it does not exist),
-/run/foo/bar, and /run/baz. The directories
-/run/foo/bar and /run/baz except /run/foo are
+/run/foo/bar, and /run/baz. The
+directories /run/foo/bar and
+/run/baz except /run/foo are
 owned by the user and group specified in C<User> and C<Group>, and removed
 when the service is stopped.
 
@@ -1733,8 +1737,9 @@ Example: if a system service unit has the following,
     RuntimeDirectory=foo/bar baz
 
 the service manager creates /run/foo (if it does not exist),
-/run/foo/bar, and /run/baz. The directories
-/run/foo/bar and /run/baz except /run/foo are
+/run/foo/bar, and /run/baz. The
+directories /run/foo/bar and
+/run/baz except /run/foo are
 owned by the user and group specified in C<User> and C<Group>, and removed
 when the service is stopped.
 
@@ -1814,8 +1819,9 @@ Example: if a system service unit has the following,
     RuntimeDirectory=foo/bar baz
 
 the service manager creates /run/foo (if it does not exist),
-/run/foo/bar, and /run/baz. The directories
-/run/foo/bar and /run/baz except /run/foo are
+/run/foo/bar, and /run/baz. The
+directories /run/foo/bar and
+/run/baz except /run/foo are
 owned by the user and group specified in C<User> and C<Group>, and removed
 when the service is stopped.
 
@@ -1903,6 +1909,17 @@ C<RuntimeDirectory> are removed when the system is rebooted.',
         },
         'type' => 'leaf',
         'value_type' => 'enum'
+      },
+      'TimeoutCleanSec',
+      {
+        'description' => "Configures a timeout on the clean-up operation requested through systemctl
+clean \x{2026}, see
+L<systemctl(1)> for
+details. Takes the usual time values and defaults to C<infinity>, i.e. by default
+no time-out is applied. If a time-out is configured the clean operation will be aborted forcibly when
+the time-out is reached, potentially leaving resources on disk.",
+        'type' => 'leaf',
+        'value_type' => 'uniline'
       },
       'ReadWritePaths',
       {
@@ -2301,6 +2318,24 @@ C<User>), C<NoNewPrivileges=yes> is implied.',
           'yes'
         ]
       },
+      'ProtectKernelLogs',
+      {
+        'description' => 'Takes a boolean argument. If true, access to the kernel log ring buffer will be denied. It is
+recommended to turn this on for most services that do not need to read from or write to the kernel log ring
+buffer. Enabling this option removes C<CAP_SYSLOG> from the capability bounding set for this
+unit, and installs a system call filter to block the
+L<syslog(2)>
+system call (not to be confused with the libc API
+L<syslog(3)>
+for userspace logging). The kernel exposes its log buffer to userspace via /dev/kmsg and
+/proc/kmsg. If enabled, these are made inaccessible to all the processes in the unit.',
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      },
       'ProtectControlGroups',
       {
         'description' => 'Takes a boolean argument. If true, the Linux Control Groups (L<cgroups(7)>) hierarchies
@@ -2640,8 +2675,8 @@ C<SystemCallFilter=~\@mount>, in order to prohibit the unit's processes to undo 
 mappings. Specifically these are the options C<PrivateTmp>,
 C<PrivateDevices>, C<ProtectSystem>, C<ProtectHome>,
 C<ProtectKernelTunables>, C<ProtectControlGroups>,
-C<ReadOnlyPaths>, C<InaccessiblePaths> and
-C<ReadWritePaths>.",
+C<ProtectKernelLogs>, C<ReadOnlyPaths>,
+C<InaccessiblePaths> and C<ReadWritePaths>.",
         'type' => 'list'
       },
       'SystemCallErrorNumber',
@@ -2733,6 +2768,12 @@ commenting. A line ending with a backslash will be concatenated with the followi
 variable definitions. The parser strips leading and trailing whitespace from the values of assignments, unless
 you use double quotes (").
 
+C escapes
+are supported, but not
+most control characters.
+C<\\t> and C<\\n> can be used to insert tabs and newlines within
+C<EnvironmentFile>.
+
 The argument passed should be an absolute filename or wildcard expression, optionally prefixed with
 C<->, which indicates that if the file does not exist, it will not be read and no error or
 warning message is logged. This option may be specified more than once in which case all specified files are
@@ -2765,6 +2806,12 @@ to the executed processes anyway, hence this option is without effect for the us
 
 Variables set for invoked processes due to this setting are subject to being overridden by those
 configured with C<Environment> or C<EnvironmentFile>.
+
+C escapes
+are supported, but not
+most control characters.
+C<\\t> and C<\\n> can be used to insert tabs and newlines within
+C<EnvironmentFile>.
 
 Example:
 
@@ -2886,7 +2933,7 @@ finished before they start.",
           'kmsg+console',
           'socket'
         ],
-        'description' => 'Controls where file descriptor 1 (STDOUT) of the executed processes is connected
+        'description' => 'Controls where file descriptor 1 (stdout) of the executed processes is connected
 to. Takes one of C<inherit>, C<null>, C<tty>,
 C<journal>, C<kmsg>, C<journal+console>,
 C<kmsg+console>, C<file:path>,
@@ -2962,7 +3009,7 @@ to be added to the unit (see above).',
       },
       'StandardError',
       {
-        'description' => 'Controls where file descriptor 2 (STDERR) of the executed processes is connected to. The
+        'description' => 'Controls where file descriptor 2 (stderr) of the executed processes is connected to. The
 available options are identical to those of C<StandardOutput>, with some exceptions: if set to
 C<inherit> the file descriptor used for standard output is duplicated for standard error, while
 C<fd:name> will use a default file descriptor name of

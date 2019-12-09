@@ -66,14 +66,14 @@ group and the control group continues to exist after stop
 unless it is empty.
 
 Processes will first be terminated via C<SIGTERM> (unless the signal to send
-is changed via C<KillSignal>). Optionally, this is immediately followed by a
-C<SIGHUP> (if enabled with C<SendSIGHUP>). If processes still
-remain after the main process of a unit has exited or the delay configured via the
-C<TimeoutStopSec> has passed, the termination request is repeated with the
-C<SIGKILL> signal or the signal specified via C<FinalKillSignal>
-(unless this is disabled via the C<SendSIGKILL> option). See
-L<kill(2)> for more
-information.
+is changed via C<KillSignal> or C<RestartKillSignal>). Optionally,
+this is immediately followed by a C<SIGHUP> (if enabled with
+C<SendSIGHUP>). If processes still remain after the main process of a unit has
+exited or the delay configured via the C<TimeoutStopSec> has passed, the termination
+request is repeated with the C<SIGKILL> signal or the signal specified via
+C<FinalKillSignal> (unless this is disabled via the C<SendSIGKILL>
+option). See L<kill(2)>
+for more information.
 
 Defaults to C<control-group>.',
         'type' => 'leaf',
@@ -81,18 +81,22 @@ Defaults to C<control-group>.',
       },
       'KillSignal',
       {
-        'description' => 'Specifies which signal to use when killing a
-service. This controls the signal that is sent as first step
-of shutting down a unit (see above), and is usually followed
-by C<SIGKILL> (see above and below). For a
-list of valid signals, see
+        'description' => 'Specifies which signal to use when stopping a service. This controls the signal that
+is sent as first step of shutting down a unit (see above), and is usually followed by
+C<SIGKILL> (see above and below). For a list of valid signals, see
 L<signal(7)>.
 Defaults to C<SIGTERM>.
 
-Note that, right after sending the signal specified in
-this setting, systemd will always send
-C<SIGCONT>, to ensure that even suspended
-tasks can be terminated cleanly.',
+Note that, right after sending the signal specified in this setting, systemd will always send
+C<SIGCONT>, to ensure that even suspended tasks can be terminated cleanly.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'RestartKillSignal',
+      {
+        'description' => 'Specifies which signal to use when restarting a service. The same as
+C<KillSignal> described above, with the exception that this setting is used in a
+restart job. Not set by default, and the value of C<KillSignal> is used.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },

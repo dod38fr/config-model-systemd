@@ -135,6 +135,32 @@ Example: C<CPUQuotaPeriodSec=10ms> to request that the CPU quota is measured in 
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
+      'AllowedCPUs',
+      {
+        'description' => 'Restrict processes to be executed on specific CPUs. Takes a list of CPU indices or ranges separated by either
+whitespace or commas. CPU ranges are specified by the lower and upper CPU indices separated by a dash.
+
+Setting C<AllowedCPUs> doesn\'t guarantee that all of the CPUs will be used by the processes
+as it may be limited by parent units. The effective configuration is reported as C<EffectiveCPUs>.
+
+This setting is supported only with the unified control group hierarchy.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'AllowedMemoryNodes',
+      {
+        'description' => 'Restrict processes to be executed on specific memory NUMA nodes. Takes a list of memory NUMA nodes indices
+or ranges separated by either whitespace or commas. Memory NUMA nodes ranges are specified by the lower and upper
+CPU indices separated by a dash.
+
+Setting C<AllowedMemoryNodes> doesn\'t guarantee that all of the memory NUMA nodes will
+be used by the processes as it may be limited by parent units. The effective configuration is reported as
+C<EffectiveMemoryNodes>.
+
+This setting is supported only with the unified control group hierarchy.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'MemoryAccounting',
       {
         'description' => 'Turn on process and kernel memory accounting for this
@@ -160,7 +186,9 @@ this unit and all its ancestors are below their minimum boundaries, this unit\'s
 Takes a memory size in bytes. If the value is suffixed with K, M, G or T, the specified memory size is
 parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes (with the base 1024), respectively. Alternatively, a
 percentage value may be specified, which is taken relative to the installed physical memory on the
-system. This controls the C<memory.min> control group attribute. For details about this
+system. If assigned the special value C<infinity>, all available memory is protected, which may be
+useful in order to always inherit all of the protection afforded by ancestors.
+This controls the C<memory.min> control group attribute. For details about this
 control group attribute, see cgroup-v2.txt.
 
 This setting is supported only if the unified control group hierarchy is used and disables
@@ -181,7 +209,9 @@ reclaimed as long as memory can be reclaimed from unprotected units.
 Takes a memory size in bytes. If the value is suffixed with K, M, G or T, the specified memory size is
 parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes (with the base 1024), respectively. Alternatively, a
 percentage value may be specified, which is taken relative to the installed physical memory on the
-system. This controls the C<memory.low> control group attribute. For details about this
+system. If assigned the special value C<infinity>, all available memory is protected, which may be
+useful in order to always inherit all of the protection afforded by ancestors.
+This controls the C<memory.low> control group attribute. For details about this
 control group attribute, see cgroup-v2.txt.
 
 This setting is supported only if the unified control group hierarchy is used and disables
@@ -195,7 +225,7 @@ does not affect C<memory.low> in the unit itself.',
       },
       'MemoryHigh',
       {
-        'description' => 'Specify the high limit on memory usage of the executed processes in this unit. Memory usage may go
+        'description' => 'Specify the throttling limit on memory usage of the executed processes in this unit. Memory usage may go
 above the limit if unavoidable, but the processes are heavily slowed down and memory is taken away
 aggressively in such cases. This is the main mechanism to control memory usage of a unit.
 
@@ -203,7 +233,7 @@ Takes a memory size in bytes. If the value is suffixed with K, M, G or T, the sp
 parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes (with the base 1024), respectively. Alternatively, a
 percentage value may be specified, which is taken relative to the installed physical memory on the
 system. If assigned the
-special value C<infinity>, no memory limit is applied. This controls the
+special value C<infinity>, no memory throttling is applied. This controls the
 C<memory.high> control group attribute. For details about this control group attribute, see
 cgroup-v2.txt.
 

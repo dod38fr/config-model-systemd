@@ -318,26 +318,24 @@ synchronously waits for it to complete.',
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => 'Commands to execute to stop the service
-started via C<ExecStart>. This argument takes
-multiple command lines, following the same scheme as described
-for C<ExecStart> above. Use of this setting
-is optional. After the commands configured in this option are
-run, it is implied that the service is stopped, and any processes
-remaining for it are terminated
-according to the C<KillMode> setting (see
+        'description' => 'Commands to execute to stop the service started via
+C<ExecStart>. This argument takes multiple command lines, following the same scheme
+as described for C<ExecStart> above. Use of this setting is optional. After the
+commands configured in this option are run, it is implied that the service is stopped, and any
+processes remaining for it are terminated according to the C<KillMode> setting (see
 L<systemd.kill(5)>).
-If this option is not specified, the process is terminated by
-sending the signal specified in C<KillSignal>
-when service stop is requested. Specifier and environment
-variable substitution is supported (including
+If this option is not specified, the process is terminated by sending the signal specified in
+C<KillSignal> or C<RestartKillSignal> when service stop is
+requested. Specifier and environment variable substitution is supported (including
 C<$MAINPID>, see above).
 
-Note that it is usually not sufficient to specify a command for this setting that only asks the service
-to terminate (for example, by queuing some form of termination signal for it), but does not wait for it to do
-so. Since the remaining processes of the services are killed according to C<KillMode> and
-C<KillSignal> as described above immediately after the command exited, this may not result in
-a clean stop. The specified command should hence be a synchronous operation, not an asynchronous one.
+Note that it is usually not sufficient to specify a command for this setting that only asks the
+service to terminate (for example, by sending some form of termination signal to it), but does not
+wait for it to do so. Since the remaining processes of the services are killed according to
+C<KillMode> and C<KillSignal> or
+C<RestartKillSignal> as described above immediately after the command exited, this
+may not result in a clean stop. The specified command should hence be a synchronous operation, not an
+asynchronous one.
 
 Note that the commands specified in C<ExecStop> are only executed when the service
 started successfully first. They are not invoked if the service was never started at all, or in case its
@@ -479,17 +477,6 @@ the service repeats C<EXTEND_TIMEOUT_USEC=\x{2026}> within the interval specifie
 C<TimeoutStartSec> and
 C<TimeoutStopSec> to the specified value.
 ',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
-      'TimeoutCleanSec',
-      {
-        'description' => "Configures a timeout on the clean-up operation requested through systemctl
-clean \x{2026}, see
-L<systemctl(1)> for
-details. Takes the usual time values and defaults to C<infinity>, i.e. by default
-no time-out is applied. If a time-out is configured the clean operation will be aborted forcibly when
-the time-out is reached, potentially leaving resources on disk.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
