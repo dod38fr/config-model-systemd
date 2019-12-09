@@ -143,6 +143,7 @@ sub parse_xml ($list, $map) {
             'citerefentry' => $manpage,
             'literal' => $turn_to_pod_c,
             'option' => $turn_to_pod_c,
+            'filename' => $turn_to_pod_c,
             'constant' => $turn_to_pod_c,
             # this also remove the indentation of programlisting
             # element,
