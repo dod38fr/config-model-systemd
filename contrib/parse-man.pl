@@ -395,6 +395,7 @@ foreach my $cdata ($data->{element}->@*) {
 
     my $obj = setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $supersedes);
 
+    $desc =~ s/ +$//gm;
     $obj->fetch_element("description")->store($desc);
 }
 
