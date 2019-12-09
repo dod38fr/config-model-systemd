@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use 5.22.0;
 use utf8;
+use open      qw(:std :encoding(UTF-8)); # undeclared streams in UTF-8
 
 use lib 'lib';
 
