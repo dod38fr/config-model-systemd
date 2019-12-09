@@ -28,8 +28,8 @@ For each timer file, a matching unit file must exist,
 describing the unit to activate when the timer elapses. By
 default, a service by the same name as the timer (except for the
 suffix) is activated. Example: a timer file
-foo.timer activates a matching service
-foo.service. The unit to activate may be
+C<foo.timer> activates a matching service
+C<foo.service>. The unit to activate may be
 controlled by C<Unit> (see below).
 
 Note that in case the unit to activate is already active at the time the timer elapses it is not restarted,
@@ -420,7 +420,7 @@ C<yes>.',
         ]
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd doc',
+    'generated_by' => 'parse-man.pl from systemd 244 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Section::Timer'
   }

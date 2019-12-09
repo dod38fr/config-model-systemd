@@ -517,8 +517,8 @@ enforced as follows:
 
 In order to implement a whitelisting IP firewall, it is recommended to use a
 C<IPAddressDeny>C<any> setting on an upper-level slice unit (such as the
-root slice -.slice or the slice containing all system services
-system.slice \x{2013} see
+root slice C<-.slice> or the slice containing all system services
+C<system.slice> \x{2013} see
 L<systemd.special(7)> for
 details on these slice units), plus individual per-service C<IPAddressAllow> lines
 permitting network access to relevant services, and only them.
@@ -562,8 +562,8 @@ enforced as follows:
 
 In order to implement a whitelisting IP firewall, it is recommended to use a
 C<IPAddressDeny>C<any> setting on an upper-level slice unit (such as the
-root slice -.slice or the slice containing all system services
-system.slice \x{2013} see
+root slice C<-.slice> or the slice containing all system services
+C<system.slice> \x{2013} see
 L<systemd.special(7)> for
 details on these slice units), plus individual per-service C<IPAddressAllow> lines
 permitting network access to relevant services, and only them.
@@ -592,7 +592,7 @@ them for IP security.",
       {
         'description' => 'Add custom network traffic filters implemented as BPF programs, applying to all IP packets
 sent and received over C<AF_INET> and C<AF_INET6> sockets.
-Takes an absolute path to a pinned BPF program in the BPF virtual filesystem (/sys/fs/bpf/).
+Takes an absolute path to a pinned BPF program in the BPF virtual filesystem (C</sys/fs/bpf/>).
 
 The filters configured with this option are applied to all sockets created by processes
 of this unit (or in the case of socket units, associated with it). The filters are loaded in addition
@@ -621,7 +621,7 @@ that case. If compatibility with such systems is desired it is hence recommended
       {
         'description' => 'Add custom network traffic filters implemented as BPF programs, applying to all IP packets
 sent and received over C<AF_INET> and C<AF_INET6> sockets.
-Takes an absolute path to a pinned BPF program in the BPF virtual filesystem (/sys/fs/bpf/).
+Takes an absolute path to a pinned BPF program in the BPF virtual filesystem (C</sys/fs/bpf/>).
 
 The filters configured with this option are applied to all sockets created by processes
 of this unit (or in the case of socket units, associated with it). The filters are loaded in addition
@@ -662,18 +662,18 @@ attribute, see devices.txt. On
 cgroup-v2 this functionality is implemented using eBPF filtering.
 
 The device node specifier is either a path to a device node in the file system, starting with
-/dev/, or a string starting with either C<char-> or
+C</dev/>, or a string starting with either C<char-> or
 C<block-> followed by a device group name, as listed in
-/proc/devices. The latter is useful to whitelist all current and future
+C</proc/devices>. The latter is useful to whitelist all current and future
 devices belonging to a specific device group at once. The device group is matched according to
 filename globbing rules, you may hence use the C<*> and C<?>
 wildcards. (Note that such globbing wildcards are not available for device node path
 specifications!) In order to match device nodes by numeric major/minor, use device node paths in
-the /dev/char/ and /dev/block/ directories. However,
+the C</dev/char/> and C</dev/block/> directories. However,
 matching devices by major/minor is generally not recommended as assignments are neither stable nor
 portable between systems or different kernel versions.
 
-Examples: /dev/sda5 is a path to a device node, referring to an ATA or
+Examples: C</dev/sda5> is a path to a device node, referring to an ATA or
 SCSI block device. C<char-pts> and C<char-alsa> are specifiers for
 all pseudo TTYs and all ALSA sound devices, respectively. C<char-cpu/*> is a
 specifier matching all CPU related device groups.
@@ -708,10 +708,10 @@ Control the policy for allowing device access:
       'Slice',
       {
         'description' => 'The name of the slice unit to place the unit
-in. Defaults to system.slice for all
+in. Defaults to C<system.slice> for all
 non-instantiated units of all unit types (except for slice
 units themselves see below). Instance units are by default
-placed in a subslice of system.slice
+placed in a subslice of C<system.slice>
 that is named after the template name.
 
 This option may be used to arrange systemd units in a
@@ -971,7 +971,7 @@ C<IOWriteBandwidthMax> instead.',
         'value_type' => 'uniline'
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd doc',
+    'generated_by' => 'parse-man.pl from systemd 244 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Common::ResourceControl'
   }

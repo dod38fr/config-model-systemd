@@ -11,7 +11,7 @@ return [
         'warn' => 'Unknown parameter'
       }
     ],
-    'class_description' => 'A unit file is a plain text ini-style file that encodes information about a service, a
+    'class_description' => "A unit file is a plain text ini-style file that encodes information about a service, a
 socket, a device, a mount point, an automount point, a swap file or partition, a start-up
 target, a watched file system path, a timer controlled and supervised by
 L<systemd(1)>, a
@@ -43,8 +43,8 @@ L<systemd.scope(5)>.
 Unit files are loaded from a set of paths determined during compilation, described in the next
 section.
 
-Valid unit names consist of a "name prefix" and a dot and a suffix specifying the unit type. The
-"unit prefix" must consist of one or more valid characters (ASCII letters, digits, C<:>,
+Valid unit names consist of a \"name prefix\" and a dot and a suffix specifying the unit type. The
+\"unit prefix\" must consist of one or more valid characters (ASCII letters, digits, C<:>,
 C<->, C<_>, C<.>, and C<\\>). The total
 length of the unit name including the suffix must not exceed 256 characters. The type suffix must be one
 of C<.service>, C<.socket>, C<.device>,
@@ -52,11 +52,11 @@ C<.mount>, C<.automount>, C<.swap>,
 C<.target>, C<.path>, C<.timer>,
 C<.slice>, or C<.scope>.
 
-Units names can be parameterized by a single argument called the "instance name". The unit is then
-constructed based on a "template file" which serves as the definition of multiple services or other
-units. A template unit must have a single C<@> at the end of the name (right before the
+Units names can be parameterized by a single argument called the \"instance name\". The unit is then
+constructed based on a \"template file\" which serves as the definition of multiple services or other
+units. A template unit must have a single C<\@> at the end of the name (right before the
 type suffix). The name of the full unit is formed by inserting the instance name between
-C<@> and the unit type suffix. In the unit file itself, the instance parameter may be
+C<\@> and the unit type suffix. In the unit file itself, the instance parameter may be
 referred to using C<%i> and other specifiers, see below.
 
 Unit files may contain additional options on top of those
@@ -68,11 +68,11 @@ do not need the prefix. Applications may use this to include
 additional information in the unit files.
 
 Units can be aliased (have an alternative name), by creating a symlink from the new name to the
-existing name in one of the unit search paths. For example, systemd-networkd.service
-has the alias dbus-org.freedesktop.network1.service, created during installation as
+existing name in one of the unit search paths. For example, C<systemd-networkd.service>
+has the alias C<dbus-org.freedesktop.network1.service>, created during installation as
 a symlink, so when systemd is asked through D-Bus to load
-dbus-org.freedesktop.network1.service, it\'ll load
-systemd-networkd.service. Alias names may be used in commands like
+C<dbus-org.freedesktop.network1.service>, it'll load
+C<systemd-networkd.service>. Alias names may be used in commands like
 disable, start, stop, status,
 and similar, and in all unit dependency directives, including C<Wants>,
 C<Requires>, C<Before>, C<After>. Aliases cannot be
@@ -80,62 +80,62 @@ used with the preset command.
 
 Unit files may specify aliases through the C<Alias> directive in the [Install]
 section. When the unit is enabled, symlinks will be created for those names, and removed when the unit is
-disabled. For example, reboot.target specifies
+disabled. For example, C<reboot.target> specifies
 C<Alias=ctrl-alt-del.target>, so when enabled, the symlink
-/etc/systemd/systemd/ctrl-alt-del.service pointing to the
-reboot.target file will be created, and when
+C</etc/systemd/systemd/ctrl-alt-del.service> pointing to the
+C<reboot.target> file will be created, and when
 CtrlAltDel is invoked,
-systemd will look for the ctrl-alt-del.service and execute
-reboot.service. systemd does not look at the [Install] section at
+systemd will look for the C<ctrl-alt-del.service> and execute
+C<reboot.service>. systemd does not look at the [Install] section at
 all during normal operation, so any directives in that section only have an effect through the symlinks
 created during enablement.
 
-Along with a unit file foo.service, the directory
-foo.service.wants/ may exist. All unit files symlinked from such a directory are
+Along with a unit file C<foo.service>, the directory
+C<foo.service.wants/> may exist. All unit files symlinked from such a directory are
 implicitly added as dependencies of type C<Wants> to the unit. Similar functionality
 exists for C<Requires> type dependencies as well, the directory suffix is
-.requires/ in this case. This functionality is useful to hook units into the
+C<.requires/> in this case. This functionality is useful to hook units into the
 start-up of other units, without having to modify their unit files. For details about the semantics of
 C<Wants>, see below. The preferred way to create symlinks in the
-.wants/ or .requires/ directory of a unit file is by embedding
+C<.wants/> or C<.requires/> directory of a unit file is by embedding
 the dependency in [Install] section of the target unit, and creating the symlink in the file system with
 the enable or preset commands of
 L<systemctl(1)>.
 
-Along with a unit file foo.service, a "drop-in" directory
-foo.service.d/ may exist. All files with the suffix C<.conf> from this
+Along with a unit file C<foo.service>, a \"drop-in\" directory
+C<foo.service.d/> may exist. All files with the suffix C<.conf> from this
 directory will be parsed after the unit file itself is parsed. This is useful to alter or add configuration
 settings for a unit, without having to modify unit files. Drop-in files must contain appropriate section
 headers. For instantiated units, this logic will first look for the instance C<.d/> subdirectory
-(e.g. C<foo@bar.service.d/>) and read its C<.conf> files, followed by the template
-C<.d/> subdirectory (e.g. C<foo@.service.d/>) and the C<.conf>
+(e.g. C<foo\@bar.service.d/>) and read its C<.conf> files, followed by the template
+C<.d/> subdirectory (e.g. C<foo\@.service.d/>) and the C<.conf>
 files there. Moreover for units names containing dashes (C<->), the set of directories generated by
 truncating the unit name after all dashes is searched too. Specifically, for a unit name
-foo-bar-baz.service not only the regular drop-in directory
-foo-bar-baz.service.d/ is searched but also both foo-bar-.service.d/ and
-foo-.service.d/. This is useful for defining common drop-ins for a set of related units, whose
+C<foo-bar-baz.service> not only the regular drop-in directory
+C<foo-bar-baz.service.d/> is searched but also both C<foo-bar-.service.d/> and
+C<foo-.service.d/>. This is useful for defining common drop-ins for a set of related units, whose
 names begin with a common prefix. This scheme is particularly useful for mount, automount and slice units, whose
 systematic naming structure is built around dashes as component separators. Note that equally named drop-in files
 further down the prefix hierarchy override those further up,
-i.e. foo-bar-.service.d/10-override.conf overrides
-foo-.service.d/10-override.conf.
+i.e. C<foo-bar-.service.d/10-override.conf> overrides
+C<foo-.service.d/10-override.conf>.
 
-In addition to /etc/systemd/system, the drop-in C<.d/>
-directories for system services can be placed in /usr/lib/systemd/system or
-/run/systemd/system directories. Drop-in files in /etc
-take precedence over those in /run which in turn take precedence over those
-in /usr/lib. Drop-in files under any of these directories take precedence
+In addition to C</etc/systemd/system>, the drop-in C<.d/>
+directories for system services can be placed in C</usr/lib/systemd/system> or
+C</run/systemd/system> directories. Drop-in files in C</etc>
+take precedence over those in C</run> which in turn take precedence over those
+in C</usr/lib>. Drop-in files under any of these directories take precedence
 over unit files wherever located. Multiple drop-in files with different names are applied in
 lexicographic order, regardless of which of the directories they reside in.
 
-Units also support a top-level drop-in with type.d/,
+Units also support a top-level drop-in with C<type.d/>,
 where type may be e.g. C<service> or C<socket>,
 that allows altering or adding to the settings of all corresponding unit files on the system.
 The formatting and precedence of applying drop-in configurations follow what is defined above.
-Configurations in type.d/ have the lowest precedence
+Configurations in C<type.d/> have the lowest precedence
 compared to settings in the name specific override directories. So the contents of
-foo-.service.d/10-override.conf would override
-service.d/10-override.conf.
+C<foo-.service.d/10-override.conf> would override
+C<service.d/10-override.conf>.
 
 Note that while systemd offers a flexible dependency system
 between units it is recommended to use this functionality only
@@ -146,11 +146,11 @@ resulting in a both simpler and more flexible system.
 As mentioned above, a unit may be instantiated from a template file. This allows creation
 of multiple units from a single configuration file. If systemd looks for a unit configuration
 file, it will first search for the literal unit name in the file system. If that yields no
-success and the unit name contains an C<@> character, systemd will look for a
+success and the unit name contains an C<\@> character, systemd will look for a
 unit template that shares the same name but with the instance string (i.e. the part between the
-C<@> character and the suffix) removed. Example: if a service
-getty@tty3.service is requested and no file by that name is found, systemd
-will look for getty@.service and instantiate a service from that
+C<\@> character and the suffix) removed. Example: if a service
+C<getty\@tty3.service> is requested and no file by that name is found, systemd
+will look for C<getty\@.service> and instantiate a service from that
 configuration file if it is found.
 
 To refer to the instance string from within the
@@ -159,7 +159,7 @@ specifier in many of the configuration options. See below for
 details.
 
 If a unit file is empty (i.e. has the file size 0) or is
-symlinked to /dev/null, its configuration
+symlinked to C</dev/null>, its configuration
 will not be loaded and it appears with a load state of
 C<masked>, and cannot be activated. Use this as an
 effective way to fully disable a unit, making it impossible to
@@ -173,8 +173,8 @@ The set of load paths for the user manager instance may be augmented or
 changed using various environment variables. And environment variables may in
 turn be set using environment generators, see
 L<systemd.environment-generator(7)>.
-In particular, C<$XDG_DATA_HOME> and
-C<$XDG_DATA_DIRS> may be easily set using
+In particular, C<\$XDG_DATA_HOME> and
+C<\$XDG_DATA_DIRS> may be easily set using
 L<systemd-environment-d-generator(8)>.
 Thus, directories listed here are just the defaults. To see the actual list that
 would be used based on compilation options and current environment use
@@ -184,14 +184,50 @@ would be used based on compilation options and current environment use
 
 
 
-Moreover, additional units might be loaded into systemd ("linked") from
+Moreover, additional units might be loaded into systemd (\"linked\") from
 directories not on the unit load path. See the link command
 for
 L<systemctl(1)>.
 
+
+Unit files may also include a number of C<Condition\x{2026}=> and
+C<Assert\x{2026}=> settings. Before the unit is started, systemd will verify
+that the specified conditions are true. If not, the starting of the unit will be (mostly silently)
+skipped. Failing conditions will not result in the unit being moved into the C<failed>
+state. The conditions are checked at the time the queued start job is to be executed. The ordering
+dependencies are still respected, so other units are still pulled in and ordered as if this unit was
+successfully activated. Use condition expressions in order to skip units that do not apply to the local
+system, for example because the kernel or runtime environment doesn't require their functionality.
+
+
+If multiple conditions are specified, the unit will be executed if all of them apply (i.e. a
+logical AND is applied). Condition checks can use a pipe symbol (C<|>) after the equals
+sign (C<Condition\x{2026}=|\x{2026}>), which causes the condition becomes a triggering condition. If
+at least one triggering condition is defined for a unit, then the unit will be executed if at least one
+of the triggering conditions apply and all of the non-triggering conditions. If you prefix an argument
+with the pipe symbol and an exclamation mark, the pipe symbol must be passed first, the exclamation
+second. If any of these options is assigned the empty string, the list of conditions is reset
+completely, all previous condition settings (of any kind) will have no effect.
+
+The C<AssertArchitecture>, C<AssertVirtualization>, \x{2026} options
+provide a similar mechanism that causes the job to fail (instead of being skipped). The failed check is
+logged. Units with failed conditions are considered to be in a clean state and will be garbage
+collected if they are not referenced. This means that when queried, the condition failure may or may
+not show up in the state of the unit.
+
+Note that neither assertion nor condition expressions result in unit state changes. Also note
+that both are checked at the time the job is to be executed, i.e. long after depending jobs and it
+itself were queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing
+unit dependencies.
+
+The condition verb of
+L<systemd-analyze(1)> can
+be used to test condition and assert expressions.
+
+Except for C<ConditionPathIsSymbolicLink>, all path checks follow symlinks.
 This configuration class was generated from systemd documentation.
 by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>
-',
+",
     'copyright' => [
       '2010-2016 Lennart Poettering and others',
       '2016 Dominique Dumont'
@@ -248,7 +284,7 @@ effect.',
         'description' => 'Configures requirement dependencies on other units. This option may be specified more
 than once or multiple space-separated units may be specified in one option in which case dependencies
 for all listed names will be created. Dependencies of this type may also be configured outside of the
-unit configuration file by adding a symlink to a .wants/ directory accompanying
+unit configuration file by adding a symlink to a C<.wants/> directory accompanying
 the unit file. For details, see above.
 
 Units listed in this option will be started if the configuring unit is. However, if the listed
@@ -258,10 +294,10 @@ start-up of one unit to the start-up of another unit.
 
 Note that requirement dependencies do not influence the order in which services are started or
 stopped. This has to be configured independently with the C<After> or
-C<Before> options. If unit foo.service pulls in unit
-bar.service as configured with C<Wants> and no ordering is
+C<Before> options. If unit C<foo.service> pulls in unit
+C<bar.service> as configured with C<Wants> and no ordering is
 configured with C<After> or C<Before>, then both units will be
-started simultaneously and without any delay between them if foo.service is
+started simultaneously and without any delay between them if C<foo.service> is
 activated.',
         'type' => 'list'
       },
@@ -273,7 +309,7 @@ activated.',
         },
         'description' => "Similar to C<Wants>, but declares a stronger
 dependency. Dependencies of this type may also be configured by adding a symlink to a
-.requires/ directory accompanying the unit file.
+C<.requires/> directory accompanying the unit file.
 
 If this unit gets activated, the units listed will be activated as well. If one of
 the other units fails to activate, and an ordering dependency C<After> on the
@@ -309,9 +345,9 @@ combined with C<After>, to ensure this unit is not started before the other
 unit.
 
 When C<Requisite=b.service> is used on
-a.service, this dependency will show as
+C<a.service>, this dependency will show as
 C<RequisiteOf=a.service> in property listing of
-b.service. C<RequisiteOf>
+C<b.service>. C<RequisiteOf>
 dependency cannot be specified directly.',
         'type' => 'list'
       },
@@ -338,9 +374,9 @@ see below) will be stopped, should it be running. Hence, in many cases it is bes
 C<BindsTo> with C<After>.
 
 When C<BindsTo=b.service> is used on
-a.service, this dependency will show as
+C<a.service>, this dependency will show as
 C<BoundBy=a.service> in property listing of
-b.service. C<BoundBy>
+C<b.service>. C<BoundBy>
 dependency cannot be specified directly.",
         'type' => 'list'
       },
@@ -358,9 +394,9 @@ this is a one-way dependency\x{a0}\x{2014} changes to this unit do not
 affect the listed units.
 
 When C<PartOf=b.service> is used on
-a.service, this dependency will show as
+C<a.service>, this dependency will show as
 C<ConsistsOf=a.service> in property listing of
-b.service. C<ConsistsOf>
+C<b.service>. C<ConsistsOf>
 dependency cannot be specified directly.",
         'type' => 'list'
       },
@@ -401,9 +437,9 @@ unit that is conflicted is stopped.',
 more than once, in which case dependencies for all listed names are created.
 
 Those two setttings configure ordering dependencies between units. If unit
-foo.service contains the setting C<Before=bar.service> and both
-units are being started, bar.service\'s start-up is delayed until
-foo.service has finished starting up. C<After> is the inverse
+C<foo.service> contains the setting C<Before=bar.service> and both
+units are being started, C<bar.service>\'s start-up is delayed until
+C<foo.service> has finished starting up. C<After> is the inverse
 of C<Before>, i.e. while C<Before> ensures that the configured unit
 is started before the listed unit begins starting up, C<After> ensures the opposite,
 that the listed unit is fully started up before the configured unit is started.
@@ -439,9 +475,9 @@ be started before the unit that is configured with these options.',
 more than once, in which case dependencies for all listed names are created.
 
 Those two setttings configure ordering dependencies between units. If unit
-foo.service contains the setting C<Before=bar.service> and both
-units are being started, bar.service\'s start-up is delayed until
-foo.service has finished starting up. C<After> is the inverse
+C<foo.service> contains the setting C<Before=bar.service> and both
+units are being started, C<bar.service>\'s start-up is delayed until
+C<foo.service> has finished starting up. C<After> is the inverse
 of C<Before>, i.e. while C<Before> ensures that the configured unit
 is started before the listed unit begins starting up, C<After> ensures the opposite,
 that the listed unit is fully started up before the configured unit is started.
@@ -509,7 +545,7 @@ the C<PrivateNetwork>, C<NetworkNamespacePath> and
 C<PrivateTmp> directives (see
 L<systemd.exec(5)> for
 details). If a unit that has this setting set is started, its processes will see the same
-/tmp, /var/tmp and network namespace as one listed unit
+C</tmp>, C</var/tmp> and network namespace as one listed unit
 that is started. If multiple listed units are already started, it is not defined which namespace is
 joined.  Note that this setting only has an effect if
 C<PrivateNetwork>/C<NetworkNamespacePath> and/or
@@ -526,7 +562,7 @@ C<Requires> and C<After> for
 all mount units required to access the specified path.
 
 Mount points marked with C<noauto> are not
-mounted automatically through local-fs.target,
+mounted automatically through C<local-fs.target>,
 but are still honored for the purposes of this option, i.e. they
 will be pulled in by this unit.',
         'type' => 'leaf',
@@ -786,6 +822,17 @@ the start will not be permitted. Defaults to C<none>.',
         'type' => 'leaf',
         'value_type' => 'enum'
       },
+      'SourcePath',
+      {
+        'description' => 'A path to a configuration file this unit has
+been generated from. This is primarily useful for
+implementation of generator tools that convert configuration
+from an external configuration file format into native unit
+files. This functionality should not be used in normal
+units.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'ConditionArchitecture',
       {
         'cargo' => {
@@ -818,26 +865,13 @@ the start will not be permitted. Defaults to C<none>.',
             'tilegx',
             'cris',
             'arc',
-            'arc-be'
+            'arc-be',
+            'native'
           ],
           'type' => 'leaf',
           'value_type' => 'enum'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionArchitecture=> may be used to
-check whether the system is running on a specific
-architecture. Takes one of
+        'description' => 'Check whether the system is running on a specific architecture. Takes one of
 C<x86>,
 C<x86-64>,
 C<ppc>,
@@ -866,27 +900,17 @@ C<m68k>,
 C<tilegx>,
 C<cris>,
 C<arc>,
-C<arc-be> to test
-against a specific architecture. The architecture is
-determined from the information returned by
+C<arc-be>, or
+C<native>.
+
+The architecture is determined from the information returned by
 L<uname(2)>
 and is thus subject to
 L<personality(2)>.
-Note that a C<Personality=> setting in the
-same unit file has no effect on this condition. A special
-architecture name C<native> is mapped to the
-architecture the system manager itself is compiled for. The
-test may be negated by prepending an exclamation mark.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+Note that a C<Personality> setting in the same unit file has no effect on this
+condition. A special architecture name C<native> is mapped to the architecture the
+system manager itself is compiled for. The test may be negated by prepending an exclamation
+mark.',
         'type' => 'list'
       },
       'ConditionVirtualization',
@@ -895,26 +919,11 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionVirtualization=> may be used
-to check whether the system is executed in a virtualized
-environment and optionally test whether it is a specific
-implementation. Takes either boolean value to check if being
-executed in any virtualized environment, or one of
+        'description' => 'Check whether the system is executed in a virtualized environment and optionally
+test whether it is a specific implementation. Takes either boolean value to check if being executed
+in any virtualized environment, or one of
 C<vm> and
-C<container> to test against a generic type of
-virtualization solution, or one of
+C<container> to test against a generic type of virtualization solution, or one of
 C<qemu>,
 C<kvm>,
 C<zvm>,
@@ -938,20 +947,9 @@ C<acrn> to test
 against a specific implementation, or
 C<private-users> to check whether we are running in a user namespace. See
 L<systemd-detect-virt(1)>
-for a full list of known virtualization technologies and their
-identifiers. If multiple virtualization technologies are
-nested, only the innermost is considered. The test may be
-negated by prepending an exclamation mark.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+for a full list of known virtualization technologies and their identifiers. If multiple
+virtualization technologies are nested, only the innermost is considered. The test may be negated
+by prepending an exclamation mark.',
         'type' => 'list'
       },
       'ConditionHost',
@@ -960,38 +958,13 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionHost=> may be used to match
-against the hostname or machine ID of the host. This either
-takes a hostname string (optionally with shell style globs)
-which is tested against the locally set hostname as returned
-by
-L<gethostname(2)>,
-or a machine ID formatted as string (see
+        'description' => 'C<ConditionHost> may be used to match against the hostname or
+machine ID of the host. This either takes a hostname string (optionally with shell style globs)
+which is tested against the locally set hostname as returned by
+L<gethostname(2)>, or
+a machine ID formatted as string (see
 L<machine-id(5)>).
-The test may be negated by prepending an exclamation
-mark.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+The test may be negated by prepending an exclamation mark.',
         'type' => 'list'
       },
       'ConditionKernelCommandLine',
@@ -1000,37 +973,12 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionKernelCommandLine=> may be
-used to check whether a specific kernel command line option is
-set (or if prefixed with the exclamation mark unset). The
-argument must either be a single word, or an assignment (i.e.
-two words, separated C<=>). In the former case
-the kernel command line is searched for the word appearing as
-is, or as left hand side of an assignment. In the latter case,
-the exact assignment is looked for with right and left hand
-side matching.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => "C<ConditionKernelCommandLine> may be used to check whether a
+specific kernel command line option is set (or if prefixed with the exclamation mark \x{2014} unset). The
+argument must either be a single word, or an assignment (i.e. two words, separated by
+C<=>). In the former case the kernel command line is searched for the word
+appearing as is, or as left hand side of an assignment. In the latter case, the exact assignment is
+looked for with right and left hand side matching.",
         'type' => 'list'
       },
       'ConditionKernelVersion',
@@ -1039,35 +987,19 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionKernelVersion=> may be used to check whether the kernel version (as
-reported by uname -r) matches a certain expression (or if prefixed with the
-exclamation mark does not match it). The argument must be a list of (potentially quoted) expressions.
-For each of the expressions, if it starts with one of C<<>,
+        'description' => 'C<ConditionKernelVersion> may be used to check whether the kernel
+version (as reported by uname -r) matches a certain expression (or if prefixed
+with the exclamation mark does not match it). The argument must be a list of (potentially quoted)
+expressions.  For each of the expressions, if it starts with one of C<<>,
 C<<=>, C<=>, C<!=>, C<>=>,
 C<>> a relative version comparison is done, otherwise the specified string is
 matched with shell-style globs.
 
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+Note that using the kernel version string is an unreliable way to determine which features
+are supported by a kernel, because of the widespread practice of backporting drivers, features, and
+fixes from newer upstream kernels into older versions provided by distributions. Hence, this check
+is inherently unportable and should not be used for units which may be used on different
+distributions.',
         'type' => 'list'
       },
       'ConditionSecurity',
@@ -1076,36 +1008,12 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionSecurity=> may be used to check
-whether the given security technology is enabled on the
-system. Currently, the recognized values are
-C<selinux>, C<apparmor>,
-C<tomoyo>, C<ima>,
-C<smack>, C<audit> and
-C<uefi-secureboot>. The test may be negated by
-prepending an exclamation mark.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionSecurity> may be used to check whether the given
+security technology is enabled on the system. Currently, the recognized values are
+C<selinux>, C<apparmor>, C<tomoyo>,
+C<ima>, C<smack>, C<audit> and
+C<uefi-secureboot>. The test may be negated by prepending an exclamation
+mark.',
         'type' => 'list'
       },
       'ConditionCapability',
@@ -1114,37 +1022,12 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionCapability=> may be used to
-check whether the given capability exists in the capability
-bounding set of the service manager (i.e. this does not check
-whether capability is actually available in the permitted or
-effective sets, see
+        'description' => 'Check whether the given capability exists in the capability bounding set of the
+service manager (i.e. this does not check whether capability is actually available in the permitted
+or effective sets, see
 L<capabilities(7)>
-for details). Pass a capability name such as
-C<CAP_MKNOD>, possibly prefixed with an
-exclamation mark to negate the check.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+for details). Pass a capability name such as C<CAP_MKNOD>, possibly prefixed with
+an exclamation mark to negate the check.',
         'type' => 'list'
       },
       'ConditionACPower',
@@ -1153,119 +1036,54 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionACPower=> may be used to
-check whether the system has AC power, or is exclusively
-battery powered at the time of activation of the unit. This
-takes a boolean argument. If set to C<true>,
-the condition will hold only if at least one AC connector of
-the system is connected to a power source, or if no AC
-connectors are known. Conversely, if set to
-C<false>, the condition will hold only if
-there is at least one AC connector known and all AC connectors
-are disconnected from a power source.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'Check whether the system has AC power, or is exclusively battery powered at the
+time of activation of the unit. This takes a boolean argument. If set to C<true>,
+the condition will hold only if at least one AC connector of the system is connected to a power
+source, or if no AC connectors are known. Conversely, if set to C<false>, the
+condition will hold only if there is at least one AC connector known and all AC connectors are
+disconnected from a power source.',
         'type' => 'list'
       },
       'ConditionNeedsUpdate',
       {
         'cargo' => {
+          'choice' => [
+            '/var',
+            '/etc',
+            '!/var',
+            '!/etc'
+          ],
           'type' => 'leaf',
-          'value_type' => 'uniline'
+          'value_type' => 'enum'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionNeedsUpdate=> takes one of
-/var or /etc as
-argument, possibly prefixed with a C<!> (for
-inverting the condition). This condition may be used to
-conditionalize units on whether the specified directory
-requires an update because /usr's
-modification time is newer than the stamp file
-.updated in the specified directory. This
-is useful to implement offline updates of the vendor operating
-system resources in /usr that require
-updating of /etc or
-/var on the next following boot. Units
-making use of this condition should order themselves before
+        'description' => 'Takes one of C</var> or C</etc> as argument,
+possibly prefixed with a C<!> (to inverting the condition). This condition may be
+used to conditionalize units on whether the specified directory requires an update because
+C</usr>\'s modification time is newer than the stamp file
+C<.updated> in the specified directory. This is useful to implement offline
+updates of the vendor operating system resources in C</usr> that require updating
+of C</etc> or C</var> on the next following boot. Units making
+use of this condition should order themselves before
 L<systemd-update-done.service(8)>,
-to make sure they run before the stamp file's modification
-time gets reset indicating a completed update.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+to make sure they run before the stamp file\'s modification time gets reset indicating a completed
+update.',
         'type' => 'list'
       },
       'ConditionFirstBoot',
       {
         'cargo' => {
           'type' => 'leaf',
-          'value_type' => 'uniline'
+          'value_type' => 'boolean',
+          'write_as' => [
+            'no',
+            'yes'
+          ]
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionFirstBoot=> takes a boolean argument. This condition may be used to
-conditionalize units on whether the system is booting up with an unpopulated /etc
-directory (specifically: an /etc with no /etc/machine-id). This may
-be used to populate /etc on the first boot after factory reset, or when a new system
-instance boots up for the first time.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'Takes a boolean argument. This condition may be used to conditionalize units on
+whether the system is booting up with an unpopulated C</etc> directory
+(specifically: an C</etc> with no C</etc/machine-id>). This may
+be used to populate C</etc> on the first boot after factory reset, or when a new
+system instance boots up for the first time.',
         'type' => 'list'
       },
       'ConditionPathExists',
@@ -1274,36 +1092,11 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-With C<ConditionPathExists=> a file
-existence condition is checked before a unit is started. If
-the specified absolute path name does not exist, the condition
-will fail. If the absolute path name passed to
-C<ConditionPathExists=> is prefixed with an
-exclamation mark (C<!>), the test is negated,
-and the unit is only started if the path does not
-exist.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'Check for the exists of a file. If the specified absolute path name does not exist,
+the condition will fail. If the absolute path name passed to
+C<ConditionPathExists> is prefixed with an exclamation mark
+(C<!>), the test is negated, and the unit is only started if the path does not
+exist.',
         'type' => 'list'
       },
       'ConditionPathExistsGlob',
@@ -1312,32 +1105,9 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionPathExistsGlob=> is similar
-to C<ConditionPathExists=>, but checks for the
-existence of at least one file or directory matching the
-specified globbing pattern.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionPathExistsGlob> is similar to
+C<ConditionPathExists>, but checks for the existence of at least one file or
+directory matching the specified globbing pattern.',
         'type' => 'list'
       },
       'ConditionPathIsDirectory',
@@ -1346,31 +1116,9 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionPathIsDirectory=> is similar
-to C<ConditionPathExists=> but verifies
-whether a certain path exists and is a directory.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionPathIsDirectory> is similar to
+C<ConditionPathExists> but verifies that a certain path exists and is a
+directory.',
         'type' => 'list'
       },
       'ConditionPathIsSymbolicLink',
@@ -1379,39 +1127,9 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-If multiple conditions are specified, the unit will be executed if all of them apply (i.e. a
-logical AND is applied). Condition checks can be prefixed with a pipe symbol (C<|>)
-in which case a condition becomes a triggering condition. If at least one triggering condition is
-defined for a unit, then the unit will be executed if at least one of the triggering conditions apply
-and all of the non-triggering conditions. If you prefix an argument with the pipe symbol and an
-exclamation mark, the pipe symbol must be passed first, the exclamation second. Except for
-C<ConditionPathIsSymbolicLink=>, all path checks follow symlinks. If any of these
-options is assigned the empty string, the list of conditions is reset completely, all previous
-condition settings (of any kind) will have no effect. The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionPathIsSymbolicLink> is similar to
+C<ConditionPathExists> but verifies that a certain path exists and is a symbolic
+link.',
         'type' => 'list'
       },
       'ConditionPathIsMountPoint',
@@ -1420,31 +1138,9 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionPathIsMountPoint=> is similar
-to C<ConditionPathExists=> but verifies
-whether a certain path exists and is a mount point.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionPathIsMountPoint> is similar to
+C<ConditionPathExists> but verifies that a certain path exists and is a mount
+point.',
         'type' => 'list'
       },
       'ConditionPathIsReadWrite',
@@ -1453,32 +1149,9 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionPathIsReadWrite=> is similar
-to C<ConditionPathExists=> but verifies
-whether the underlying file system is readable and writable
-(i.e. not mounted read-only).
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionPathIsReadWrite> is similar to
+C<ConditionPathExists> but verifies that the underlying file system is readable
+and writable (i.e. not mounted read-only).',
         'type' => 'list'
       },
       'ConditionDirectoryNotEmpty',
@@ -1487,32 +1160,9 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionDirectoryNotEmpty=> is
-similar to C<ConditionPathExists=> but
-verifies whether a certain path exists and is a non-empty
-directory.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionDirectoryNotEmpty> is similar to
+C<ConditionPathExists> but verifies that a certain path exists and is a non-empty
+directory.',
         'type' => 'list'
       },
       'ConditionFileNotEmpty',
@@ -1521,32 +1171,9 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionFileNotEmpty=> is similar to
-C<ConditionPathExists=> but verifies whether a
-certain path exists and refers to a regular file with a
-non-zero size.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionFileNotEmpty> is similar to
+C<ConditionPathExists> but verifies that a certain path exists and refers to a
+regular file with a non-zero size.',
         'type' => 'list'
       },
       'ConditionFileIsExecutable',
@@ -1555,32 +1182,9 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionFileIsExecutable=> is similar
-to C<ConditionPathExists=> but verifies
-whether a certain path exists, is a regular file and marked
-executable.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionFileIsExecutable> is similar to
+C<ConditionPathExists> but verifies that a certain path exists, is a regular file,
+and marked executable.',
         'type' => 'list'
       },
       'ConditionUser',
@@ -1589,36 +1193,12 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionUser=> takes a numeric
-C<UID>, a UNIX user name, or the special value
-C<\@system>. This condition may be used to check
-whether the service manager is running as the given user. The
-special value C<\@system> can be used to check
-if the user id is within the system user range. This option is not
-useful for system services, as the system manager exclusively
-runs as the root user, and thus the test result is constant.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionUser> takes a numeric C<UID>, a UNIX
+user name, or the special value C<@system>. This condition may be used to check
+whether the service manager is running as the given user. The special value
+C<@system> can be used to check if the user id is within the system user
+range. This option is not useful for system services, as the system manager exclusively runs as the
+root user, and thus the test result is constant.',
         'type' => 'list'
       },
       'ConditionGroup',
@@ -1627,33 +1207,10 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionGroup=> is similar
-to C<ConditionUser=> but verifies that the
-service manager's real or effective group, or any of its
-auxiliary groups match the specified group or GID. This setting
-does not have a special value C<\@system>.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'C<ConditionGroup> is similar to C<ConditionUser>
+but verifies that the service manager\'s real or effective group, or any of its auxiliary groups,
+match the specified group or GID. This setting does not support the special value
+C<@system>.',
         'type' => 'list'
       },
       'ConditionControlGroupController',
@@ -1662,39 +1219,14 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionControlGroupController=> takes a
-cgroup controller name (eg. C<cpu>), verifying that it is
-available for use on the system. For example, a particular controller
-may not be available if it was disabled on the kernel command line with
-C<cgroup_disable=controller>. Multiple controllers may
-be passed with a space separating them; in this case the condition will
-only pass if all listed controllers are available for use. Controllers
-unknown to systemd are ignored. Valid controllers are
-C<cpu>, C<cpuacct>, C<io>,
-C<blkio>, C<memory>,
-C<devices>, and C<pids>.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+        'description' => 'Verify that the given cgroup controller (eg. C<cpu>) is available
+for use on the system. For example, a particular controller may not be available if it was disabled
+on the kernel command line with C<cgroup_disable=controller>. Multiple controllers
+may be passed with a space separating them; in this case the condition will only pass if all listed
+controllers are available for use. Controllers unknown to systemd are ignored. Valid controllers
+are C<cpu>, C<cpuacct>, C<io>,
+C<blkio>, C<memory>, C<devices>, and
+C<pids>.',
         'type' => 'list'
       },
       'ConditionMemory',
@@ -1703,35 +1235,12 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionMemory=> verifies if the specified amount of system memory is
-available to the current system. Takes a memory size in bytes as argument, optionally prefixed with a
-comparison operator C<<>, C<<=>, C<=>,
-C<!=>, C<>=>, C<>>. On bare-metal systems
-compares the amount of physical memory in the system with the specified size, adhering to the
-specified comparison operator. In containers compares the amount of memory assigned to the container
-instead.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+        'description' => 'Verify that the specified amount of system memory is available to the current
+system. Takes a memory size in bytes as argument, optionally prefixed with a comparison operator
 C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+C<>=>, C<>>. On bare-metal systems compares the amount of
+physical memory in the system with the specified size, adhering to the specified comparison
+operator. In containers compares the amount of memory assigned to the container instead.',
         'type' => 'list'
       },
       'ConditionCPUs',
@@ -1740,531 +1249,322 @@ the container and not the physically available ones.",
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => "Before starting a unit, verify that the specified condition is true. If it is not true, the
-starting of the unit will be (mostly silently) skipped, however all ordering dependencies of it are still
-respected. A failing condition will not result in the unit being moved into the C<failed>
-state. The condition is checked at the time the queued start job is to be executed. Use condition expressions
-in order to silently skip units that do not apply to the local running system, for example because the kernel
-or runtime environment doesn't require their functionality. Use the various
-C<AssertArchitecture=>, C<AssertVirtualization=>, \x{2026} options for a similar
-mechanism that causes the job to fail (instead of being skipped) and results in logging about the failed check
-(instead of being silently processed). For details about assertion conditions see below. Units with failed
-conditions are considered to be in a clean state and will be garbage collected if they are not referenced.
-This means, that when queried, the condition failure may or may not show up in the state of the unit.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
+        'description' => 'Verify that the specified number of CPUs is available to the current system. Takes
+a number of CPUs as argument, optionally prefixed with a comparison operator
 C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
+C<>=>, C<>>. Compares the number of CPUs in the CPU affinity
+mask configured of the service manager itself with the specified number, adhering to the specified
 comparison operator. On physical systems the number of CPUs in the affinity mask of the service
 manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.
-
-C<ConditionCPUs=> verifies if the specified number of CPUs is available to the
-current system. Takes a number of CPUs as argument, optionally prefixed with a comparison operator
-C<<>, C<<=>, C<=>, C<!=>,
-C<>=>, C<>>. Compares the number of CPUs in the CPU affinity mask
-configured of the service manager itself with the specified number, adhering to the specified
-comparison operator. On physical systems the number of CPUs in the affinity mask of the service
-manager usually matches the number of physical CPUs, but in special and virtual environments might
-differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned to
-the container and not the physically available ones.",
+differ. In particular, in containers the affinity mask usually matches the number of CPUs assigned
+to the container and not the physically available ones.',
         'type' => 'list'
       },
       'AssertArchitecture',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertVirtualization',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertHost',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertKernelCommandLine',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertKernelVersion',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertSecurity',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertCapability',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertACPower',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertNeedsUpdate',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertFirstBoot',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertPathExists',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertPathExistsGlob',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertPathIsDirectory',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertPathIsSymbolicLink',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertPathIsMountPoint',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertPathIsReadWrite',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertDirectoryNotEmpty',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertFileNotEmpty',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertFileIsExecutable',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertUser',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertGroup',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'AssertControlGroupController',
       {
         'description' => "Similar to the C<ConditionArchitecture>,
-C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings add
-assertion checks to the start-up of the unit. However, unlike the conditions settings, any assertion setting
-that is not met results in failure of the start job (which means this is logged loudly). Note that hitting a
-configured assertion does not cause the unit to enter the C<failed> state (or in fact result in
-any state change of the unit), it affects only the job queued for it. Use assertion expressions for units that
-cannot operate when specific requirements are not met, and when this is something the administrator or user
-should look into.
-
-Note that neither assertion nor condition expressions result in unit state changes. Also note that both
-are checked at the time the job is to be executed, i.e. long after depending jobs and it itself were
-queued. Thus, neither condition nor assertion expressions are suitable for conditionalizing unit
-dependencies.
-
-The condition verb of
-L<systemd-analyze(1)>
-can be used to test condition and assert expressions.",
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
-      'SourcePath',
-      {
-        'description' => 'A path to a configuration file this unit has
-been generated from. This is primarily useful for
-implementation of generator tools that convert configuration
-from an external configuration file format into native unit
-files. This functionality should not be used in normal
-units.',
+C<ConditionVirtualization>, \x{2026}, condition settings described above, these settings
+add assertion checks to the start-up of the unit. However, unlike the conditions settings, any
+assertion setting that is not met results in failure of the start job (which means this is logged
+loudly). Note that hitting a configured assertion does not cause the unit to enter the
+C<failed> state (or in fact result in any state change of the unit), it affects
+only the job queued for it. Use assertion expressions for units that cannot operate when specific
+requirements are not met, and when this is something the administrator or user should look
+into.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2283,7 +1583,7 @@ units.',
         'warn' => 'OnFailureIsolate is now OnFailureJobMode.'
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd doc',
+    'generated_by' => 'parse-man.pl from systemd 244 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Section::Unit'
   }

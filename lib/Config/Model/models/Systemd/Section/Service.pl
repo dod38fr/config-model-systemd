@@ -37,7 +37,7 @@ service.
 
 If a service is requested under a certain name but no unit
 configuration file is found, systemd looks for a SysV init script
-by the same name (with the .service suffix
+by the same name (with the C<.service> suffix
 removed) and dynamically creates a service unit from that script.
 This is useful for compatibility with SysV. Note that this
 compatibility is quite comprehensive but not 100%. For details
@@ -45,7 +45,7 @@ about the incompatibilities, see the Incompatibilities
 with SysV document.
 
 The L<systemd-run(1)>
-command allows creating .service and .scope units dynamically
+command allows creating C<.service> and C<.scope> units dynamically
 and transiently from the command line.
 This configuration class was generated from systemd documentation.
 by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>
@@ -119,8 +119,8 @@ Defaults to C<yes>.',
       {
         'description' => 'Takes a path referring to the PID file of the service. Usage of this option is recommended for
 services where C<Type> is set to C<forking>. The path specified typically points
-to a file below /run/. If a relative path is specified it is hence prefixed with
-/run/. The service manager will read the PID of the main process of the service from this
+to a file below C</run/>. If a relative path is specified it is hence prefixed with
+C</run/>. The service manager will read the PID of the main process of the service from this
 file after start-up of the service. The service manager will not write to the file configured here, although it
 will remove the file after the service has shut down if it still exists. The PID file does not need to be owned
 by a privileged user, but if it is owned by an unprivileged user additional safety restrictions are enforced:
@@ -762,9 +762,9 @@ different service may be activated on incoming socket traffic
 than the one which is ultimately configured to inherit the
 socket file descriptors. Or, in other words: the
 C<Service> setting of
-.socket units does not have to match the
+C<.socket> units does not have to match the
 inverse of the C<Sockets> setting of the
-.service it refers to.
+C<.service> it refers to.
 
 This option may appear more than once, in which case the list of socket units is merged. Note
 that once set, clearing the list of sockets again (for example, by assigning the empty string to this
@@ -779,7 +779,7 @@ L<sd_pid_notify_with_fds(3)>\'s
 C<FDSTORE=1> messages. This is useful for implementing services that can restart after an
 explicit request or a crash without losing state. Any open sockets and other file descriptors which should not
 be closed during the restart may be stored this way. Application state can either be serialized to a file in
-/run, or better, stored in a
+C</run>, or better, stored in a
 L<memfd_create(2)> memory file
 descriptor. Defaults to 0, i.e. no file descriptors may be stored in the service manager. All file descriptors
 passed to the service manager from a specific service are passed back to the service\'s main process on the next
@@ -800,7 +800,7 @@ FunctionFS descriptors, for implementation of USB
 gadget functions. This is used only in conjunction with a
 socket unit with C<ListenUSBFunction>
 configured. The contents of this file are written to the
-ep0 file after it is
+C<ep0> file after it is
 opened.',
         'type' => 'leaf',
         'value_type' => 'uniline'
