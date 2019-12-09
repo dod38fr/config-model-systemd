@@ -140,6 +140,9 @@ sub parse_xml ($list, $map) {
         twig_handlers => {
             'refsect1/title' => $parse_sub_title,
             'refsect1[string(title)=~ /Description/]/para' => $desc,
+            'refsect2/title' => $parse_sub_title,
+            # only found in systemd.unit (so far)
+            'refsect2[string(title)=~ /Conditions/]/para' => $desc,
             'citerefentry' => $manpage,
             'literal' => $turn_to_pod_c,
             'option' => $turn_to_pod_c,
@@ -156,6 +159,7 @@ sub parse_xml ($list, $map) {
             # below
             'varname' => $turn_to_pod_c,
             'refsect1/variablelist/varlistentry' => $variable,
+            'refsect2/variablelist/varlistentry' => $variable,
         }
     );
 
