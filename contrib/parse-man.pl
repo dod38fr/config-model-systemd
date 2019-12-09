@@ -88,7 +88,9 @@ sub parse_xml ($list, $map) {
     };
 
     my $variable = sub  ($t, $elt) {
-        return $condition_variable->($t, $elt) if $elt->first_child_text('term') =~ /^C<Condition/;
+        if ($systemd_version < 244 and $elt->first_child_text('term') =~ /^C<Condition/) {
+            return $condition_variable->($t, $elt);
+        }
 
         my @para_text = map {$_->text} $elt->first_child('listitem')->children('para');
         my $desc = join("\n\n", @para_text);
