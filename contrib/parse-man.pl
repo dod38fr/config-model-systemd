@@ -304,7 +304,11 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 }
 
 sub extract_choices($choices) {
-    return $choices =~ /C<([\w\-+]+)>/g;
+    my @choices = ($choices =~ m!C<([/\w\-+]+)>!g );
+    if ($choices =~ m{possibly prefixed with (?:a )?C<([!\w]+)>} ) {
+        push @choices, map { "$1$_"} @choices;
+    }
+    return @choices;
 }
 
 sub move_deprecated_element ($meta_root, $from, $to) {
