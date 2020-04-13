@@ -75,11 +75,12 @@ in conjunction with C<RootDirectory>. For details, see below.',
       },
       'RootImage',
       {
-        'description' => 'Takes a path to a block device node or regular file as argument. This call is similar to
-C<RootDirectory> however mounts a file system hierarchy from a block device node or loopback
-file instead of a directory. The device node or file system image file needs to contain a file system without a
-partition table, or a file system within an MBR/MS-DOS or GPT partition table with only a single
-Linux-compatible partition, or a set of file systems within a GPT partition table that follows the Discoverable Partitions
+        'description' => 'Takes a path to a block device node or regular file as argument. This call is similar
+to C<RootDirectory> however mounts a file system hierarchy from a block device node
+or loopback file instead of a directory. The device node or file system image file needs to contain a
+file system without a partition table, or a file system within an MBR/MS-DOS or GPT partition table
+with only a single Linux-compatible partition, or a set of file systems within a GPT partition table
+that follows the Discoverable Partitions
 Specification.
 
 When C<DevicePolicy> is set to C<closed> or
@@ -203,12 +204,13 @@ are enforced in order to avoid ambiguities and to ensure user/group names and un
 Linux systems.
 
 When used in conjunction with C<DynamicUser> the user/group name specified is
-dynamically allocated at the time the service is started, and released at the time the service is stopped \x{2014}
-unless it is already allocated statically (see below). If C<DynamicUser> is not used the
-specified user and group must have been created statically in the user database no later than the moment the
-service is started, for example using the
-L<sysusers.d(5)> facility, which
-is applied at boot or package install time.
+dynamically allocated at the time the service is started, and released at the time the service is
+stopped \x{2014} unless it is already allocated statically (see below). If C<DynamicUser>
+is not used the specified user and group must have been created statically in the user database no
+later than the moment the service is started, for example using the
+L<sysusers.d(5)>
+facility, which is applied at boot or package install time. If the user does not exist by then
+program invocation will fail.
 
 If the C<User> setting is used the supplementary group list is initialized
 from the specified user's default group list, as defined in the system's user and group
@@ -236,12 +238,13 @@ are enforced in order to avoid ambiguities and to ensure user/group names and un
 Linux systems.
 
 When used in conjunction with C<DynamicUser> the user/group name specified is
-dynamically allocated at the time the service is started, and released at the time the service is stopped \x{2014}
-unless it is already allocated statically (see below). If C<DynamicUser> is not used the
-specified user and group must have been created statically in the user database no later than the moment the
-service is started, for example using the
-L<sysusers.d(5)> facility, which
-is applied at boot or package install time.
+dynamically allocated at the time the service is started, and released at the time the service is
+stopped \x{2014} unless it is already allocated statically (see below). If C<DynamicUser>
+is not used the specified user and group must have been created statically in the user database no
+later than the moment the service is started, for example using the
+L<sysusers.d(5)>
+facility, which is applied at boot or package install time. If the user does not exist by then
+program invocation will fail.
 
 If the C<User> setting is used the supplementary group list is initialized
 from the specified user's default group list, as defined in the system's user and group
@@ -410,10 +413,11 @@ C<SystemCallFilter>, C<SystemCallArchitectures>,
 C<RestrictAddressFamilies>, C<RestrictNamespaces>,
 C<PrivateDevices>, C<ProtectKernelTunables>,
 C<ProtectKernelModules>, C<ProtectKernelLogs>,
-C<MemoryDenyWriteExecute>, C<RestrictRealtime>,
-C<RestrictSUIDSGID>, C<DynamicUser> or C<LockPersonality>
-are specified. Note that even if this setting is overridden by them, systemctl show shows the
-original value of this setting. Also see No New Privileges
+C<ProtectClock>, C<MemoryDenyWriteExecute>,
+C<RestrictRealtime>, C<RestrictSUIDSGID>, C<DynamicUser>
+or C<LockPersonality> are specified. Note that even if this setting is overridden by them,
+systemctl show shows the original value of this setting.
+Also see No New Privileges
 Flag.',
         'type' => 'leaf',
         'value_type' => 'boolean',
@@ -471,672 +475,816 @@ C<+>.',
       'LimitCPU',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitFSIZE',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitDATA',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitSTACK',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitCORE',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitRSS',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitNOFILE',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitAS',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitNPROC',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitMEMLOCK',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitLOCKS',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitSIGPENDING',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitMSGQUEUE',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitNICE',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitRTPRIO',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'LimitRTTIME',
       {
         'description' => "Set soft and hard limits on various resources for executed processes. See
-L<setrlimit(2)> for details on
-the resource limit concept. Resource limits may be specified in two formats: either as single value to set a
-specific soft and hard limit to the same value, or as colon-separated pair C<soft:hard> to set
-both limits individually (e.g. C<LimitAS=4G:16G>).  Use the string C<infinity> to
-configure no limit on a specific resource. The multiplicative suffixes K, M, G, T, P and E (to the base 1024)
-may be used for resource limits measured in bytes (e.g. LimitAS=16G). For the limits referring to time values,
-the usual time units ms, s, min, h and so on may be used (see
+L<setrlimit(2)> for
+details on the resource limit concept. Resource limits may be specified in two formats: either as
+single value to set a specific soft and hard limit to the same value, or as colon-separated pair
+C<soft:hard> to set both limits individually (e.g. C<LimitAS=4G:16G>).
+Use the string C<infinity> to configure no limit on a specific resource. The
+multiplicative suffixes K, M, G, T, P and E (to the base 1024) may be used for resource limits
+measured in bytes (e.g. C<LimitAS=16G>). For the limits referring to time values, the
+usual time units ms, s, min, h and so on may be used (see
 L<systemd.time(7)> for
-details). Note that if no time unit is specified for C<LimitCPU> the default unit of seconds
-is implied, while for C<LimitRTTIME> the default unit of microseconds is implied. Also, note
-that the effective granularity of the limits might influence their enforcement. For example, time limits
-specified for C<LimitCPU> will be rounded up implicitly to multiples of 1s. For
-C<LimitNICE> the value may be specified in two syntaxes: if prefixed with C<+>
-or C<->, the value is understood as regular Linux nice value in the range -20..19. If not
-prefixed like this the value is understood as raw resource limit parameter in the range 0..40 (with 0 being
-equivalent to 1).
+details). Note that if no time unit is specified for C<LimitCPU> the default unit of
+seconds is implied, while for C<LimitRTTIME> the default unit of microseconds is
+implied. Also, note that the effective granularity of the limits might influence their
+enforcement. For example, time limits specified for C<LimitCPU> will be rounded up
+implicitly to multiples of 1s. For C<LimitNICE> the value may be specified in two
+syntaxes: if prefixed with C<+> or C<->, the value is understood as
+regular Linux nice value in the range -20..19. If not prefixed like this the value is understood as
+raw resource limit parameter in the range 0..40 (with 0 being equivalent to 1).
 
-Note that most process resource limits configured with these options are per-process, and processes may
-fork in order to acquire a new set of resources that are accounted independently of the original process, and
-may thus escape limits set. Also note that C<LimitRSS> is not implemented on Linux, and
-setting it has no effect. Often it is advisable to prefer the resource controls listed in
+Note that most process resource limits configured with these options are per-process, and
+processes may fork in order to acquire a new set of resources that are accounted independently of the
+original process, and may thus escape limits set. Also note that C<LimitRSS> is not
+implemented on Linux, and setting it has no effect. Often it is advisable to prefer the resource
+controls listed in
 L<systemd.resource-control(5)>
-over these per-process limits, as they apply to services as a whole, may be altered dynamically at runtime, and
-are generally more expressive. For example, C<MemoryLimit> is a more powerful (and working)
-replacement for C<LimitRSS>.
-
-For system units these resource limits may be chosen freely. For user units however (i.e. units run by a
-per-user instance of
-L<systemd(1)>), these limits are
-bound by (possibly more restrictive) per-user limits enforced by the OS.
+over these per-process limits, as they apply to services as a whole, may be altered dynamically at
+runtime, and are generally more expressive. For example, C<MemoryMax> is a more
+powerful (and working) replacement for C<LimitRSS>.
 
 Resource limits not configured explicitly for a unit default to the value configured in the various
 C<DefaultLimitCPU>, C<DefaultLimitFSIZE>, \x{2026} options available in
 L<systemd-system.conf(5)>, and \x{2013}
 if not configured there \x{2013} the kernel or per-user defaults, as defined by the OS (the latter only for user
-services, see above).",
+services, see below).
+
+For system units these resource limits may be chosen freely. When these settings are configured
+in a user service (i.e. a service run by the per-user instance of the service manager) they cannot be
+used to raise the limits above those set for the user manager itself when it was first invoked, as
+the user's service manager generally lacks the privileges to do so. In user context these
+configuration options are hence only useful to lower the limits passed in or to raise the soft limit
+to the maximum of the hard limit as configured for the user. To raise the user's limits further, the
+available configuration mechanisms differ between operating systems, but typically require
+privileges. In most cases it is possible to configure higher per-user resource limits via PAM or by
+setting limits on the system service encapsulating the user's service manager, i.e. the user's
+instance of C<user\@.service>. After making such changes, make sure to restart the
+user's service manager.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1293,10 +1441,11 @@ details. Defaults to false.',
           'value_type' => 'uniline'
         },
         'description' => 'Controls the CPU affinity of the executed processes. Takes a list of CPU indices or ranges
-separated by either whitespace or commas. CPU ranges are specified by the lower and upper CPU indices separated
-by a dash. This option may be specified more than once, in which case the specified CPU affinity masks are
-merged. If the empty string is assigned, the mask is reset, all assignments prior to this will have no
-effect. See
+separated by either whitespace or commas. Alternatively, takes a special "numa" value in which case systemd
+automatically derives allowed CPU range based on the value of C<NUMAMask> option. CPU ranges
+are specified by the lower and upper CPU indices separated by a dash. This option may be specified more than
+once, in which case the specified CPU affinity masks are merged. If the empty string is assigned, the mask
+is reset, all assignments prior to this will have no effect. See
 L<sched_setaffinity(2)> for
 details.',
         'type' => 'list'
@@ -2237,6 +2386,13 @@ capabilities on the host\'s user namespace, but full capabilities within the ser
 such as C<CapabilityBoundingSet> will affect only the latter, and there\'s no way to acquire
 additional capabilities in the host\'s user namespace. Defaults to off.
 
+When this setting is set up by a per-user instance of the service manager, the mapping of the
+C<root> user and group to itself is omitted (unless the user manager is root).
+Additionally, in the per-user instance manager case, the
+user namespace will be set up before most other namespaces. This means that combining
+C<PrivateUsers>C<true> with other namespaces will enable use of features not
+normally supported by the per-user instances of the service manager.
+
 This setting is particularly useful in conjunction with
 C<RootDirectory>/C<RootImage>, as the need to synchronize the user and group
 databases in the root directory and on the host is reduced, as the only users and groups who need to be matched
@@ -2264,6 +2420,23 @@ for security.
 Note that when this option is enabled for a service hostname changes no longer propagate from
 the system into the service, it is hence not suitable for services that need to take notice of system
 hostname changes dynamically.',
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      },
+      'ProtectClock',
+      {
+        'description' => 'Takes a boolean argument. If set, writes to the hardware clock or system clock will be denied.
+It is recommended to turn this on for most services that do not need modify the clock. Defaults to off. Enabling
+this option removes C<CAP_SYS_TIME> and C<CAP_WAKE_ALARM> from the
+capability bounding set for this unit, installs a system call filter to block calls that can set the
+clock, and C<DeviceAllow=char-rtc r> is implied. This ensures C</dev/rtc0>,
+C</dev/rtc1>, etc are made read only to the service. See
+L<systemd.resource-control(5)>
+for the details about C<DeviceAllow>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -2675,7 +2848,7 @@ C<SystemCallFilter=~\@mount>, in order to prohibit the unit's processes to undo 
 mappings. Specifically these are the options C<PrivateTmp>,
 C<PrivateDevices>, C<ProtectSystem>, C<ProtectHome>,
 C<ProtectKernelTunables>, C<ProtectControlGroups>,
-C<ProtectKernelLogs>, C<ReadOnlyPaths>,
+C<ProtectKernelLogs>, C<ProtectClock>, C<ReadOnlyPaths>,
 C<InaccessiblePaths> and C<ReadWritePaths>.",
         'type' => 'list'
       },
@@ -2782,7 +2955,8 @@ have no effect.
 
 The files listed with this directive will be read shortly before the process is executed (more
 specifically, after all processes from a previous unit state terminated.  This means you can generate these
-files in one unit state, and read it with this option in the next).
+files in one unit state, and read it with this option in the next.  The files are read from the file
+system of the service manager, before any file system changes like bind mounts take place).
 
 Settings from these files override settings made with C<Environment>. If the same
 variable is set twice from these files, the files will be read in the order they are specified and the later
@@ -3145,6 +3319,36 @@ configured in L<journald.conf(5)>.
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
+      'LogNamespace',
+      {
+        'description' => 'Run the unit\'s processes in the specified journal namespace. Expects a short
+user-defined string identifying the namespace. If not used the processes of the service are run in
+the default journal namespace, i.e. their log stream is collected and processed by
+C<systemd-journald.service>. If this option is used any log data generated by
+processes of this unit (regardless if via the syslog(), journal native logging
+or stdout/stderr logging) is collected and processed by an instance of the
+C<systemd-journald@.service> template unit, which manages the specified
+namespace. The log data is stored in a data store independent from the default log namespace\'s data
+store. See
+L<systemd-journald.service(8)>
+for details about journal namespaces.
+
+Internally, journal namespaces are implemented through Linux mount namespacing and
+over-mounting the directory that contains the relevant C<AF_UNIX> sockets used for
+logging in the unit\'s mount namespace. Since mount namespaces are used this setting disconnects
+propagation of mounts from the unit\'s processes to the host, similar to how
+C<ReadOnlyPaths> and similar settings (see above) work. Journal namespaces may hence
+not be used for services that need to establish mount points on the host.
+
+When this option is used the unit will automatically gain ordering and requirement dependencies
+on the two socket units associated with the C<systemd-journald@.service> instance
+so that they are automatically established prior to the unit starting up. Note that when this option
+is used log output of this service does not appear in the regular
+L<journalctl(1)>
+output, unless the C<--namespace=> option is used.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'SyslogIdentifier',
       {
         'description' => 'Sets the process name ("syslog tag") to prefix log lines sent to
@@ -3272,7 +3476,7 @@ leader. Defaults to C<init>.',
         'value_type' => 'enum'
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd 244 doc',
+    'generated_by' => 'parse-man.pl from systemd 245 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Common::Exec'
   }

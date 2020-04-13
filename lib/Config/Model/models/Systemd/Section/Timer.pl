@@ -71,7 +71,10 @@ and the configured unit is started. This is not the case for
 timers defined in the other directives.
 
 These are monotonic timers, independent of wall-clock time and timezones. If the computer is
-temporarily suspended, the monotonic clock pauses, too.
+temporarily suspended, the monotonic clock generally pauses, too. Note that if
+C<WakeSystem> is used, a different monotonic clock is selected that continues to
+advance while the system is suspended and thus can be used as the trigger to resume the
+system.
 
 If the empty string is assigned to any of these options, the list of timers is reset (both
 monotonic timers and C<OnCalendar> timers, see below), and all prior assignments
@@ -110,7 +113,10 @@ and the configured unit is started. This is not the case for
 timers defined in the other directives.
 
 These are monotonic timers, independent of wall-clock time and timezones. If the computer is
-temporarily suspended, the monotonic clock pauses, too.
+temporarily suspended, the monotonic clock generally pauses, too. Note that if
+C<WakeSystem> is used, a different monotonic clock is selected that continues to
+advance while the system is suspended and thus can be used as the trigger to resume the
+system.
 
 If the empty string is assigned to any of these options, the list of timers is reset (both
 monotonic timers and C<OnCalendar> timers, see below), and all prior assignments
@@ -149,7 +155,10 @@ and the configured unit is started. This is not the case for
 timers defined in the other directives.
 
 These are monotonic timers, independent of wall-clock time and timezones. If the computer is
-temporarily suspended, the monotonic clock pauses, too.
+temporarily suspended, the monotonic clock generally pauses, too. Note that if
+C<WakeSystem> is used, a different monotonic clock is selected that continues to
+advance while the system is suspended and thus can be used as the trigger to resume the
+system.
 
 If the empty string is assigned to any of these options, the list of timers is reset (both
 monotonic timers and C<OnCalendar> timers, see below), and all prior assignments
@@ -188,7 +197,10 @@ and the configured unit is started. This is not the case for
 timers defined in the other directives.
 
 These are monotonic timers, independent of wall-clock time and timezones. If the computer is
-temporarily suspended, the monotonic clock pauses, too.
+temporarily suspended, the monotonic clock generally pauses, too. Note that if
+C<WakeSystem> is used, a different monotonic clock is selected that continues to
+advance while the system is suspended and thus can be used as the trigger to resume the
+system.
 
 If the empty string is assigned to any of these options, the list of timers is reset (both
 monotonic timers and C<OnCalendar> timers, see below), and all prior assignments
@@ -227,7 +239,10 @@ and the configured unit is started. This is not the case for
 timers defined in the other directives.
 
 These are monotonic timers, independent of wall-clock time and timezones. If the computer is
-temporarily suspended, the monotonic clock pauses, too.
+temporarily suspended, the monotonic clock generally pauses, too. Note that if
+C<WakeSystem> is used, a different monotonic clock is selected that continues to
+advance while the system is suspended and thus can be used as the trigger to resume the
+system.
 
 If the empty string is assigned to any of these options, the list of timers is reset (both
 monotonic timers and C<OnCalendar> timers, see below), and all prior assignments
@@ -291,7 +306,13 @@ C<TimerSlackNSec> setting. See
 L<prctl(2)>
 for details. To optimize power consumption, make sure to set
 this value as high as possible and as low as
-necessary.',
+necessary.
+
+Note that this setting is primarily a power saving option that allows coalescing CPU
+wake-ups. It should not be confused with C<RandomizedDelaySec> (see below) which
+adds a random value to the time the timer shall elapse next and whose purpose is the opposite: to
+stretch elapsing of timer events over a longer period to reduce workload spikes. For further details
+and explanations and how both settings play together, see below.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -389,7 +410,16 @@ after any work that is to be done is finished. Defaults to
 C<false>.
 
 Note that this functionality requires privileges and is thus generally only available in the
-system service manager.',
+system service manager.
+
+Note that behaviour of monotonic clock timers (as configured with
+C<OnActiveSec>, C<OnBootSec>, C<OnStartupSec>,
+C<OnUnitActiveSec>, C<OnUnitInactiveSec>, see above) is altered
+depending on this option. If false, a monotonic clock is used that is paused during system suspend
+(C<CLOCK_MONOTONIC>), if true a different monotonic clock is used that continues
+advancing during system suspend (C<CLOCK_BOOTTIME>), see
+L<clock_getres(2)> for
+details.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -420,7 +450,7 @@ C<yes>.',
         ]
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd 244 doc',
+    'generated_by' => 'parse-man.pl from systemd 245 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Section::Timer'
   }

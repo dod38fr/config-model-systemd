@@ -72,11 +72,25 @@ existing name in one of the unit search paths. For example, C<systemd-networkd.s
 has the alias C<dbus-org.freedesktop.network1.service>, created during installation as
 a symlink, so when systemd is asked through D-Bus to load
 C<dbus-org.freedesktop.network1.service>, it'll load
-C<systemd-networkd.service>. Alias names may be used in commands like
-disable, start, stop, status,
-and similar, and in all unit dependency directives, including C<Wants>,
-C<Requires>, C<Before>, C<After>. Aliases cannot be
-used with the preset command.
+C<systemd-networkd.service>. As another example, C<default.target> \x{2014}
+the default system target started at boot \x{2014} is commonly symlinked (aliased) to either
+C<multi-user.target> or C<graphical.target> to select what is started
+by default. Alias names may be used in commands like disable,
+start, stop, status, and similar, and in all
+unit dependency directives, including C<Wants>, C<Requires>,
+C<Before>, C<After>. Aliases cannot be used with the
+preset command.
+
+Aliases obey the following restrictions: a unit of a certain type (C<.service>,
+C<.socket>, \x{2026}) can only be aliased by a name with the same type suffix. A plain unit (not
+a template or an instance), may only be aliased by a plain name. A template instance may only be aliased
+by another template instance, and the instance part must be identical. A template may be aliased by
+another template (in which case the alias applies to all instances of the template). As a special case, a
+template instance (e.g. C<alias\@inst.service>) may be a symlink to different template
+(e.g. C<template\@inst.service>). In that case, just this specific instance is aliased,
+while other instances of the template (e.g. C<alias\@foo.service>,
+C<alias\@bar.service>) are not aliased. Those rule preserve the requirement that the
+instance (if any) is always uniquely defined for a given unit and all its aliases.
 
 Unit files may specify aliases through the C<Alias> directive in the [Install]
 section. When the unit is enabled, symlinks will be created for those names, and removed when the unit is
@@ -119,6 +133,16 @@ systematic naming structure is built around dashes as component separators. Note
 further down the prefix hierarchy override those further up,
 i.e. C<foo-bar-.service.d/10-override.conf> overrides
 C<foo-.service.d/10-override.conf>.
+
+In cases of unit aliases (described above), dropins for the aliased name and all aliases are
+loaded. In the example of C<default.target> aliasing
+C<graphical.target>, C<default.target.d/>,
+C<default.target.wants/>, C<default.target.requires/>,
+C<graphical.target.d/>, C<graphical.target.wants/>,
+C<graphical.target.requires/> would all be read. For templates, dropins for the
+template, any template aliases, the template instance, and all alias instances are read. When just a
+specific template instance is aliased, then the dropins for the target template, the target template
+instance, and the alias template instance are read.
 
 In addition to C</etc/systemd/system>, the drop-in C<.d/>
 directories for system services can be placed in C</usr/lib/systemd/system> or
@@ -184,10 +208,12 @@ would be used based on compilation options and current environment use
 
 
 
-Moreover, additional units might be loaded into systemd (\"linked\") from
-directories not on the unit load path. See the link command
-for
-L<systemctl(1)>.
+Moreover, additional units might be loaded into systemd from
+directories not on the unit load path by creating a symlink pointing to a
+unit file in the directories. You can use systemctl link
+for this operation. See
+L<systemctl(1)>
+for its usage and precaution.
 
 
 Unit files may also include a number of C<Condition\x{2026}=> and
@@ -290,7 +316,7 @@ the unit file. For details, see above.
 Units listed in this option will be started if the configuring unit is. However, if the listed
 units fail to start or cannot be added to the transaction, this has no impact on the validity of the
 transaction as a whole, and this unit will still be started. This is the recommended way to hook
-start-up of one unit to the start-up of another unit.
+the start-up of one unit to the start-up of another unit.
 
 Note that requirement dependencies do not influence the order in which services are started or
 stopped. This has to be configured independently with the C<After> or
@@ -436,7 +462,7 @@ unit that is conflicted is stopped.',
         'description' => 'These two settings expect a space-separated list of unit names. They may be specified
 more than once, in which case dependencies for all listed names are created.
 
-Those two setttings configure ordering dependencies between units. If unit
+Those two settings configure ordering dependencies between units. If unit
 C<foo.service> contains the setting C<Before=bar.service> and both
 units are being started, C<bar.service>\'s start-up is delayed until
 C<foo.service> has finished starting up. C<After> is the inverse
@@ -462,7 +488,11 @@ Note that those settings are independent of and orthogonal to the requirement de
 configured by C<Requires>, C<Wants>, C<Requisite>,
 or C<BindsTo>. It is a common pattern to include a unit name in both the
 C<After> and C<Wants> options, in which case the unit listed will
-be started before the unit that is configured with these options.',
+be started before the unit that is configured with these options.
+
+Note that C<Before> dependencies on device units have no effect and are not
+supported.  Devices generally become available as a result of an external hotplug event, and systemd
+creates the corresponding device unit without delay.',
         'type' => 'list'
       },
       'After',
@@ -474,7 +504,7 @@ be started before the unit that is configured with these options.',
         'description' => 'These two settings expect a space-separated list of unit names. They may be specified
 more than once, in which case dependencies for all listed names are created.
 
-Those two setttings configure ordering dependencies between units. If unit
+Those two settings configure ordering dependencies between units. If unit
 C<foo.service> contains the setting C<Before=bar.service> and both
 units are being started, C<bar.service>\'s start-up is delayed until
 C<foo.service> has finished starting up. C<After> is the inverse
@@ -500,7 +530,11 @@ Note that those settings are independent of and orthogonal to the requirement de
 configured by C<Requires>, C<Wants>, C<Requisite>,
 or C<BindsTo>. It is a common pattern to include a unit name in both the
 C<After> and C<Wants> options, in which case the unit listed will
-be started before the unit that is configured with these options.',
+be started before the unit that is configured with these options.
+
+Note that C<Before> dependencies on device units have no effect and are not
+supported.  Devices generally become available as a result of an external hotplug event, and systemd
+creates the corresponding device unit without delay.',
         'type' => 'list'
       },
       'OnFailure',
@@ -1583,7 +1617,7 @@ into.",
         'warn' => 'OnFailureIsolate is now OnFailureJobMode.'
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd 244 doc',
+    'generated_by' => 'parse-man.pl from systemd 245 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Section::Unit'
   }
