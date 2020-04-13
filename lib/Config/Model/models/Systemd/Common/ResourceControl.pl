@@ -37,8 +37,8 @@ executed by systemd are listed in
 L<systemd.exec(5)>.
 Those options complement options listed here.
 
-See the New
-Control Group Interfaces for an introduction on how to make
+See the L<New
+Control Group Interfaces|https://www.freedesktop.org/wiki/Software/systemd/ControlGroupInterface/> for an introduction on how to make
 use of resource control APIs from programs.
 This configuration class was generated from systemd documentation.
 by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>
@@ -70,7 +70,7 @@ L<systemd-system.conf(5)>.',
         'description' => 'Assign the specified CPU time weight to the processes executed, if the unified control group hierarchy
 is used on the system. These options take an integer value and control the C<cpu.weight>
 control group attribute. The allowed range is 1 to 10000. Defaults to 100. For details about this control
-group attribute, see Control Groups v2 and CFS Scheduler.
+group attribute, see L<Control Groups v2|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html> and L<CFS Scheduler|https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html>.
 The available CPU time is split up among all units within one slice relative to their CPU time weight.
 
 While C<StartupCPUWeight> only applies to the startup phase of the system,
@@ -90,7 +90,7 @@ These settings replace C<CPUShares> and C<StartupCPUShares>.',
         'description' => 'Assign the specified CPU time weight to the processes executed, if the unified control group hierarchy
 is used on the system. These options take an integer value and control the C<cpu.weight>
 control group attribute. The allowed range is 1 to 10000. Defaults to 100. For details about this control
-group attribute, see Control Groups v2 and CFS Scheduler.
+group attribute, see L<Control Groups v2|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html> and L<CFS Scheduler|https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html>.
 The available CPU time is split up among all units within one slice relative to their CPU time weight.
 
 While C<StartupCPUWeight> only applies to the startup phase of the system,
@@ -111,7 +111,7 @@ These settings replace C<CPUShares> and C<StartupCPUShares>.',
 "%". The percentage specifies how much CPU time the unit shall get at maximum, relative to the total CPU time
 available on one CPU. Use values > 100% for allotting CPU time on more than one CPU. This controls the
 C<cpu.max> attribute on the unified control group hierarchy and
-C<cpu.cfs_quota_us> on legacy. For details about these control group attributes, see Control Groups v2 and sched-bwc.txt.
+C<cpu.cfs_quota_us> on legacy. For details about these control group attributes, see L<Control Groups v2|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html> and L<sched-bwc.txt|https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt>.
 
 Example: C<CPUQuota=20%> ensures that the executed processes will never get more than
 20% CPU time on one CPU.',
@@ -128,8 +128,8 @@ Setting C<CPUQuotaPeriodSec> to an empty value resets it to the default.
 
 This controls the second field of C<cpu.max> attribute on the unified control group hierarchy
 and C<cpu.cfs_period_us> on legacy. For details about these control group attributes, see
-Control Groups v2 and
-CFS Scheduler.
+L<Control Groups v2|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html> and
+L<CFS Scheduler|https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html>.
 
 Example: C<CPUQuotaPeriodSec=10ms> to request that the CPU quota is measured in periods of 10ms.',
         'type' => 'leaf',
@@ -189,7 +189,7 @@ percentage value may be specified, which is taken relative to the installed phys
 system. If assigned the special value C<infinity>, all available memory is protected, which may be
 useful in order to always inherit all of the protection afforded by ancestors.
 This controls the C<memory.min> control group attribute. For details about this
-control group attribute, see Memory Interface Files.
+control group attribute, see L<Memory Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#memory-interface-files>.
 
 This setting is supported only if the unified control group hierarchy is used and disables
 C<MemoryLimit>.
@@ -212,7 +212,7 @@ percentage value may be specified, which is taken relative to the installed phys
 system. If assigned the special value C<infinity>, all available memory is protected, which may be
 useful in order to always inherit all of the protection afforded by ancestors.
 This controls the C<memory.low> control group attribute. For details about this
-control group attribute, see Memory Interface Files.
+control group attribute, see L<Memory Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#memory-interface-files>.
 
 This setting is supported only if the unified control group hierarchy is used and disables
 C<MemoryLimit>.
@@ -235,7 +235,7 @@ percentage value may be specified, which is taken relative to the installed phys
 system. If assigned the
 special value C<infinity>, no memory throttling is applied. This controls the
 C<memory.high> control group attribute. For details about this control group attribute, see
-Memory Interface Files.
+L<Memory Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#memory-interface-files>.
 
 This setting is supported only if the unified control group hierarchy is used and disables
 C<MemoryLimit>.',
@@ -254,7 +254,7 @@ parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes (with the base 1024), re
 percentage value may be specified, which is taken relative to the installed physical memory on the system. If
 assigned the special value C<infinity>, no memory limit is applied. This controls the
 C<memory.max> control group attribute. For details about this control group attribute, see
-Memory Interface Files.
+L<Memory Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#memory-interface-files>.
 
 This setting replaces C<MemoryLimit>.',
         'type' => 'leaf',
@@ -268,7 +268,7 @@ Takes a swap size in bytes. If the value is suffixed with K, M, G or T, the spec
 parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes (with the base 1024), respectively. If assigned the
 special value C<infinity>, no swap limit is applied. This controls the
 C<memory.swap.max> control group attribute. For details about this control group attribute,
-see Memory Interface Files.
+see L<Memory Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#memory-interface-files>.
 
 This setting is supported only if the unified control group hierarchy is used and disables
 C<MemoryLimit>.',
@@ -303,7 +303,7 @@ tasks accounted for the unit (see above) stays below a specific limit. This eith
 of tasks or a percentage value that is taken relative to the configured maximum number of tasks on the
 system.  If assigned the special value C<infinity>, no tasks limit is applied. This controls
 the C<pids.max> control group attribute. For details about this control group attribute, see
-Process Number Controller.
+L<Process Number Controller|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/pids.html>.
 
 The system default for this setting may be controlled with
 C<DefaultTasksMax> in
@@ -334,7 +334,7 @@ C<BlockIO> or C<StartupBlockIO>.',
         'description' => 'Set the default overall block I/O weight for the executed processes, if the unified control group
 hierarchy is used on the system. Takes a single weight value (between 1 and 10000) to set the default block
 I/O weight. This controls the C<io.weight> control group attribute, which defaults to
-100. For details about this control group attribute, see IO Interface Files.
+100. For details about this control group attribute, see L<IO Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#io-interface-files>.
 The available I/O bandwidth is split up among all units within one slice relative to their block
 I/O weight.
 
@@ -355,7 +355,7 @@ and disable settings prefixed with C<BlockIO> or C<StartupBlockIO>.',
         'description' => 'Set the default overall block I/O weight for the executed processes, if the unified control group
 hierarchy is used on the system. Takes a single weight value (between 1 and 10000) to set the default block
 I/O weight. This controls the C<io.weight> control group attribute, which defaults to
-100. For details about this control group attribute, see IO Interface Files.
+100. For details about this control group attribute, see L<IO Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#io-interface-files>.
 The available I/O bandwidth is split up among all units within one slice relative to their block
 I/O weight.
 
@@ -379,7 +379,7 @@ the device specific weight value, between 1 and 10000. (Example: C</dev/sda 1000
 path may be specified as path to a block device node or as any other file, in which case the backing block
 device of the file system of the file is determined. This controls the C<io.weight> control
 group attribute, which defaults to 100. Use this option multiple times to set weights for multiple devices.
-For details about this control group attribute, see IO Interface Files.
+For details about this control group attribute, see L<IO Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#io-interface-files>.
 
 This setting replaces C<BlockIODeviceWeight> and disables settings prefixed with
 C<BlockIO> or C<StartupBlockIO>.
@@ -405,7 +405,7 @@ system of the file is used. If the bandwidth is suffixed with K, M, G, or T, the
 parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes, respectively, to the base of 1000. (Example:
 "/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This controls the C<io.max> control
 group attributes. Use this option multiple times to set bandwidth limits for multiple devices. For details
-about this control group attribute, see IO Interface Files.
+about this control group attribute, see L<IO Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#io-interface-files>.
 
 These settings replace C<BlockIOReadBandwidth> and
 C<BlockIOWriteBandwidth> and disable settings prefixed with C<BlockIO> or
@@ -426,7 +426,7 @@ system of the file is used. If the bandwidth is suffixed with K, M, G, or T, the
 parsed as Kilobytes, Megabytes, Gigabytes, or Terabytes, respectively, to the base of 1000. (Example:
 "/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This controls the C<io.max> control
 group attributes. Use this option multiple times to set bandwidth limits for multiple devices. For details
-about this control group attribute, see IO Interface Files.
+about this control group attribute, see L<IO Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#io-interface-files>.
 
 These settings replace C<BlockIOReadBandwidth> and
 C<BlockIOWriteBandwidth> and disable settings prefixed with C<BlockIO> or
@@ -447,7 +447,7 @@ used. If the IOPS is suffixed with K, M, G, or T, the specified IOPS is parsed a
 GigaIOPS, or TeraIOPS, respectively, to the base of 1000. (Example:
 "/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 1K"). This controls the C<io.max> control
 group attributes. Use this option multiple times to set IOPS limits for multiple devices. For details about
-this control group attribute, see IO Interface Files.
+this control group attribute, see L<IO Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#io-interface-files>.
 
 These settings are supported only if the unified control group hierarchy is used and disable settings
 prefixed with C<BlockIO> or C<StartupBlockIO>.
@@ -467,7 +467,7 @@ used. If the IOPS is suffixed with K, M, G, or T, the specified IOPS is parsed a
 GigaIOPS, or TeraIOPS, respectively, to the base of 1000. (Example:
 "/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 1K"). This controls the C<io.max> control
 group attributes. Use this option multiple times to set IOPS limits for multiple devices. For details about
-this control group attribute, see IO Interface Files.
+this control group attribute, see L<IO Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#io-interface-files>.
 
 These settings are supported only if the unified control group hierarchy is used and disable settings
 prefixed with C<BlockIO> or C<StartupBlockIO>.
@@ -484,7 +484,7 @@ the device specific latency target. (Example: "/dev/sda 25ms"). The file path ma
 as path to a block device node or as any other file, in which case the backing block device of the file
 system of the file is determined. This controls the C<io.latency> control group
 attribute. Use this option multiple times to set latency target for multiple devices. For details about this
-control group attribute, see IO Interface Files.
+control group attribute, see L<IO Interface Files|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html#io-interface-files>.
 
 Implies C<IOAccounting=yes>.
 
@@ -677,7 +677,7 @@ C<w>, C<m> to control reading,
 writing, or creation of the specific device node(s) by the unit
 (mknod), respectively. On cgroup-v1 this controls the
 C<devices.allow> control group attribute. For details about this control group
-attribute, see Device Whitelist Controller.
+attribute, see L<Device Whitelist Controller|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/devices.html>.
 In the unified cgroup hierarchy this functionality is implemented using eBPF filtering.
 
 The device node specifier is either a path to a device node in the file system, starting with
@@ -780,7 +780,7 @@ specific to the unified hierarchy while others are specific to the legacy hierar
 kernel might support further controllers, which aren\'t covered here yet as delegation is either not supported
 at all for them or not defined cleanly.
 
-For further details on the delegation model consult Control Group APIs and Delegation.',
+For further details on the delegation model consult L<Control Group APIs and Delegation|https://systemd.io/CGROUP_DELEGATION>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -805,7 +805,7 @@ the disabled controller list.',
       {
         'description' => 'Assign the specified CPU time share weight to the processes executed. These options take an integer
 value and control the C<cpu.shares> control group attribute. The allowed range is 2 to
-262144. Defaults to 1024. For details about this control group attribute, see CFS Scheduler.
+262144. Defaults to 1024. For details about this control group attribute, see L<CFS Scheduler|https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html>.
 The available CPU time is split up among all units within one slice relative to their CPU time share
 weight.
 
@@ -828,7 +828,7 @@ C<StartupCPUWeight> instead.',
       {
         'description' => 'Assign the specified CPU time share weight to the processes executed. These options take an integer
 value and control the C<cpu.shares> control group attribute. The allowed range is 2 to
-262144. Defaults to 1024. For details about this control group attribute, see CFS Scheduler.
+262144. Defaults to 1024. For details about this control group attribute, see L<CFS Scheduler|https://www.kernel.org/doc/html/latest/scheduler/sched-design-CFS.html>.
 The available CPU time is split up among all units within one slice relative to their CPU time share
 weight.
 
@@ -856,7 +856,7 @@ Terabytes (with the base 1024), respectively. Alternatively, a percentage value 
 taken relative to the installed physical memory on the system. If assigned the special value
 C<infinity>, no memory limit is applied. This controls the
 C<memory.limit_in_bytes> control group attribute. For details about this control group
-attribute, see Memory Resource Controller.
+attribute, see L<Memory Resource Controller|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/memory.html>.
 
 Implies C<MemoryAccounting=yes>.
 
@@ -886,7 +886,7 @@ This setting is deprecated. Use C<IOAccounting> instead.',
         'description' => 'Set the default overall block I/O weight for the executed processes, if the legacy control
 group hierarchy is used on the system. Takes a single weight value (between 10 and 1000) to set the default
 block I/O weight. This controls the C<blkio.weight> control group attribute, which defaults to
-500. For details about this control group attribute, see Block IO Controller.
+500. For details about this control group attribute, see L<Block IO Controller|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/blkio-controller.html>.
 The available I/O bandwidth is split up among all units within one slice relative to their block I/O
 weight.
 
@@ -910,7 +910,7 @@ instead.',
         'description' => 'Set the default overall block I/O weight for the executed processes, if the legacy control
 group hierarchy is used on the system. Takes a single weight value (between 10 and 1000) to set the default
 block I/O weight. This controls the C<blkio.weight> control group attribute, which defaults to
-500. For details about this control group attribute, see Block IO Controller.
+500. For details about this control group attribute, see L<Block IO Controller|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/blkio-controller.html>.
 The available I/O bandwidth is split up among all units within one slice relative to their block I/O
 weight.
 
@@ -937,7 +937,7 @@ the device specific weight value, between 10 and 1000. (Example: "/dev/sda 500")
 specified as path to a block device node or as any other file, in which case the backing block device of the
 file system of the file is determined. This controls the C<blkio.weight_device> control group
 attribute, which defaults to 1000. Use this option multiple times to set weights for multiple devices. For
-details about this control group attribute, see Block IO Controller.
+details about this control group attribute, see L<Block IO Controller|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/blkio-controller.html>.
 
 Implies
 C<BlockIOAccounting=yes>.
@@ -957,7 +957,7 @@ Gigabytes, or Terabytes, respectively, to the base of 1000. (Example:
 "/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This controls the
 C<blkio.throttle.read_bps_device> and C<blkio.throttle.write_bps_device>
 control group attributes. Use this option multiple times to set bandwidth limits for multiple devices. For
-details about these control group attributes, see Block IO Controller.
+details about these control group attributes, see L<Block IO Controller|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/blkio-controller.html>.
 
 Implies
 C<BlockIOAccounting=yes>.
@@ -978,7 +978,7 @@ Gigabytes, or Terabytes, respectively, to the base of 1000. (Example:
 "/dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0 5M"). This controls the
 C<blkio.throttle.read_bps_device> and C<blkio.throttle.write_bps_device>
 control group attributes. Use this option multiple times to set bandwidth limits for multiple devices. For
-details about these control group attributes, see Block IO Controller.
+details about these control group attributes, see L<Block IO Controller|https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v1/blkio-controller.html>.
 
 Implies
 C<BlockIOAccounting=yes>.

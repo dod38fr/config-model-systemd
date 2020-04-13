@@ -396,8 +396,8 @@ can be inherited between processes.',
           'type' => 'leaf',
           'value_type' => 'uniline'
         },
-        'description' => 'Specifies a USB
-FunctionFS endpoints location to listen on, for
+        'description' => 'Specifies a L<USB
+FunctionFS|https://www.kernel.org/doc/Documentation/usb/functionfs.txt> endpoints location to listen on, for
 implementation of USB gadget functions. This expects an
 absolute file system path of functionfs mount point as the argument.
 Behavior otherwise is very similar to the C<ListenFIFO>
@@ -596,8 +596,8 @@ C</proc/sys/net/ipv4/tcp_keepalive_time>)
 for all TCP streams accepted on this socket. This controls the
 SO_KEEPALIVE socket option (see
 L<socket(7)>
-and the TCP
-Keepalive HOWTO for details.) Defaults to
+and the L<TCP
+Keepalive HOWTO|http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/> for details.) Defaults to
 C<false>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
@@ -612,8 +612,8 @@ C<false>.',
 idle before TCP starts sending keepalive probes. This controls the TCP_KEEPIDLE
 socket option (see
 L<socket(7)>
-and the TCP
-Keepalive HOWTO for details.)
+and the L<TCP
+Keepalive HOWTO|http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/> for details.)
 Defaults value is 7200 seconds (2 hours).',
         'type' => 'leaf',
         'value_type' => 'integer'
@@ -625,8 +625,8 @@ individual keepalive probes, if the socket option SO_KEEPALIVE
 has been set on this socket. This controls
 the TCP_KEEPINTVL socket option (see
 L<socket(7)>
-and the TCP
-Keepalive HOWTO for details.) Defaults value is 75
+and the L<TCP
+Keepalive HOWTO|http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/> for details.) Defaults value is 75
 seconds.',
         'type' => 'leaf',
         'value_type' => 'integer'
@@ -638,8 +638,8 @@ unacknowledged probes to send before considering the
 connection dead and notifying the application layer. This
 controls the TCP_KEEPCNT socket option (see
 L<socket(7)>
-and the TCP
-Keepalive HOWTO for details.) Defaults value is
+and the L<TCP
+Keepalive HOWTO|http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/> for details.) Defaults value is
 9.',
         'type' => 'leaf',
         'value_type' => 'integer'
@@ -782,7 +782,7 @@ C<security.SMACK64IPIN> and
 C<security.SMACK64IPOUT>, respectively, i.e.
 the security label of the FIFO, or the security label for the
 incoming or outgoing connections of the socket, respectively.
-See Smack.txt
+See L<Smack.txt|https://www.kernel.org/doc/Documentation/security/Smack.txt>
 for details.',
         'type' => 'leaf',
         'value_type' => 'uniline'
@@ -795,7 +795,7 @@ C<security.SMACK64IPIN> and
 C<security.SMACK64IPOUT>, respectively, i.e.
 the security label of the FIFO, or the security label for the
 incoming or outgoing connections of the socket, respectively.
-See Smack.txt
+See L<Smack.txt|https://www.kernel.org/doc/Documentation/security/Smack.txt>
 for details.',
         'type' => 'leaf',
         'value_type' => 'uniline'
@@ -808,7 +808,7 @@ C<security.SMACK64IPIN> and
 C<security.SMACK64IPOUT>, respectively, i.e.
 the security label of the FIFO, or the security label for the
 incoming or outgoing connections of the socket, respectively.
-See Smack.txt
+See L<Smack.txt|https://www.kernel.org/doc/Documentation/security/Smack.txt>
 for details.',
         'type' => 'leaf',
         'value_type' => 'uniline'

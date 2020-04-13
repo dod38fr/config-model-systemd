@@ -190,8 +190,8 @@ effective way to fully disable a unit, making it impossible to
 start it even manually.
 
 The unit file format is covered by the
-Interface
-Stability Promise.
+L<Interface
+Stability Promise|https://www.freedesktop.org/wiki/Software/systemd/InterfaceStabilityPromise>.
 
 The set of load paths for the user manager instance may be augmented or
 changed using various environment variables. And environment variables may in

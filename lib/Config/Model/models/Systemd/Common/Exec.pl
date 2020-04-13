@@ -28,7 +28,7 @@ In addition, options which control resources through Linux Control Groups (cgrou
 L<systemd.resource-control(5)>.
 Those options complement options listed here.
 
-The following service exit codes are defined by the LSB specification.
+The following service exit codes are defined by the L<LSB specification|https://refspecs.linuxbase.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/iniscrptact.html>.
 
 
 
@@ -80,8 +80,8 @@ to C<RootDirectory> however mounts a file system hierarchy from a block device n
 or loopback file instead of a directory. The device node or file system image file needs to contain a
 file system without a partition table, or a file system within an MBR/MS-DOS or GPT partition table
 with only a single Linux-compatible partition, or a set of file systems within a GPT partition table
-that follows the Discoverable Partitions
-Specification.
+that follows the L<Discoverable Partitions
+Specification|https://systemd.io/DISCOVERABLE_PARTITIONS>.
 
 When C<DevicePolicy> is set to C<closed> or
 C<strict>, or set to C<auto> and C<DeviceAllow> is
@@ -417,8 +417,8 @@ C<ProtectClock>, C<MemoryDenyWriteExecute>,
 C<RestrictRealtime>, C<RestrictSUIDSGID>, C<DynamicUser>
 or C<LockPersonality> are specified. Note that even if this setting is overridden by them,
 systemctl show shows the original value of this setting.
-Also see No New Privileges
-Flag.',
+Also see L<No New Privileges
+Flag|https://www.kernel.org/doc/html/latest/userspace-api/no_new_privs.html>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -1324,7 +1324,7 @@ non-service units and for services of the user service manager.',
       {
         'description' => 'Sets the adjustment value for the Linux kernel\'s Out-Of-Memory (OOM) killer score for
 executed processes. Takes an integer between -1000 (to disable OOM killing of processes of this unit)
-and 1000 (to make killing of processes of this unit under memory pressure very likely). See proc.txt for details. If
+and 1000 (to make killing of processes of this unit under memory pressure very likely). See L<proc.txt|https://www.kernel.org/doc/Documentation/filesystems/proc.txt> for details. If
 not specified defaults to the OOM score adjustment level of the service manager itself, which is
 normally at 0.
 
@@ -2941,9 +2941,9 @@ commenting. A line ending with a backslash will be concatenated with the followi
 variable definitions. The parser strips leading and trailing whitespace from the values of assignments, unless
 you use double quotes (").
 
-C escapes
+L<C escapes|https://en.wikipedia.org/wiki/Escape_sequences_in_C#Table_of_escape_sequences>
 are supported, but not
-most control characters.
+L<most control characters|https://en.wikipedia.org/wiki/Control_character#In_ASCII>.
 C<\\t> and C<\\n> can be used to insert tabs and newlines within
 C<EnvironmentFile>.
 
@@ -2981,9 +2981,9 @@ to the executed processes anyway, hence this option is without effect for the us
 Variables set for invoked processes due to this setting are subject to being overridden by those
 configured with C<Environment> or C<EnvironmentFile>.
 
-C escapes
+L<C escapes|https://en.wikipedia.org/wiki/Escape_sequences_in_C#Table_of_escape_sequences>
 are supported, but not
-most control characters.
+L<most control characters|https://en.wikipedia.org/wiki/Control_character#In_ASCII>.
 C<\\t> and C<\\n> can be used to insert tabs and newlines within
 C<EnvironmentFile>.
 
@@ -3209,7 +3209,7 @@ appends a new line to the end of the buffer). Note that leading and trailing whi
 with this option is removed. If an empty line is specified the buffer is cleared (hence, in order to insert an
 empty line, add an additional C<\\n> to the end or beginning of a line).
 
-C<StandardInputData> accepts arbitrary binary data, encoded in Base64. No escape sequences or specifiers are
+C<StandardInputData> accepts arbitrary binary data, encoded in L<Base64|https://tools.ietf.org/html/rfc2045#section-6.8>. No escape sequences or specifiers are
 resolved. Any whitespace in the encoded version is ignored during decoding.
 
 Note that C<StandardInputText> and C<StandardInputData> operate on the
@@ -3237,7 +3237,7 @@ appends a new line to the end of the buffer). Note that leading and trailing whi
 with this option is removed. If an empty line is specified the buffer is cleared (hence, in order to insert an
 empty line, add an additional C<\\n> to the end or beginning of a line).
 
-C<StandardInputData> accepts arbitrary binary data, encoded in Base64. No escape sequences or specifiers are
+C<StandardInputData> accepts arbitrary binary data, encoded in L<Base64|https://tools.ietf.org/html/rfc2045#section-6.8>. No escape sequences or specifiers are
 resolved. Any whitespace in the encoded version is ignored during decoding.
 
 Note that C<StandardInputText> and C<StandardInputData> operate on the

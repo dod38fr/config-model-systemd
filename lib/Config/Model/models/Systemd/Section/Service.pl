@@ -41,8 +41,8 @@ by the same name (with the C<.service> suffix
 removed) and dynamically creates a service unit from that script.
 This is useful for compatibility with SysV. Note that this
 compatibility is quite comprehensive but not 100%. For details
-about the incompatibilities, see the Incompatibilities
-with SysV document.
+about the incompatibilities, see the L<Incompatibilities
+with SysV|https://www.freedesktop.org/wiki/Software/systemd/Incompatibilities> document.
 
 The L<systemd-run(1)>
 command allows creating C<.service> and C<.scope> units dynamically
@@ -795,8 +795,8 @@ C<main>.',
       'USBFunctionDescriptors',
       {
         'description' => 'Configure the location of a file containing
-USB
-FunctionFS descriptors, for implementation of USB
+L<USB
+FunctionFS|https://www.kernel.org/doc/Documentation/usb/functionfs.txt> descriptors, for implementation of USB
 gadget functions. This is used only in conjunction with a
 socket unit with C<ListenUSBFunction>
 configured. The contents of this file are written to the
