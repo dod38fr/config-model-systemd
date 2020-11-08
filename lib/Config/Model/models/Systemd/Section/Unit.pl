@@ -16,7 +16,7 @@ socket, a device, a mount point, an automount point, a swap file or partition, a
 target, a watched file system path, a timer controlled and supervised by
 L<systemd(1)>, a
 resource management slice or a group of externally created processes. See
-L<systemd.syntax(5)>
+L<systemd.syntax(7)>
 for a general description of the syntax.
 
 This man page lists the common configuration options of all
@@ -471,7 +471,7 @@ is started before the listed unit begins starting up, C<After> ensures the oppos
 that the listed unit is fully started up before the configured unit is started.
 
 When two units with an ordering dependency between them are shut down, the inverse of the
-start-up order is applied. i.e. if a unit is configured with C<After> on another
+start-up order is applied. I.e. if a unit is configured with C<After> on another
 unit, the former is stopped before the latter if both are shut down. Given two units with any
 ordering dependency between them, if one unit is shut down and the other is started up, the shutdown
 is ordered before the start-up. It doesn\'t matter if the ordering dependency is
@@ -482,7 +482,8 @@ they are shut down or started up simultaneously, and no ordering takes place. It
 type when precisely a unit has finished starting up. Most importantly, for service units start-up is
 considered completed for the purpose of C<Before>/C<After> when all
 its configured start-up commands have been invoked and they either failed or reported start-up
-success.
+success. Note that this does includes C<ExecStartPost> (or
+C<ExecStopPost> for the shutdown case).
 
 Note that those settings are independent of and orthogonal to the requirement dependencies as
 configured by C<Requires>, C<Wants>, C<Requisite>,
@@ -513,7 +514,7 @@ is started before the listed unit begins starting up, C<After> ensures the oppos
 that the listed unit is fully started up before the configured unit is started.
 
 When two units with an ordering dependency between them are shut down, the inverse of the
-start-up order is applied. i.e. if a unit is configured with C<After> on another
+start-up order is applied. I.e. if a unit is configured with C<After> on another
 unit, the former is stopped before the latter if both are shut down. Given two units with any
 ordering dependency between them, if one unit is shut down and the other is started up, the shutdown
 is ordered before the start-up. It doesn\'t matter if the ordering dependency is
@@ -524,7 +525,8 @@ they are shut down or started up simultaneously, and no ordering takes place. It
 type when precisely a unit has finished starting up. Most importantly, for service units start-up is
 considered completed for the purpose of C<Before>/C<After> when all
 its configured start-up commands have been invoked and they either failed or reported start-up
-success.
+success. Note that this does includes C<ExecStartPost> (or
+C<ExecStopPost> for the shutdown case).
 
 Note that those settings are independent of and orthogonal to the requirement dependencies as
 configured by C<Requires>, C<Wants>, C<Requisite>,
@@ -618,7 +620,7 @@ L<systemctl(1)>\'s
 C<--job-mode=> option for details on the
 possible values. If this is set to C<isolate>,
 only a single unit may be listed in
-C<OnFailure>..',
+C<OnFailure>.',
         'migrate_from' => {
           'formula' => '$unit',
           'variables' => {
@@ -630,11 +632,10 @@ C<OnFailure>..',
       },
       'IgnoreOnIsolate',
       {
-        'description' => 'Takes a boolean argument. If C<true>, this unit
-will not be stopped when isolating another unit. Defaults to
-C<false> for service, target, socket, busname, timer, and path
-units, and C<true> for slice, scope, device, swap, mount, and
-automount units.',
+        'description' => 'Takes a boolean argument. If C<true>, this unit will not be stopped
+when isolating another unit. Defaults to C<false> for service, target, socket, timer,
+and path units, and C<true> for slice, scope, device, swap, mount, and automount
+units.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -849,9 +850,9 @@ L<reboot(2)> system call.
           'exit-force'
         ],
         'description' => 'Configure an additional action to take if the rate limit configured with
-C<StartLimitIntervalSec> and C<StartLimitBurst> is hit.  Takes the same
-values as the setting C<FailureAction>/C<SuccessAction> settings and executes
-the same actions. If C<none> is set, hitting the rate limit will trigger no action besides that
+C<StartLimitIntervalSec> and C<StartLimitBurst> is hit. Takes the same
+values as the C<FailureAction>/C<SuccessAction> settings. If
+C<none> is set, hitting the rate limit will trigger no action except that
 the start will not be permitted. Defaults to C<none>.',
         'type' => 'leaf',
         'value_type' => 'enum'
@@ -977,6 +978,7 @@ C<docker>,
 C<podman>,
 C<rkt>,
 C<wsl>,
+C<proot>,
 C<acrn> to test
 against a specific implementation, or
 C<private-users> to check whether we are running in a user namespace. See
@@ -1036,6 +1038,25 @@ is inherently unportable and should not be used for units which may be used on d
 distributions.',
         'type' => 'list'
       },
+      'ConditionEnvironment',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => "C<ConditionEnvironment> may be used to check whether a specific
+environment variable is set (or if prefixed with the exclamation mark \x{2014} unset) in the service
+manager's environment block.
+The argument may be a single word, to check if the variable with this name is defined in the
+environment block, or an assignment
+(C<name=value>), to check if
+the variable with this exact value is defined. Note that the environment block of the service
+manager itself is checked, i.e. not any variables defined with C<Environment> or
+C<EnvironmentFile>, as described above. This is particularly useful when the
+service manager runs inside a containerized environment or as per-user service manager, in order to
+check for variables passed in by the enclosing container manager or PAM.",
+        'type' => 'list'
+      },
       'ConditionSecurity',
       {
         'cargo' => {
@@ -1091,7 +1112,7 @@ disconnected from a power source.',
           'value_type' => 'enum'
         },
         'description' => 'Takes one of C</var> or C</etc> as argument,
-possibly prefixed with a C<!> (to inverting the condition). This condition may be
+possibly prefixed with a C<!> (to invert the condition). This condition may be
 used to conditionalize units on whether the specified directory requires an update because
 C</usr>\'s modification time is newer than the stamp file
 C<.updated> in the specified directory. This is useful to implement offline
@@ -1100,7 +1121,14 @@ of C</etc> or C</var> on the next following boot. Units making
 use of this condition should order themselves before
 L<systemd-update-done.service(8)>,
 to make sure they run before the stamp file\'s modification time gets reset indicating a completed
-update.',
+update.
+
+If the C<systemd.condition-needs-update=> option is specified on the kernel
+command line (taking a boolean), it will override the result of this condition check, taking
+precedence over any file modification time checks. If it is used
+C<systemd-update-done.service> will not have immediate effect on any following
+C<ConditionNeedsUpdate> checks, until the system is rebooted where the kernel
+command line option is not specified anymore.',
         'type' => 'list'
       },
       'ConditionFirstBoot',
@@ -1117,7 +1145,11 @@ update.',
 whether the system is booting up with an unpopulated C</etc> directory
 (specifically: an C</etc> with no C</etc/machine-id>). This may
 be used to populate C</etc> on the first boot after factory reset, or when a new
-system instance boots up for the first time.',
+system instance boots up for the first time.
+
+If the C<systemd.condition-first-boot=> option is specified on the kernel
+command line (taking a boolean), it will override the result of this condition check, taking
+precedence over C</etc/machine-id> existence checks.',
         'type' => 'list'
       },
       'ConditionPathExists',
@@ -1186,6 +1218,20 @@ point.',
         'description' => 'C<ConditionPathIsReadWrite> is similar to
 C<ConditionPathExists> but verifies that the underlying file system is readable
 and writable (i.e. not mounted read-only).',
+        'type' => 'list'
+      },
+      'ConditionPathIsEncrypted',
+      {
+        'cargo' => {
+          'type' => 'leaf',
+          'value_type' => 'uniline'
+        },
+        'description' => 'C<ConditionPathIsEncrypted> is similar to
+C<ConditionPathExists> but verifies that the underlying file system\'s backing
+block device is encrypted using dm-crypt/LUKS. Note that this check does not cover ext4
+per-directory encryption, and only detects block level encryption. Moreover, if the specified path
+resides on a file system on top of a loopback block device, only encryption above the loopback device is
+detected. It is not detected whether the file system backing the loopback block device is encrypted.',
         'type' => 'list'
       },
       'ConditionDirectoryNotEmpty',
@@ -1617,7 +1663,7 @@ into.",
         'warn' => 'OnFailureIsolate is now OnFailureJobMode.'
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd 245 doc',
+    'generated_by' => 'parse-man.pl from systemd 246 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Section::Unit'
   }

@@ -519,35 +519,36 @@ L<systemd-system.conf(5)>.",
       },
       'IPAddressAllow',
       {
-        'description' => "Turn on address range network traffic filtering for IP packets sent and received over
-C<AF_INET> and C<AF_INET6> sockets.  Both directives take a
+        'description' => "Turn on network traffic filtering for IP packets sent and received over
+C<AF_INET> and C<AF_INET6> sockets. Both directives take a
 space separated list of IPv4 or IPv6 addresses, each optionally suffixed with an address prefix
-length in bits (separated by a C</> character). If the latter is omitted, the
-address is considered a host address, i.e. the prefix covers the whole address (32 for IPv4, 128
-for IPv6).
+length in bits after a C</> character. If the suffix is omitted, the address is
+considered a host address, i.e. the filter covers the whole address (32 bits for IPv4, 128 bits for
+IPv6).
 
 The access lists configured with this option are applied to all sockets created by processes
 of this unit (or in the case of socket units, associated with it). The lists are implicitly
 combined with any lists configured for any of the parent slice units this unit might be a member
-of. By default all access lists are empty. Both ingress and egress traffic is filtered by these
+of. By default both access lists are empty. Both ingress and egress traffic is filtered by these
 settings. In case of ingress traffic the source IP address is checked against these access lists,
-in case of egress traffic the destination IP address is checked. When configured the lists are
-enforced as follows:
+in case of egress traffic the destination IP address is checked. The following rules are applied in
+turn:
 
-In order to implement a whitelisting IP firewall, it is recommended to use a
-C<IPAddressDeny>C<any> setting on an upper-level slice unit (such as the
-root slice C<-.slice> or the slice containing all system services
+In order to implement an allow-listing IP firewall, it is recommended to use a
+C<IPAddressDeny>C<any> setting on an upper-level slice unit
+(such as the root slice C<-.slice> or the slice containing all system services
 C<system.slice> \x{2013} see
-L<systemd.special(7)> for
-details on these slice units), plus individual per-service C<IPAddressAllow> lines
-permitting network access to relevant services, and only them.
+L<systemd.special(7)>
+for details on these slice units), plus individual per-service C<IPAddressAllow>
+lines permitting network access to relevant services, and only them.
 
-Note that for socket-activated services, the IP access list configured on the socket unit applies to
-all sockets associated with it directly, but not to any sockets created by the ultimately activated services
-for it. Conversely, the IP access list configured for the service is not applied to any sockets passed into
-the service via socket activation. Thus, it is usually a good idea, to replicate the IP access lists on both
-the socket and the service unit, however it often makes sense to maintain one list more open and the other
-one more restricted, depending on the usecase.
+Note that for socket-activated services, the IP access list configured on the socket unit
+applies to all sockets associated with it directly, but not to any sockets created by the
+ultimately activated services for it. Conversely, the IP access list configured for the service is
+not applied to any sockets passed into the service via socket activation. Thus, it is usually a
+good idea to replicate the IP access lists on both the socket and the service unit. Nevertheless,
+it may make sense to maintain one list more open and the other one more restricted, depending on
+the usecase.
 
 If these settings are used multiple times in the same unit the specified lists are combined. If an
 empty string is assigned to these settings the specific access list is reset and all previous settings undone.
@@ -564,35 +565,36 @@ them for IP security.",
       },
       'IPAddressDeny',
       {
-        'description' => "Turn on address range network traffic filtering for IP packets sent and received over
-C<AF_INET> and C<AF_INET6> sockets.  Both directives take a
+        'description' => "Turn on network traffic filtering for IP packets sent and received over
+C<AF_INET> and C<AF_INET6> sockets. Both directives take a
 space separated list of IPv4 or IPv6 addresses, each optionally suffixed with an address prefix
-length in bits (separated by a C</> character). If the latter is omitted, the
-address is considered a host address, i.e. the prefix covers the whole address (32 for IPv4, 128
-for IPv6).
+length in bits after a C</> character. If the suffix is omitted, the address is
+considered a host address, i.e. the filter covers the whole address (32 bits for IPv4, 128 bits for
+IPv6).
 
 The access lists configured with this option are applied to all sockets created by processes
 of this unit (or in the case of socket units, associated with it). The lists are implicitly
 combined with any lists configured for any of the parent slice units this unit might be a member
-of. By default all access lists are empty. Both ingress and egress traffic is filtered by these
+of. By default both access lists are empty. Both ingress and egress traffic is filtered by these
 settings. In case of ingress traffic the source IP address is checked against these access lists,
-in case of egress traffic the destination IP address is checked. When configured the lists are
-enforced as follows:
+in case of egress traffic the destination IP address is checked. The following rules are applied in
+turn:
 
-In order to implement a whitelisting IP firewall, it is recommended to use a
-C<IPAddressDeny>C<any> setting on an upper-level slice unit (such as the
-root slice C<-.slice> or the slice containing all system services
+In order to implement an allow-listing IP firewall, it is recommended to use a
+C<IPAddressDeny>C<any> setting on an upper-level slice unit
+(such as the root slice C<-.slice> or the slice containing all system services
 C<system.slice> \x{2013} see
-L<systemd.special(7)> for
-details on these slice units), plus individual per-service C<IPAddressAllow> lines
-permitting network access to relevant services, and only them.
+L<systemd.special(7)>
+for details on these slice units), plus individual per-service C<IPAddressAllow>
+lines permitting network access to relevant services, and only them.
 
-Note that for socket-activated services, the IP access list configured on the socket unit applies to
-all sockets associated with it directly, but not to any sockets created by the ultimately activated services
-for it. Conversely, the IP access list configured for the service is not applied to any sockets passed into
-the service via socket activation. Thus, it is usually a good idea, to replicate the IP access lists on both
-the socket and the service unit, however it often makes sense to maintain one list more open and the other
-one more restricted, depending on the usecase.
+Note that for socket-activated services, the IP access list configured on the socket unit
+applies to all sockets associated with it directly, but not to any sockets created by the
+ultimately activated services for it. Conversely, the IP access list configured for the service is
+not applied to any sockets passed into the service via socket activation. Thus, it is usually a
+good idea to replicate the IP access lists on both the socket and the service unit. Nevertheless,
+it may make sense to maintain one list more open and the other one more restricted, depending on
+the usecase.
 
 If these settings are used multiple times in the same unit the specified lists are combined. If an
 empty string is assigned to these settings the specific access list is reset and all previous settings undone.
@@ -683,7 +685,7 @@ In the unified cgroup hierarchy this functionality is implemented using eBPF fil
 The device node specifier is either a path to a device node in the file system, starting with
 C</dev/>, or a string starting with either C<char-> or
 C<block-> followed by a device group name, as listed in
-C</proc/devices>. The latter is useful to whitelist all current and future
+C</proc/devices>. The latter is useful to allow-list all current and future
 devices belonging to a specific device group at once. The device group is matched according to
 filename globbing rules, you may hence use the C<*> and C<?>
 wildcards. (Note that such globbing wildcards are not available for device node path
@@ -697,9 +699,9 @@ SCSI block device. C<char-pts> and C<char-alsa> are specifiers for
 all pseudo TTYs and all ALSA sound devices, respectively. C<char-cpu/*> is a
 specifier matching all CPU related device groups.
 
-Note that whitelists defined this way should only reference device groups which are
+Note that allow lists defined this way should only reference device groups which are
 resolvable at the time the unit is started. Any device groups not resolvable then are not added to
-the device whitelist. In order to work around this limitation, consider extending service units
+the device allow list. In order to work around this limitation, consider extending service units
 with a pair of After=modprobe\@xyz.service and
 Wants=modprobe\@xyz.service lines that load the necessary kernel module
 implementing the device group if missing.
@@ -989,7 +991,7 @@ C<IOWriteBandwidthMax> instead.',
         'value_type' => 'uniline'
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd 245 doc',
+    'generated_by' => 'parse-man.pl from systemd 246 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Common::ResourceControl'
   }

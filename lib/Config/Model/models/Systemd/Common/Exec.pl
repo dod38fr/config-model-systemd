@@ -91,7 +91,53 @@ to C<DeviceAllow>. See
 L<systemd.resource-control(5)>
 for the details about C<DevicePolicy> or C<DeviceAllow>. Also, see
 C<PrivateDevices> below, as it may change the setting of
-C<DevicePolicy>.',
+C<DevicePolicy>.
+
+Units making use of C<RootImage> automatically gain an
+C<After> dependency on C<systemd-udevd.service>.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'RootHash',
+      {
+        'description' => 'Takes a data integrity (dm-verity) root hash specified in hexadecimal, or the path to a file
+containing a root hash in ASCII hexadecimal format. This option enables data integrity checks using dm-verity,
+if the used image contains the appropriate integrity data (see above) or if C<RootVerity> is used.
+The specified hash must match the root hash of integrity data, and is usually at least 256 bits (and hence 64
+formatted hexadecimal characters) long (in case of SHA256 for example). If this option is not specified, but
+the image file carries the C<user.verity.roothash> extended file attribute (see L<xattr(7)>), then the root
+hash is read from it, also as formatted hexadecimal characters. If the extended file attribute is not found (or
+is not supported by the underlying file system), but a file with the C<.roothash> suffix is
+found next to the image file, bearing otherwise the same name (except if the image has the
+C<.raw> suffix, in which case the root hash file must not have it in its name), the root hash
+is read from it and automatically used, also as formatted hexadecimal characters.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'RootHashSignature',
+      {
+        'description' => 'Takes a PKCS7 formatted binary signature of the C<RootHash> option as a path
+to a DER encoded signature file or as an ASCII base64 string encoding of the DER encoded signature, prefixed
+by C<base64:>. The dm-verity volume will only be opened if the signature of the root hash
+signature is valid and created by a public key present in the kernel keyring. If this option is not specified,
+but a file with the C<.roothash.p7s> suffix is found next to the image file, bearing otherwise
+the same name (except if the image has the C<.raw> suffix, in which case the signature file
+must not have it in its name), the signature is read from it and automatically used.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'RootVerity',
+      {
+        'description' => 'Takes the path to a data integrity (dm-verity) file. This option enables data integrity checks
+using dm-verity, if C<RootImage> is used and a root-hash is passed and if the used image itself
+does not contains the integrity data. The integrity data must be matched by the root hash. If this option is not
+specified, but a file with the C<.verity> suffix is found next to the image file, bearing otherwise
+the same name (except if the image has the C<.raw> suffix, in which case the verity data file must
+not have it in its name), the verity data is read from it and automatically used.
+
+This option is supported only for disk images that contain a single file system, without an
+enveloping partition table. Images that contain a GPT partition table should instead include both
+root file system and matching Verity data in the same image, implementing the L<Discoverable Partition Specification|https://systemd.io/DISCOVERABLE_PARTITIONS>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -196,12 +242,14 @@ permitted, hence the only valid setting is the same user the user's service mana
 is set, the default group of the user is used. This setting does not affect commands whose command line is
 prefixed with C<+>.
 
-Note that restrictions on the user/group name syntax are enforced: the specified name must consist only
-of the characters a-z, A-Z, 0-9, C<_> and C<->, except for the first character
-which must be one of a-z, A-Z or C<_> (i.e. numbers and C<-> are not permitted
-as first character). The user/group name must have at least one character, and at most 31. These restrictions
-are enforced in order to avoid ambiguities and to ensure user/group names and unit files remain portable among
-Linux systems.
+Note that this enforces only weak restrictions on the user/group name syntax, but will generate
+warnings in many cases where user/group names do not adhere to the following rules: the specified
+name should consist only of the characters a-z, A-Z, 0-9, C<_> and
+C<->, except for the first character which must be one of a-z, A-Z and
+C<_> (i.e. digits and C<-> are not permitted as first character). The
+user/group name must have at least one character, and at most 31. These restrictions are made in
+order to avoid ambiguities and to ensure user/group names and unit files remain portable among Linux
+systems. For further details on the names accepted and the names warned about see L<User/Group Name Syntax|https://systemd.io/USER_NAMES>.
 
 When used in conjunction with C<DynamicUser> the user/group name specified is
 dynamically allocated at the time the service is started, and released at the time the service is
@@ -230,12 +278,14 @@ permitted, hence the only valid setting is the same user the user's service mana
 is set, the default group of the user is used. This setting does not affect commands whose command line is
 prefixed with C<+>.
 
-Note that restrictions on the user/group name syntax are enforced: the specified name must consist only
-of the characters a-z, A-Z, 0-9, C<_> and C<->, except for the first character
-which must be one of a-z, A-Z or C<_> (i.e. numbers and C<-> are not permitted
-as first character). The user/group name must have at least one character, and at most 31. These restrictions
-are enforced in order to avoid ambiguities and to ensure user/group names and unit files remain portable among
-Linux systems.
+Note that this enforces only weak restrictions on the user/group name syntax, but will generate
+warnings in many cases where user/group names do not adhere to the following rules: the specified
+name should consist only of the characters a-z, A-Z, 0-9, C<_> and
+C<->, except for the first character which must be one of a-z, A-Z and
+C<_> (i.e. digits and C<-> are not permitted as first character). The
+user/group name must have at least one character, and at most 31. These restrictions are made in
+order to avoid ambiguities and to ensure user/group names and unit files remain portable among Linux
+systems. For further details on the names accepted and the names warned about see L<User/Group Name Syntax|https://systemd.io/USER_NAMES>.
 
 When used in conjunction with C<DynamicUser> the user/group name specified is
 dynamically allocated at the time the service is started, and released at the time the service is
@@ -288,7 +338,7 @@ C<NoNewPrivileges> and C<RestrictSUIDSGID> are implicitly enabled
 files or directories. Moreover C<ProtectSystem=strict> and
 C<ProtectHome=read-only> are implied, thus prohibiting the service to write to
 arbitrary file system locations. In order to allow the service to write to certain directories, they
-have to be whitelisted using C<ReadWritePaths>, but care must be taken so that
+have to be allow-listed using C<ReadWritePaths>, but care must be taken so that
 UID/GID recycling doesn't create security issues involving files created by the service. Use
 C<RuntimeDirectory> (see below) in order to assign a writable runtime directory to a
 service, owned by the dynamic user/group and removed automatically when the unit is terminated. Use
@@ -450,10 +500,10 @@ details.',
       },
       'AppArmorProfile',
       {
-        'description' => 'Takes a profile name as argument. The process executed by the unit will switch to this profile
-when started.  Profiles must already be loaded in the kernel, or the unit will fail. This result in a non
-operation if AppArmor is not enabled. If prefixed by C<->, all errors will be ignored. This
-does not affect commands prefixed with C<+>.',
+        'description' => 'Takes a profile name as argument. The process executed by the unit will switch to
+this profile when started. Profiles must already be loaded in the kernel, or the unit will fail. If
+prefixed by C<->, all errors will be ignored. This setting has no effect if AppArmor
+is not enabled. This setting not affect commands prefixed with C<+>.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1291,8 +1341,30 @@ user's service manager.",
       'UMask',
       {
         'description' => 'Controls the file mode creation mask. Takes an access mode in octal notation. See
-L<umask(2)> for details. Defaults
-to 0022.',
+L<umask(2)> for
+details. Defaults to 0022 for system units. For units of the user service manager the default value
+is inherited from the user instance (whose default is inherited from the system service manager, and
+thus also is 0022). Hence changing the default value of a user instance, either via
+C<UMask> or via a PAM module, will affect the user instance itself and all user
+units started by the user instance unless a user unit has specified its own
+C<UMask>.',
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'CoredumpFilter',
+      {
+        'description' => 'Controls which types of memory mappings will be saved if the process dumps core
+(using the C</proc/pid/coredump_filter> file). Takes a
+whitespace-separated combination of mapping type names or numbers (with the default base 16). Mapping
+type names are C<private-anonymous>, C<shared-anonymous>,
+C<private-file-backed>, C<shared-file-backed>,
+C<elf-headers>, C<private-huge>,
+C<shared-huge>, C<private-dax>, C<shared-dax>,
+and the special values C<all> (all types) and C<default> (the
+kernel default of C<C<private-anonymous>C<shared-anonymous> C<elf-headers>C<private-huge>>). See
+L<core(5)>
+for the meaning of the mapping types. When specified multiple times, all specified masks are
+ORed. When not set, or if the empty value is assigned, the inherited value is not changed.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1458,7 +1530,8 @@ C<local>. A list of NUMA nodes that should be associated with the policy must be
 in C<NUMAMask>. For more details on each policy please see,
 L<set_mempolicy(2)>. For overall
 overview of NUMA support in Linux see,
-L<numa(7)>',
+L<numa(7)>.
+',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1514,10 +1587,11 @@ details.',
           'strict'
         ],
         'description' => 'Takes a boolean argument or the special values C<full> or
-C<strict>. If true, mounts the C</usr> and C</boot>
-directories read-only for processes invoked by this unit. If set to C<full>, the
-C</etc> directory is mounted read-only, too. If set to C<strict> the entire
-file system hierarchy is mounted read-only, except for the API file system subtrees C</dev>,
+C<strict>. If true, mounts the C</usr> and the boot loader
+directories (C</boot> and C</efi>) read-only for processes
+invoked by this unit. If set to C<full>, the C</etc> directory is
+mounted read-only, too. If set to C<strict> the entire file system hierarchy is
+mounted read-only, except for the API file system subtrees C</dev>,
 C</proc> and C</sys> (protect these directories using
 C<PrivateDevices>, C<ProtectKernelTunables>,
 C<ProtectControlGroups>). This setting ensures that any modification of the vendor-supplied
@@ -1605,14 +1679,16 @@ These options imply C<BindPaths> for the specified paths. When combined with
 C<RootDirectory> or C<RootImage> these paths always reside on the host and
 are mounted from there into the unit's file system namespace.
 
-If C<DynamicUser> is used in conjunction with C<StateDirectory>,
-C<CacheDirectory> and C<LogsDirectory> is slightly altered: the directories
-are created below C</var/lib/private>, C</var/cache/private> and
+If C<DynamicUser> is used in conjunction with
+C<StateDirectory>, the logic for C<CacheDirectory> and
+C<LogsDirectory> is slightly altered: the directories are created below
+C</var/lib/private>, C</var/cache/private> and
 C</var/log/private>, respectively, which are host directories made inaccessible to
-unprivileged users, which ensures that access to these directories cannot be gained through dynamic user ID
-recycling. Symbolic links are created to hide this difference in behaviour. Both from perspective of the host
-and from inside the unit, the relevant directories hence always appear directly below
-C</var/lib>, C</var/cache> and C</var/log>.
+unprivileged users, which ensures that access to these directories cannot be gained through dynamic
+user ID recycling. Symbolic links are created to hide this difference in behaviour. Both from
+perspective of the host and from inside the unit, the relevant directories hence always appear
+directly below C</var/lib>, C</var/cache> and
+C</var/log>.
 
 Use C<RuntimeDirectory> to manage one or more runtime directories for the unit and bind
 their lifetime to the daemon runtime. This is particularly useful for unprivileged daemons that cannot create
@@ -1687,14 +1763,16 @@ These options imply C<BindPaths> for the specified paths. When combined with
 C<RootDirectory> or C<RootImage> these paths always reside on the host and
 are mounted from there into the unit's file system namespace.
 
-If C<DynamicUser> is used in conjunction with C<StateDirectory>,
-C<CacheDirectory> and C<LogsDirectory> is slightly altered: the directories
-are created below C</var/lib/private>, C</var/cache/private> and
+If C<DynamicUser> is used in conjunction with
+C<StateDirectory>, the logic for C<CacheDirectory> and
+C<LogsDirectory> is slightly altered: the directories are created below
+C</var/lib/private>, C</var/cache/private> and
 C</var/log/private>, respectively, which are host directories made inaccessible to
-unprivileged users, which ensures that access to these directories cannot be gained through dynamic user ID
-recycling. Symbolic links are created to hide this difference in behaviour. Both from perspective of the host
-and from inside the unit, the relevant directories hence always appear directly below
-C</var/lib>, C</var/cache> and C</var/log>.
+unprivileged users, which ensures that access to these directories cannot be gained through dynamic
+user ID recycling. Symbolic links are created to hide this difference in behaviour. Both from
+perspective of the host and from inside the unit, the relevant directories hence always appear
+directly below C</var/lib>, C</var/cache> and
+C</var/log>.
 
 Use C<RuntimeDirectory> to manage one or more runtime directories for the unit and bind
 their lifetime to the daemon runtime. This is particularly useful for unprivileged daemons that cannot create
@@ -1769,14 +1847,16 @@ These options imply C<BindPaths> for the specified paths. When combined with
 C<RootDirectory> or C<RootImage> these paths always reside on the host and
 are mounted from there into the unit's file system namespace.
 
-If C<DynamicUser> is used in conjunction with C<StateDirectory>,
-C<CacheDirectory> and C<LogsDirectory> is slightly altered: the directories
-are created below C</var/lib/private>, C</var/cache/private> and
+If C<DynamicUser> is used in conjunction with
+C<StateDirectory>, the logic for C<CacheDirectory> and
+C<LogsDirectory> is slightly altered: the directories are created below
+C</var/lib/private>, C</var/cache/private> and
 C</var/log/private>, respectively, which are host directories made inaccessible to
-unprivileged users, which ensures that access to these directories cannot be gained through dynamic user ID
-recycling. Symbolic links are created to hide this difference in behaviour. Both from perspective of the host
-and from inside the unit, the relevant directories hence always appear directly below
-C</var/lib>, C</var/cache> and C</var/log>.
+unprivileged users, which ensures that access to these directories cannot be gained through dynamic
+user ID recycling. Symbolic links are created to hide this difference in behaviour. Both from
+perspective of the host and from inside the unit, the relevant directories hence always appear
+directly below C</var/lib>, C</var/cache> and
+C</var/log>.
 
 Use C<RuntimeDirectory> to manage one or more runtime directories for the unit and bind
 their lifetime to the daemon runtime. This is particularly useful for unprivileged daemons that cannot create
@@ -1851,14 +1931,16 @@ These options imply C<BindPaths> for the specified paths. When combined with
 C<RootDirectory> or C<RootImage> these paths always reside on the host and
 are mounted from there into the unit's file system namespace.
 
-If C<DynamicUser> is used in conjunction with C<StateDirectory>,
-C<CacheDirectory> and C<LogsDirectory> is slightly altered: the directories
-are created below C</var/lib/private>, C</var/cache/private> and
+If C<DynamicUser> is used in conjunction with
+C<StateDirectory>, the logic for C<CacheDirectory> and
+C<LogsDirectory> is slightly altered: the directories are created below
+C</var/lib/private>, C</var/cache/private> and
 C</var/log/private>, respectively, which are host directories made inaccessible to
-unprivileged users, which ensures that access to these directories cannot be gained through dynamic user ID
-recycling. Symbolic links are created to hide this difference in behaviour. Both from perspective of the host
-and from inside the unit, the relevant directories hence always appear directly below
-C</var/lib>, C</var/cache> and C</var/log>.
+unprivileged users, which ensures that access to these directories cannot be gained through dynamic
+user ID recycling. Symbolic links are created to hide this difference in behaviour. Both from
+perspective of the host and from inside the unit, the relevant directories hence always appear
+directly below C</var/lib>, C</var/cache> and
+C</var/log>.
 
 Use C<RuntimeDirectory> to manage one or more runtime directories for the unit and bind
 their lifetime to the daemon runtime. This is particularly useful for unprivileged daemons that cannot create
@@ -1933,14 +2015,16 @@ These options imply C<BindPaths> for the specified paths. When combined with
 C<RootDirectory> or C<RootImage> these paths always reside on the host and
 are mounted from there into the unit's file system namespace.
 
-If C<DynamicUser> is used in conjunction with C<StateDirectory>,
-C<CacheDirectory> and C<LogsDirectory> is slightly altered: the directories
-are created below C</var/lib/private>, C</var/cache/private> and
+If C<DynamicUser> is used in conjunction with
+C<StateDirectory>, the logic for C<CacheDirectory> and
+C<LogsDirectory> is slightly altered: the directories are created below
+C</var/lib/private>, C</var/cache/private> and
 C</var/log/private>, respectively, which are host directories made inaccessible to
-unprivileged users, which ensures that access to these directories cannot be gained through dynamic user ID
-recycling. Symbolic links are created to hide this difference in behaviour. Both from perspective of the host
-and from inside the unit, the relevant directories hence always appear directly below
-C</var/lib>, C</var/cache> and C</var/log>.
+unprivileged users, which ensures that access to these directories cannot be gained through dynamic
+user ID recycling. Symbolic links are created to hide this difference in behaviour. Both from
+perspective of the host and from inside the unit, the relevant directories hence always appear
+directly below C</var/lib>, C</var/cache> and
+C</var/log>.
 
 Use C<RuntimeDirectory> to manage one or more runtime directories for the unit and bind
 their lifetime to the daemon runtime. This is particularly useful for unprivileged daemons that cannot create
@@ -2065,8 +2149,8 @@ C<RuntimeDirectory> are removed when the system is rebooted.',
 clean \x{2026}, see
 L<systemctl(1)> for
 details. Takes the usual time values and defaults to C<infinity>, i.e. by default
-no time-out is applied. If a time-out is configured the clean operation will be aborted forcibly when
-the time-out is reached, potentially leaving resources on disk.",
+no timeout is applied. If a timeout is configured the clean operation will be aborted forcibly when
+the timeout is reached, potentially leaving resources on disk.",
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -2082,12 +2166,13 @@ relative to the host\'s root directory (i.e. the system running the service mana
 contain symlinks, they are resolved relative to the root directory set with
 C<RootDirectory>/C<RootImage>.
 
-Paths listed in C<ReadWritePaths> are accessible from within the namespace with the same
-access modes as from outside of it. Paths listed in C<ReadOnlyPaths> are accessible for
-reading only, writing will be refused even if the usual file access controls would permit this. Nest
-C<ReadWritePaths> inside of C<ReadOnlyPaths> in order to provide writable
-subdirectories within read-only directories. Use C<ReadWritePaths> in order to whitelist
-specific paths for write access if C<ProtectSystem=strict> is used.
+Paths listed in C<ReadWritePaths> are accessible from within the namespace
+with the same access modes as from outside of it. Paths listed in C<ReadOnlyPaths>
+are accessible for reading only, writing will be refused even if the usual file access controls would
+permit this. Nest C<ReadWritePaths> inside of C<ReadOnlyPaths> in
+order to provide writable subdirectories within read-only directories. Use
+C<ReadWritePaths> in order to allow-list specific paths for write access if
+C<ProtectSystem=strict> is used.
 
 Paths listed in C<InaccessiblePaths> will be made inaccessible for processes inside
 the namespace along with everything below them in the file system hierarchy. This may be more restrictive than
@@ -2136,12 +2221,13 @@ relative to the host\'s root directory (i.e. the system running the service mana
 contain symlinks, they are resolved relative to the root directory set with
 C<RootDirectory>/C<RootImage>.
 
-Paths listed in C<ReadWritePaths> are accessible from within the namespace with the same
-access modes as from outside of it. Paths listed in C<ReadOnlyPaths> are accessible for
-reading only, writing will be refused even if the usual file access controls would permit this. Nest
-C<ReadWritePaths> inside of C<ReadOnlyPaths> in order to provide writable
-subdirectories within read-only directories. Use C<ReadWritePaths> in order to whitelist
-specific paths for write access if C<ProtectSystem=strict> is used.
+Paths listed in C<ReadWritePaths> are accessible from within the namespace
+with the same access modes as from outside of it. Paths listed in C<ReadOnlyPaths>
+are accessible for reading only, writing will be refused even if the usual file access controls would
+permit this. Nest C<ReadWritePaths> inside of C<ReadOnlyPaths> in
+order to provide writable subdirectories within read-only directories. Use
+C<ReadWritePaths> in order to allow-list specific paths for write access if
+C<ProtectSystem=strict> is used.
 
 Paths listed in C<InaccessiblePaths> will be made inaccessible for processes inside
 the namespace along with everything below them in the file system hierarchy. This may be more restrictive than
@@ -2190,12 +2276,13 @@ relative to the host\'s root directory (i.e. the system running the service mana
 contain symlinks, they are resolved relative to the root directory set with
 C<RootDirectory>/C<RootImage>.
 
-Paths listed in C<ReadWritePaths> are accessible from within the namespace with the same
-access modes as from outside of it. Paths listed in C<ReadOnlyPaths> are accessible for
-reading only, writing will be refused even if the usual file access controls would permit this. Nest
-C<ReadWritePaths> inside of C<ReadOnlyPaths> in order to provide writable
-subdirectories within read-only directories. Use C<ReadWritePaths> in order to whitelist
-specific paths for write access if C<ProtectSystem=strict> is used.
+Paths listed in C<ReadWritePaths> are accessible from within the namespace
+with the same access modes as from outside of it. Paths listed in C<ReadOnlyPaths>
+are accessible for reading only, writing will be refused even if the usual file access controls would
+permit this. Nest C<ReadWritePaths> inside of C<ReadOnlyPaths> in
+order to provide writable subdirectories within read-only directories. Use
+C<ReadWritePaths> in order to allow-list specific paths for write access if
+C<ProtectSystem=strict> is used.
 
 Paths listed in C<InaccessiblePaths> will be made inaccessible for processes inside
 the namespace along with everything below them in the file system hierarchy. This may be more restrictive than
@@ -2263,8 +2350,8 @@ C</var/lib/systemd> or its contents.',
       'PrivateTmp',
       {
         'description' => 'Takes a boolean argument. If true, sets up a new file system namespace for the executed
-processes and mounts private C</tmp> and C</var/tmp> directories inside it
-that is not shared by processes outside of the namespace. This is useful to secure access to temporary files of
+processes and mounts private C</tmp/> and C</var/tmp/> directories inside it
+that are not shared by processes outside of the namespace. This is useful to secure access to temporary files of
 the process, but makes sharing between processes via C</tmp> or C</var/tmp>
 impossible. If this is enabled, all temporary files created by a service in these directories will be removed
 after the service is stopped.  Defaults to false. It is possible to run two or more units within the same
@@ -2434,7 +2521,7 @@ It is recommended to turn this on for most services that do not need modify the 
 this option removes C<CAP_SYS_TIME> and C<CAP_WAKE_ALARM> from the
 capability bounding set for this unit, installs a system call filter to block calls that can set the
 clock, and C<DeviceAllow=char-rtc r> is implied. This ensures C</dev/rtc0>,
-C</dev/rtc1>, etc are made read only to the service. See
+C</dev/rtc1>, etc. are made read-only to the service. See
 L<systemd.resource-control(5)>
 for the details about C<DeviceAllow>.',
         'type' => 'leaf',
@@ -2527,28 +2614,30 @@ is implied.',
       },
       'RestrictAddressFamilies',
       {
-        'description' => 'Restricts the set of socket address families accessible to the processes of this unit. Takes a
-space-separated list of address family names to whitelist, such as C<AF_UNIX>,
-C<AF_INET> or C<AF_INET6>. When prefixed with C<~> the
-listed address families will be applied as blacklist, otherwise as whitelist.  Note that this restricts access
-to the L<socket(2)> system call
-only. Sockets passed into the process by other means (for example, by using socket activation with socket
-units, see L<systemd.socket(5)>)
-are unaffected. Also, sockets created with socketpair() (which creates connected AF_UNIX
-sockets only) are unaffected. Note that this option has no effect on 32-bit x86, s390, s390x, mips, mips-le,
-ppc, ppc-le, pcc64, ppc64-le and is ignored (but works correctly on other ABIs, including x86-64). Note that on
-systems supporting multiple ABIs (such as x86/x86-64) it is recommended to turn off alternative ABIs for
-services, so that they cannot be used to circumvent the restrictions of this option. Specifically, it is
-recommended to combine this option with C<SystemCallArchitectures=native> or similar. If
-running in user mode, or in system mode, but without the C<CAP_SYS_ADMIN> capability
-(e.g. setting C<User=nobody>), C<NoNewPrivileges=yes> is implied. By default,
-no restrictions apply, all address families are accessible to processes. If assigned the empty string, any
-previous address family restriction changes are undone. This setting does not affect commands prefixed with
-C<+>.
+        'description' => 'Restricts the set of socket address families accessible to the processes of this
+unit. Takes a space-separated list of address family names to allow-list, such as
+C<AF_UNIX>, C<AF_INET> or C<AF_INET6>. When
+prefixed with C<~> the listed address families will be applied as deny list,
+otherwise as allow list.  Note that this restricts access to the L<socket(2)>
+system call only. Sockets passed into the process by other means (for example, by using socket
+activation with socket units, see
+L<systemd.socket(5)>)
+are unaffected. Also, sockets created with socketpair() (which creates connected
+AF_UNIX sockets only) are unaffected. Note that this option has no effect on 32-bit x86, s390, s390x,
+mips, mips-le, ppc, ppc-le, ppc64, ppc64-le and is ignored (but works correctly on other ABIs,
+including x86-64). Note that on systems supporting multiple ABIs (such as x86/x86-64) it is
+recommended to turn off alternative ABIs for services, so that they cannot be used to circumvent the
+restrictions of this option. Specifically, it is recommended to combine this option with
+C<SystemCallArchitectures=native> or similar. If running in user mode, or in system
+mode, but without the C<CAP_SYS_ADMIN> capability (e.g. setting
+C<User=nobody>), C<NoNewPrivileges=yes> is implied. By default, no
+restrictions apply, all address families are accessible to processes. If assigned the empty string,
+any previous address family restriction changes are undone. This setting does not affect commands
+prefixed with C<+>.
 
 Use this option to limit exposure of processes to remote access, in particular via exotic and sensitive
 network protocols, such as C<AF_PACKET>. Note that in most cases, the local
-C<AF_UNIX> address family should be included in the configured whitelist as it is frequently
+C<AF_UNIX> address family should be included in the configured allow list as it is frequently
 used for local communication, including for
 L<syslog(2)>
 logging.',
@@ -2565,9 +2654,9 @@ prohibited. Otherwise, a space-separated list of namespace type identifiers must
 any combination of: C<cgroup>, C<ipc>, C<net>,
 C<mnt>, C<pid>, C<user> and C<uts>. Any
 namespace type listed is made accessible to the unit's processes, access to namespace types not listed is
-prohibited (whitelisting). By prepending the list with a single tilde character (C<~>) the
+prohibited (allow-listing). By prepending the list with a single tilde character (C<~>) the
 effect may be inverted: only the listed namespace types will be made inaccessible, all unlisted ones are
-permitted (blacklisting). If the empty string is assigned, the default namespace restrictions are applied,
+permitted (deny-listing). If the empty string is assigned, the default namespace restrictions are applied,
 which is equivalent to false. This option may appear more than once, in which case the namespace types are
 merged by C<OR>, or by C<AND> if the lines are prefixed with
 C<~> (see examples below). Internally, this setting limits access to the
@@ -2749,14 +2838,14 @@ This setting only controls the final propagation setting in effect on all mount
 points of the file system namespace created for each process of this unit. Other file system namespacing unit
 settings (see the discussion in C<PrivateMounts> above) will implicitly disable mount and
 unmount propagation from the unit's processes towards the host by changing the propagation setting of all mount
-points in the unit's file system namepace to C<slave> first. Setting this option to
+points in the unit's file system namespace to C<slave> first. Setting this option to
 C<shared> does not reestablish propagation in that case.
 
 If not set \x{2013} but file system namespaces are enabled through another file system namespace unit setting \x{2013}
 C<shared> mount propagation is used, but \x{2014} as mentioned \x{2014} as C<slave> is applied
 first, propagation from the unit's processes to the host is still turned off.
 
-It is not recommended to to use C<private> mount propagation for units, as this means
+It is not recommended to use C<private> mount propagation for units, as this means
 temporary mounts (such as removable media) of the host will stay mounted and thus indefinitely busy in forked
 off processes, as unmount propagation events won't be received by the file system namespace of the unit.
 
@@ -2773,14 +2862,14 @@ options instead, in particular C<PrivateMounts>, see above.",
         },
         'description' => "Takes a space-separated list of system call names. If this setting is used, all
 system calls executed by the unit processes except for the listed ones will result in immediate
-process termination with the C<SIGSYS> signal (whitelisting). (See
+process termination with the C<SIGSYS> signal (allow-listing). (See
 C<SystemCallErrorNumber> below for changing the default action). If the first
 character of the list is C<~>, the effect is inverted: only the listed system calls
-will result in immediate process termination (blacklisting). Blacklisted system calls and system call
+will result in immediate process termination (deny-listing). Deny-listed system calls and system call
 groups may optionally be suffixed with a colon (C<:>) and C<errno>
 error number (between 0 and 4095) or errno name such as C<EPERM>,
 C<EACCES> or C<EUCLEAN> (see L<errno(3)> for a
-full list). This value will be returned when a blacklisted system call is triggered, instead of
+full list). This value will be returned when a deny-listed system call is triggered, instead of
 terminating the processes immediately.  This value takes precedence over the one given in
 C<SystemCallErrorNumber>, see below.  If running in user mode, or in system mode,
 but without the C<CAP_SYS_ADMIN> capability (e.g. setting
@@ -2789,7 +2878,7 @@ makes use of the Secure Computing Mode 2 interfaces of the kernel ('seccomp filt
 for enforcing a minimal sandboxing environment. Note that the execve,
 exit, exit_group, getrlimit,
 rt_sigreturn, sigreturn system calls and the system calls
-for querying time and sleeping are implicitly whitelisted and do not need to be listed
+for querying time and sleeping are implicitly allow-listed and do not need to be listed
 explicitly. This option may be specified more than once, in which case the filter masks are
 merged. If the empty string is assigned, the filter is reset, all prior assignments will have no
 effect. This does not affect commands prefixed with C<+>.
@@ -2807,34 +2896,36 @@ require access to an additional set of system calls in order to process and log 
 might be necessary to temporarily disable system call filters in order to simplify debugging of such
 failures.
 
-If you specify both types of this option (i.e.  whitelisting and blacklisting), the first encountered
-will take precedence and will dictate the default action (termination or approval of a system call). Then the
-next occurrences of this option will add or delete the listed system calls from the set of the filtered system
-calls, depending of its type and the default action. (For example, if you have started with a whitelisting of
-read and write, and right after it add a blacklisting of
-write, then write will be removed from the set.)
+If you specify both types of this option (i.e.  allow-listing and deny-listing), the first
+encountered will take precedence and will dictate the default action (termination or approval of a
+system call). Then the next occurrences of this option will add or delete the listed system calls
+from the set of the filtered system calls, depending of its type and the default action. (For
+example, if you have started with an allow list rule for read and
+write, and right after it add a deny list rule for write,
+then write will be removed from the set.)
 
 As the number of possible system calls is large, predefined sets of system calls are provided.  A set
 starts with C<\@> character, followed by name of the set.
-Currently predefined system call setsSetDescription\@aioAsynchronous I/O (L<io_setup(2)>, L<io_submit(2)>, and related calls)\@basic-ioSystem calls for basic I/O: reading, writing, seeking, file descriptor duplication and closing (L<read(2)>, L<write(2)>, and related calls)\@chownChanging file ownership (L<chown(2)>, L<fchownat(2)>, and related calls)\@clockSystem calls for changing the system clock (L<adjtimex(2)>, L<settimeofday(2)>, and related calls)\@cpu-emulationSystem calls for CPU emulation functionality (L<vm86(2)> and related calls)\@debugDebugging, performance monitoring and tracing functionality (L<ptrace(2)>, L<perf_event_open(2)> and related calls)\@file-systemFile system operations: opening, creating files and directories for read and write, renaming and removing them, reading file properties, or creating hard and symbolic links.\@io-eventEvent loop system calls (L<poll(2)>, L<select(2)>, L<epoll(7)>, L<eventfd(2)> and related calls)\@ipcPipes, SysV IPC, POSIX Message Queues and other IPC (L<mq_overview(7)>, L<svipc(7)>)\@keyringKernel keyring access (L<keyctl(2)> and related calls)\@memlockLocking of memory into RAM (L<mlock(2)>, L<mlockall(2)> and related calls)\@moduleLoading and unloading of kernel modules (L<init_module(2)>, L<delete_module(2)> and related calls)\@mountMounting and unmounting of file systems (L<mount(2)>, L<chroot(2)>, and related calls)\@network-ioSocket I/O (including local AF_UNIX): L<socket(7)>, L<unix(7)>\@obsoleteUnusual, obsolete or unimplemented (L<create_module(2)>, L<gtty(2)>, \x{2026})\@privilegedAll system calls which need super-user capabilities (L<capabilities(7)>)\@processProcess control, execution, namespaceing operations (L<clone(2)>, L<kill(2)>, L<namespaces(7)>, \x{2026}\@raw-ioRaw I/O port access (L<ioperm(2)>, L<iopl(2)>, pciconfig_read(), \x{2026})\@rebootSystem calls for rebooting and reboot preparation (L<reboot(2)>, kexec(), \x{2026})\@resourcesSystem calls for changing resource limits, memory and scheduling parameters (L<setrlimit(2)>, L<setpriority(2)>, \x{2026})\@setuidSystem calls for changing user ID and group ID credentials, (L<setuid(2)>, L<setgid(2)>, L<setresuid(2)>, \x{2026})\@signalSystem calls for manipulating and handling process signals (L<signal(2)>, L<sigprocmask(2)>, \x{2026})\@swapSystem calls for enabling/disabling swap devices (L<swapon(2)>, L<swapoff(2)>)\@syncSynchronizing files and memory to disk: (L<fsync(2)>, L<msync(2)>, and related calls)\@system-serviceA reasonable set of system calls used by common system services, excluding any special purpose calls. This is the recommended starting point for whitelisting system calls for system services, as it contains what is typically needed by system services, but excludes overly specific interfaces. For example, the following APIs are excluded: C<\@clock>, C<\@mount>, C<\@swap>, C<\@reboot>.\@timerSystem calls for scheduling operations by time (L<alarm(2)>, L<timer_create(2)>, \x{2026})
+Currently predefined system call setsSetDescription\@aioAsynchronous I/O (L<io_setup(2)>, L<io_submit(2)>, and related calls)\@basic-ioSystem calls for basic I/O: reading, writing, seeking, file descriptor duplication and closing (L<read(2)>, L<write(2)>, and related calls)\@chownChanging file ownership (L<chown(2)>, L<fchownat(2)>, and related calls)\@clockSystem calls for changing the system clock (L<adjtimex(2)>, L<settimeofday(2)>, and related calls)\@cpu-emulationSystem calls for CPU emulation functionality (L<vm86(2)> and related calls)\@debugDebugging, performance monitoring and tracing functionality (L<ptrace(2)>, L<perf_event_open(2)> and related calls)\@file-systemFile system operations: opening, creating files and directories for read and write, renaming and removing them, reading file properties, or creating hard and symbolic links\@io-eventEvent loop system calls (L<poll(2)>, L<select(2)>, L<epoll(7)>, L<eventfd(2)> and related calls)\@ipcPipes, SysV IPC, POSIX Message Queues and other IPC (L<mq_overview(7)>, L<svipc(7)>)\@keyringKernel keyring access (L<keyctl(2)> and related calls)\@memlockLocking of memory in RAM (L<mlock(2)>, L<mlockall(2)> and related calls)\@moduleLoading and unloading of kernel modules (L<init_module(2)>, L<delete_module(2)> and related calls)\@mountMounting and unmounting of file systems (L<mount(2)>, L<chroot(2)>, and related calls)\@network-ioSocket I/O (including local AF_UNIX): L<socket(7)>, L<unix(7)>\@obsoleteUnusual, obsolete or unimplemented (L<create_module(2)>, L<gtty(2)>, \x{2026})\@privilegedAll system calls which need super-user capabilities (L<capabilities(7)>)\@processProcess control, execution, namespaceing operations (L<clone(2)>, L<kill(2)>, L<namespaces(7)>, \x{2026})\@raw-ioRaw I/O port access (L<ioperm(2)>, L<iopl(2)>, pciconfig_read(), \x{2026})\@rebootSystem calls for rebooting and reboot preparation (L<reboot(2)>, kexec(), \x{2026})\@resourcesSystem calls for changing resource limits, memory and scheduling parameters (L<setrlimit(2)>, L<setpriority(2)>, \x{2026})\@setuidSystem calls for changing user ID and group ID credentials, (L<setuid(2)>, L<setgid(2)>, L<setresuid(2)>, \x{2026})\@signalSystem calls for manipulating and handling process signals (L<signal(2)>, L<sigprocmask(2)>, \x{2026})\@swapSystem calls for enabling/disabling swap devices (L<swapon(2)>, L<swapoff(2)>)\@syncSynchronizing files and memory to disk (L<fsync(2)>, L<msync(2)>, and related calls)\@system-serviceA reasonable set of system calls used by common system services, excluding any special purpose calls. This is the recommended starting point for allow-listing system calls for system services, as it contains what is typically needed by system services, but excludes overly specific interfaces. For example, the following APIs are excluded: C<\@clock>, C<\@mount>, C<\@swap>, C<\@reboot>.\@timerSystem calls for scheduling operations by time (L<alarm(2)>, L<timer_create(2)>, \x{2026})
 Note, that as new system calls are added to the kernel, additional system calls might be added to the groups
 above. Contents of the sets may also change between systemd versions. In addition, the list of system calls
 depends on the kernel version and architecture for which systemd was compiled. Use
 systemd-analyze\x{a0}syscall-filter to list the actual list of system calls in each
 filter.
 
-Generally, whitelisting system calls (rather than blacklisting) is the safer mode of operation. It is
-recommended to enforce system call whitelists for all long-running system services. Specifically, the
-following lines are a relatively safe basic choice for the majority of system services:
+Generally, allow-listing system calls (rather than deny-listing) is the safer mode of
+operation. It is recommended to enforce system call allow lists for all long-running system
+services. Specifically, the following lines are a relatively safe basic choice for the majority of
+system services:
 
 Note that various kernel system calls are defined redundantly: there are multiple system calls
 for executing the same operation. For example, the pidfd_send_signal() system
 call may be used to execute operations similar to what can be done with the older
 kill() system call, hence blocking the latter without the former only provides
 weak protection. Since new system calls are added regularly to the kernel as development progresses,
-keeping system call blacklists comprehensive requires constant work. It is thus recommended to use
-whitelisting instead, which offers the benefit that new system calls are by default implicitly
-blocked until the whitelist is updated.
+keeping system call deny lists comprehensive requires constant work. It is thus recommended to use
+allow-listing instead, which offers the benefit that new system calls are by default implicitly
+blocked until the allow list is updated.
 
 Also note that a number of system calls are required to be accessible for the dynamic linker to
 work. The dynamic linker is required for running most regular programs (specifically: all dynamic ELF
@@ -2874,7 +2965,7 @@ implicitly maps to the native architecture of the system (or more precisely: to 
 manager is compiled for). If running in user mode, or in system mode, but without the
 C<CAP_SYS_ADMIN> capability (e.g. setting C<User=nobody>),
 C<NoNewPrivileges=yes> is implied. By default, this option is set to the empty list, i.e. no
-system call architecture filtering is applied.
+filtering is applied.
 
 If this setting is used, processes of this unit will only be permitted to call native system calls, and
 system calls of the specified architectures. For the purposes of this option, the x32 architecture is treated
@@ -3085,13 +3176,7 @@ matches are found, the first one will be used.  See C<FileDescriptorName> in
 L<systemd.socket(5)> for more
 details about named file descriptors and their ordering.
 
-This setting defaults to C<null>.
-
-Note that services which specify C<DefaultDependencies=no> and use
-C<StandardInput> or C<StandardOutput> with
-C<tty>/C<tty-force>/C<tty-fail>, should specify
-C<After=systemd-vconsole-setup.service>, to make sure that the tty initialization is
-finished before they start.",
+This setting defaults to C<null>.",
         'type' => 'leaf',
         'value_type' => 'enum'
       },
@@ -3148,8 +3233,8 @@ as writing and duplicated. This is particularly useful when the specified path r
 C<AF_UNIX> socket in the file system, as in that case only a
 single stream connection is created for both input and output.
 
-C<append:path> is similar to C<file:path
-> above, but it opens the file in append mode.
+C<append:path> is similar to
+C<file:path> above, but it opens the file in append mode.
 
 C<socket> connects standard output to a socket acquired via socket activation. The
 semantics are similar to the same option of C<StandardInput>, see above.
@@ -3476,7 +3561,7 @@ leader. Defaults to C<init>.',
         'value_type' => 'enum'
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd 245 doc',
+    'generated_by' => 'parse-man.pl from systemd 246 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Common::Exec'
   }

@@ -20,9 +20,9 @@ This man page lists the configuration options specific to
 this unit type. See
 L<systemd.unit(5)>
 for the common options of all unit configuration files. The common
-configuration items are configured in the generic C<[Unit]> and
-C<[Install]> sections. The socket specific configuration options are
-configured in the C<[Socket]> section.
+configuration items are configured in the generic [Unit] and
+[Install] sections. The socket specific configuration options are
+configured in the [Socket] section.
 
 Additional options are listed in
 L<systemd.exec(5)>,
@@ -66,16 +66,13 @@ Socket units may be used to implement on-demand starting of
 services, as well as parallelized starting of services. See the
 blog stories linked at the end for an introduction.
 
-Note that the daemon software configured for socket
-activation with socket units needs to be able to accept sockets
-from systemd, either via systemd\'s native socket passing interface
-(see
-L<sd_listen_fds(3)>
-for details) or via the traditional
-L<inetd(8)>-style
-socket passing (i.e. sockets passed in via standard input and
-output, using C<StandardInput=socket> in the
-service file).
+Note that the daemon software configured for socket activation with socket units needs to be able
+to accept sockets from systemd, either via systemd\'s native socket passing interface (see
+L<sd_listen_fds(3)> for
+details about the precise protocol used and the order in which the file descriptors are passed) or via
+traditional L<inetd(8)>-style
+socket passing (i.e. sockets passed in via standard input and output, using
+C<StandardInput=socket> in the service file).
 
 All network sockets allocated through C<.socket> units are allocated in the host\'s network
 namespace (see L<network_namespaces(7)>). This
@@ -399,7 +396,7 @@ can be inherited between processes.',
         'description' => 'Specifies a L<USB
 FunctionFS|https://www.kernel.org/doc/Documentation/usb/functionfs.txt> endpoints location to listen on, for
 implementation of USB gadget functions. This expects an
-absolute file system path of functionfs mount point as the argument.
+absolute file system path of FunctionFS mount point as the argument.
 Behavior otherwise is very similar to the C<ListenFIFO>
 directive above. Use this to open the FunctionFS endpoint
 C<ep0>. When using this option, the
@@ -416,9 +413,9 @@ C<USBFunctionStrings> options set.
           'sctp'
         ],
         'description' => 'Takes one of C<udplite>
-or C<sctp>. Specifies a socket protocol
-(C<IPPROTO_UDPLITE>) UDP-Lite
-(C<IPPROTO_SCTP>) SCTP socket respectively.',
+or C<sctp>. The socket will use the UDP-Lite
+(C<IPPROTO_UDPLITE>) or SCTP
+(C<IPPROTO_SCTP>) protocol, respectively.',
         'type' => 'leaf',
         'value_type' => 'enum'
       },
@@ -458,39 +455,33 @@ for details. Defaults to SOMAXCONN (128).',
       },
       'BindToDevice',
       {
-        'description' => 'Specifies a network interface name to bind
-this socket to. If set, traffic will only be accepted from the
-specified network interfaces. This controls the
-SO_BINDTODEVICE socket option (see L<socket(7)>
-for details). If this option is used, an implicit dependency
-from this socket unit on the network interface device unit
-(L<systemd.device(5)>
-is created. Note that setting this parameter might result in
-additional dependencies to be added to the unit (see
+        'description' => 'Specifies a network interface name to bind this socket to. If set, traffic will only
+be accepted from the specified network interfaces. This controls the
+C<SO_BINDTODEVICE> socket option (see L<socket(7)> for
+details). If this option is used, an implicit dependency from this socket unit on the network
+interface device unit is created
+(see L<systemd.device(5)>).
+Note that setting this parameter might result in additional dependencies to be added to the unit (see
 above).',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'SocketUser',
       {
-        'description' => 'Takes a UNIX user/group name. When specified,
-all AF_UNIX sockets and FIFO nodes in the file system are
-owned by the specified user and group. If unset (the default),
-the nodes are owned by the root user/group (if run in system
-context) or the invoking user/group (if run in user context).
-If only a user is specified but no group, then the group is
+        'description' => 'Takes a UNIX user/group name. When specified, all C<AF_UNIX>
+sockets and FIFO nodes in the file system are owned by the specified user and group. If unset (the
+default), the nodes are owned by the root user/group (if run in system context) or the invoking
+user/group (if run in user context).  If only a user is specified but no group, then the group is
 derived from the user\'s default group.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'SocketGroup',
       {
-        'description' => 'Takes a UNIX user/group name. When specified,
-all AF_UNIX sockets and FIFO nodes in the file system are
-owned by the specified user and group. If unset (the default),
-the nodes are owned by the root user/group (if run in system
-context) or the invoking user/group (if run in user context).
-If only a user is specified but no group, then the group is
+        'description' => 'Takes a UNIX user/group name. When specified, all C<AF_UNIX>
+sockets and FIFO nodes in the file system are owned by the specified user and group. If unset (the
+default), the nodes are owned by the root user/group (if run in system context) or the invoking
+user/group (if run in user context).  If only a user is specified but no group, then the group is
 derived from the user\'s default group.',
         'type' => 'leaf',
         'value_type' => 'uniline'
@@ -542,10 +533,10 @@ L<inetd(8)>
 to work unmodified with systemd socket
 activation.
 
-For IPv4 and IPv6 connections, the C<REMOTE_ADDR>
-environment variable will contain the remote IP address, and C<REMOTE_PORT>
-will contain the remote port. This is the same as the format used by CGI.
-For SOCK_RAW, the port is the IP protocol.',
+For IPv4 and IPv6 connections, the C<REMOTE_ADDR> environment variable will
+contain the remote IP address, and C<REMOTE_PORT> will contain the remote port. This
+is the same as the format used by CGI. For C<SOCK_RAW>, the port is the IP
+protocol.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -589,16 +580,12 @@ above. Disabled by default.',
       },
       'KeepAlive',
       {
-        'description' => 'Takes a boolean argument. If true, the TCP/IP
-stack will send a keep alive message after 2h (depending on
-the configuration of
-C</proc/sys/net/ipv4/tcp_keepalive_time>)
-for all TCP streams accepted on this socket. This controls the
-SO_KEEPALIVE socket option (see
-L<socket(7)>
-and the L<TCP
-Keepalive HOWTO|http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/> for details.) Defaults to
-C<false>.',
+        'description' => 'Takes a boolean argument. If true, the TCP/IP stack will send a keep alive message
+after 2h (depending on the configuration of
+C</proc/sys/net/ipv4/tcp_keepalive_time>) for all TCP streams accepted on this
+socket. This controls the C<SO_KEEPALIVE> socket option (see L<socket(7)> and
+the L<TCP Keepalive
+HOWTO|http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/> for details.) Defaults to C<false>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -620,14 +607,11 @@ Defaults value is 7200 seconds (2 hours).',
       },
       'KeepAliveIntervalSec',
       {
-        'description' => 'Takes time (in seconds) as argument between
-individual keepalive probes, if the socket option SO_KEEPALIVE
-has been set on this socket. This controls
-the TCP_KEEPINTVL socket option (see
-L<socket(7)>
-and the L<TCP
-Keepalive HOWTO|http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/> for details.) Defaults value is 75
-seconds.',
+        'description' => 'Takes time (in seconds) as argument between individual keepalive probes, if the
+socket option C<SO_KEEPALIVE> has been set on this socket. This controls the
+C<TCP_KEEPINTVL> socket option (see L<socket(7)> and
+the L<TCP Keepalive
+HOWTO|http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/> for details.) Defaults value is 75 seconds.',
         'type' => 'leaf',
         'value_type' => 'integer'
       },
@@ -650,7 +634,7 @@ Keepalive HOWTO|http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/> for 
 algorithm works by combining a number of small outgoing
 messages, and sending them all at once. This controls the
 TCP_NODELAY socket option (see
-L<tcp(7)>
+L<tcp(7)>).
 Defaults to C<false>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
@@ -661,11 +645,9 @@ Defaults to C<false>.',
       },
       'Priority',
       {
-        'description' => 'Takes an integer argument controlling the
-priority for all traffic sent from this socket. This controls
-the SO_PRIORITY socket option (see
-L<socket(7)>
-for details.).',
+        'description' => 'Takes an integer argument controlling the priority for all traffic sent from this
+socket. This controls the C<SO_PRIORITY> socket option (see L<socket(7)> for
+details.).',
         'type' => 'leaf',
         'value_type' => 'integer'
       },
@@ -699,24 +681,22 @@ Disabled by default.',
       },
       'ReceiveBuffer',
       {
-        'description' => 'Takes an integer argument controlling the
-receive or send buffer sizes of this socket, respectively.
-This controls the SO_RCVBUF and SO_SNDBUF socket options (see
-L<socket(7)>
-for details.). The usual suffixes K, M, G are supported and
-are understood to the base of 1024.',
+        'description' => 'Takes an integer argument controlling the receive or send buffer sizes of this
+socket, respectively.  This controls the C<SO_RCVBUF> and
+C<SO_SNDBUF> socket options (see L<socket(7)> for
+details.). The usual suffixes K, M, G are supported and are understood to the base of
+1024.',
         'match' => '^\\d+(?i)[KMG]$',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'SendBuffer',
       {
-        'description' => 'Takes an integer argument controlling the
-receive or send buffer sizes of this socket, respectively.
-This controls the SO_RCVBUF and SO_SNDBUF socket options (see
-L<socket(7)>
-for details.). The usual suffixes K, M, G are supported and
-are understood to the base of 1024.',
+        'description' => 'Takes an integer argument controlling the receive or send buffer sizes of this
+socket, respectively.  This controls the C<SO_RCVBUF> and
+C<SO_SNDBUF> socket options (see L<socket(7)> for
+details.). The usual suffixes K, M, G are supported and are understood to the base of
+1024.',
         'match' => '^\\d+(?i)[KMG]$',
         'type' => 'leaf',
         'value_type' => 'uniline'
@@ -749,24 +729,19 @@ for details.)',
       },
       'Mark',
       {
-        'description' => 'Takes an integer value. Controls the firewall
-mark of packets generated by this socket. This can be used in
-the firewall logic to filter packets from this socket. This
-sets the SO_MARK socket option. See
-L<iptables(8)>
-for details.',
+        'description' => 'Takes an integer value. Controls the firewall mark of packets generated by this
+socket. This can be used in the firewall logic to filter packets from this socket. This sets the
+C<SO_MARK> socket option. See L<iptables(8)> for
+details.',
         'type' => 'leaf',
         'value_type' => 'integer'
       },
       'ReusePort',
       {
-        'description' => 'Takes a boolean value. If true, allows
-multiple
-L<bind(2)>s
-to this TCP or UDP port. This controls the SO_REUSEPORT socket
-option. See
-L<socket(7)>
-for details.',
+        'description' => 'Takes a boolean value. If true, allows multiple
+L<bind(2)>s to this TCP
+or UDP port. This controls the C<SO_REUSEPORT> socket option. See L<socket(7)> for
+details.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -887,9 +862,8 @@ C<false>.',
       },
       'Broadcast',
       {
-        'description' => 'Takes a boolean value. This controls the
-SO_BROADCAST socket option, which allows broadcast datagrams
-to be sent from this socket. Defaults to
+        'description' => 'Takes a boolean value. This controls the C<SO_BROADCAST> socket
+option, which allows broadcast datagrams to be sent from this socket. Defaults to
 C<false>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
@@ -900,11 +874,9 @@ C<false>.',
       },
       'PassCredentials',
       {
-        'description' => 'Takes a boolean value. This controls the
-SO_PASSCRED socket option, which allows
-C<AF_UNIX> sockets to receive the
-credentials of the sending process in an ancillary message.
-Defaults to C<false>.',
+        'description' => 'Takes a boolean value. This controls the C<SO_PASSCRED> socket
+option, which allows C<AF_UNIX> sockets to receive the credentials of the sending
+process in an ancillary message. Defaults to C<false>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
         'write_as' => [
@@ -914,10 +886,22 @@ Defaults to C<false>.',
       },
       'PassSecurity',
       {
-        'description' => 'Takes a boolean value. This controls the
-SO_PASSSEC socket option, which allows
-C<AF_UNIX> sockets to receive the security
-context of the sending process in an ancillary message.
+        'description' => 'Takes a boolean value. This controls the C<SO_PASSSEC> socket
+option, which allows C<AF_UNIX> sockets to receive the security context of the
+sending process in an ancillary message.  Defaults to C<false>.',
+        'type' => 'leaf',
+        'value_type' => 'boolean',
+        'write_as' => [
+          'no',
+          'yes'
+        ]
+      },
+      'PassPacketInfo',
+      {
+        'description' => 'Takes a boolean value. This controls the C<IP_PKTINFO>,
+C<IPV6_RECVPKTINFO> and C<NETLINK_PKTINFO> socket options, which
+enable reception of additional per-packet metadata as ancillary message, on
+C<AF_INET>, C<AF_INET6> and C<AF_UNIX> sockets.
 Defaults to C<false>.',
         'type' => 'leaf',
         'value_type' => 'boolean',
@@ -928,11 +912,10 @@ Defaults to C<false>.',
       },
       'TCPCongestion',
       {
-        'description' => 'Takes a string value. Controls the TCP
-congestion algorithm used by this socket. Should be one of
-"westwood", "veno", "cubic", "lp" or any other available
-algorithm supported by the IP stack. This setting applies only
-to stream sockets.',
+        'description' => 'Takes a string value. Controls the TCP congestion algorithm used by this
+socket. Should be one of C<westwood>, C<veno>,
+C<cubic>, C<lp> or any other available algorithm supported by the IP
+stack. This setting applies only to stream sockets.',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
@@ -1035,15 +1018,12 @@ above).',
       },
       'RemoveOnStop',
       {
-        'description' => 'Takes a boolean argument. If enabled, any file
-nodes created by this socket unit are removed when it is
-stopped. This applies to AF_UNIX sockets in the file system,
-POSIX message queues, FIFOs, as well as any symlinks to them
-configured with C<Symlinks>. Normally, it
-should not be necessary to use this option, and is not
-recommended as services might continue to run after the socket
-unit has been terminated and it should still be possible to
-communicate with them via their file system node. Defaults to
+        'description' => 'Takes a boolean argument. If enabled, any file nodes created by this socket unit are
+removed when it is stopped. This applies to C<AF_UNIX> sockets in the file system,
+POSIX message queues, FIFOs, as well as any symlinks to them configured with
+C<Symlinks>. Normally, it should not be necessary to use this option, and is not
+recommended as services might continue to run after the socket unit has been terminated and it should
+still be possible to communicate with them via their file system node. Defaults to
 off.',
         'type' => 'leaf',
         'value_type' => 'boolean',
@@ -1114,7 +1094,7 @@ limit is enforced before the service activation is enqueued.",
         'value_type' => 'uniline'
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd 245 doc',
+    'generated_by' => 'parse-man.pl from systemd 246 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Section::Socket'
   }
