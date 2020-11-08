@@ -252,7 +252,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
         my @choices;
 
         # handle "Takes the same settings as ..." (seen only for enum)
-        if ($desc =~ /takes the same values as the setting C<(\w+)>/i) {
+        if ($desc =~ /takes the same values as the (?:setting )?C<(\w+)>/i) {
             my $other = $1;
             my $other_obj = $obj->grab("- element:$other");
             @choices = $other_obj->fetch_element('choice')->fetch;
