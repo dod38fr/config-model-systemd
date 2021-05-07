@@ -21,3 +21,4 @@ nytprof.out
 *~
 Config-Model-Systemd-*
 lib/Config/Model/models/**/*.pod
+wr_root/
