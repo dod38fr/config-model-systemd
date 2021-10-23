@@ -191,6 +191,7 @@ sub write {
 
     # file write is handled by Unit backend
     return 1 if $self->instance->application =~ /file/;
+    return 1 if $self->instance->application eq 'systemd';
 
     my $root_path = $args{root} || path('/');
     my $dir = $args{root}->path($args{config_dir});
