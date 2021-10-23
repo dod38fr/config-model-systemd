@@ -195,6 +195,7 @@ sub write {
     my $service_path;
     if ($app eq 'systemd') {
         my $dir = $args{file_path}->parent->child("$unit_name.$unit_type.d");
+        $dir->mkpath({ mode => oct(755) });
         $service_path = $dir->child('override.conf');
     }
     else {
