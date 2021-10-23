@@ -197,14 +197,24 @@ sub write {
         my $dir = $args{file_path}->parent->child("$unit_name.$unit_type.d");
         $dir->mkpath({ mode => oct(755) });
         $service_path = $dir->child('override.conf');
+
+        $logger->debug("writing unit to $service_path");
+        # mouse super() does not work...
+        $self->SUPER::write(%args, file_path => $service_path);
+
+        if (scalar $dir->children == 0) {
+            # remove empty dir
+            $logger->warn("Removing empty dir $dir");
+            rmdir $dir;
+        }
     }
     else {
         $service_path = $args{file_path};
-    }
 
-    $logger->debug("writing unit to $service_path");
-    # mouse super() does not work...
-    $self->SUPER::write(%args, file_path => $service_path);
+        $logger->debug("writing unit to $service_path");
+        # mouse super() does not work...
+        $self->SUPER::write(%args, file_path => $service_path);
+    }
 }
 
 sub _write_leaf{

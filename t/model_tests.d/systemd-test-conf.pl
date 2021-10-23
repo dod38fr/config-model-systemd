@@ -49,6 +49,13 @@ my @tests = (
             'default-alsa-state' => '/lib/systemd/system/alsa-state.service'
         },
         load => "service:sshd Unit Description~",
+
+        # when loading sshd, no service or socker is found, so the backend create
+        # and empty socket and empty service to cme edit shows both to users.
+        # since they are not filled with data, no file is written
+        # but dump tree test shows the difference, so we remove the empty socket.
+        load2 => "socket:.rm(sshd)",
+
         # file is removed because the load instruction above removes the only setting in there
         file_check_sub => sub {
             my $list_ref = shift ;
