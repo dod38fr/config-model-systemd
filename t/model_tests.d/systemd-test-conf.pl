@@ -25,6 +25,23 @@ my @tests = (
     },
 
     {
+        name => 'transmission',
+        backend_arg => 'transmission-daemon',
+        setup => {
+            'transmission-daemon.service' => '/lib/systemd/system/transmission-daemon.service'
+        },
+        load => 'service:transmission-daemon Unit After:<you',
+        check => {
+            'service:transmission-daemon Unit After:0' => { mode => 'user', value => "network.target"},
+            'service:transmission-daemon Unit After:1' => "you",
+        },
+        file_check_sub => sub {
+            my $list_ref = shift ;
+            push @$list_ref , '/etc/systemd/system/transmission-daemon.service.d/override.conf';
+        },
+    },
+
+    {
         name => 'disable-service',
         backend_arg => 'sshd',
         setup => {
