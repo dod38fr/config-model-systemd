@@ -24,7 +24,7 @@ my $systemd_file = $wr_root->child('test.service');
 subtest 'create file from scratch' => sub {
 
     my $instance = cme(
-        application => 'systemd-service',
+        application => 'systemd-service-file',
         config_file => $systemd_file->basename,
         root_dir => $wr_root->stringify
     );
@@ -41,7 +41,7 @@ subtest 'create file from scratch' => sub {
 
 subtest 'read file' => sub {
     my $instance = cme(
-        application => 'systemd-service',
+        application => 'systemd-service-file',
         config_file => $systemd_file->basename,
         root_dir => $wr_root->stringify
     );
