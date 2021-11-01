@@ -2,10 +2,13 @@ package Config::Model::Backend::Systemd::Unit ;
 
 use strict;
 use warnings;
-use 5.010;
+use 5.020;
 use Mouse ;
 use Log::Log4perl qw(get_logger :levels);
 use Path::Tiny;
+
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
 
 extends 'Config::Model::Backend::IniFile';
 
@@ -13,6 +16,22 @@ with 'Config::Model::Backend::Systemd::Layers';
 
 my $logger = get_logger("Backend::Systemd::Unit");
 my $user_logger = get_logger("User");
+
+sub get_unit_info ($self, $file_path) {
+    my $unit_type = $self->node->element_name;
+    my $unit_name = $self->node->index_value;
+
+    if (my $fp = $file_path->basename) {
+        my ($n,$t) = split /\./, $fp;
+        $unit_type ||= $t;
+        $unit_name ||= $n;
+        Config::Model::Exception::User->throw(
+            object => $self,
+            error  => "Unknown unit type. Please add type to file name. e.g. $n.service or socket..."
+        ) unless $unit_type;
+    }
+    return ($unit_name, $unit_type);
+}
 
 sub read {
     my $self = shift ;
@@ -38,8 +57,7 @@ sub read {
         return $self->load_ini_file(%args, file_path => $file);
     }
 
-    my $unit_type = $self->node->element_name;
-    my $unit_name = $self->node->index_value;
+    my ($unit_name, $unit_type) = $self->get_unit_info($args{file_path});
 
     $self->node->instance->layered_start;
     my $root = $args{root} || path('/');
