@@ -460,7 +460,7 @@ C<true>.',
         ]
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd 247 doc',
+    'generated_by' => 'parse-man.pl from systemd 249 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Section::Timer'
   }
