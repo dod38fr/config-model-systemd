@@ -18,18 +18,36 @@ my $logger = get_logger("Backend::Systemd::Unit");
 my $user_logger = get_logger("User");
 
 sub get_unit_info ($self, $file_path) {
+    # get info from tree when Unit is children of systemd (app is systemd)
     my $unit_type = $self->node->element_name;
     my $unit_name = $self->node->index_value;
+    my $app = $self->instance->application;
+    my ($trash, $app_type) = split /-/, $app;
 
+    # get info from file name (app is systemd-* not -user)
     if (my $fp = $file_path->basename) {
         my ($n,$t) = split /\./, $fp;
         $unit_type ||= $t;
         $unit_name ||= $n;
-        Config::Model::Exception::User->throw(
-            object => $self,
-            error  => "Unknown unit type. Please add type to file name. e.g. $n.service or socket..."
-        ) unless $unit_type;
     }
+
+    # fallback to app type when file is name without unit type
+    $unit_type ||= $app_type if $app_type and $app_type ne 'user';
+
+    Config::Model::Exception::User->throw(
+        object => $self,
+        error  => "Unknown unit type. Please add type to file name. e.g. "
+        . $file_path->basename.".service or socket..."
+    ) unless $unit_type;
+
+    # safety check
+    if ($app !~ /^systemd(-user)?$/ and $app !~ /^systemd-$unit_type/) {
+        Config::Model::Exception::User->throw(
+            objet => $self->node,
+            error => "Unit type $unit_type does not match app $app"
+        );
+    }
+
     return ($unit_name, $unit_type);
 }
 
@@ -47,17 +65,15 @@ sub read {
     # file_path  => './my_test/etc/foo/foo.conf'
     # check      => yes|no|skip
 
-    # file write is handled by Unit backend
-    if ($self->instance->application =~ /systemd-(?!user)/) {
-        # file_path overridden by model => how can config_dir be found ?
-        my $file = $args{file_path};
+    if ($self->instance->application =~ /-file$/) {
         # allow non-existent file to let user start from scratch
-        return 1 unless  path( $file )->exists;
+        return 1 unless  $args{file_path}->exists;
 
-        return $self->load_ini_file(%args, file_path => $file);
+        return $self->load_ini_file(%args);
     }
 
     my ($unit_name, $unit_type) = $self->get_unit_info($args{file_path});
+    my $app = $self->instance->application;
 
     $self->node->instance->layered_start;
     my $root = $args{root} || path('/');
@@ -90,14 +106,12 @@ sub read {
     # systemd/system/unit.type.d/ and
     # ~/.local/systemd/user/unit.type.d/*.conf
 
-    my $app = $self->instance->application;
-
     my $service_path;
-    if ($app eq 'systemd') {
-        $service_path = $args{file_path}->parent->child("$unit_name.$unit_type.d/override.conf");
+    if ($app =~ /-user$/) {
+        $service_path = $args{file_path} ;
     }
     else {
-        $service_path = $args{file_path} ;
+        $service_path = $args{file_path}->parent->child("$unit_name.$unit_type.d/override.conf");
     }
 
     if ($service_path->exists and $service_path->realpath eq '/dev/null') {
@@ -206,12 +220,18 @@ sub write {
         return 1;
     }
 
-    my $unit_name = $self->node->index_value;
-    my $unit_type = $self->node->element_name;
+    my ($unit_name, $unit_type) = $self->get_unit_info($args{file_path});
 
     my $app = $self->instance->application;
     my $service_path;
-    if ($app eq 'systemd') {
+    if ($app =~  /-(user|file)$/) {
+        $service_path = $args{file_path};
+
+        $logger->debug("writing unit to $service_path");
+        # mouse super() does not work...
+        $self->SUPER::write(%args, file_path => $service_path);
+    }
+    else {
         my $dir = $args{file_path}->parent->child("$unit_name.$unit_type.d");
         $dir->mkpath({ mode => oct(755) });
         $service_path = $dir->child('override.conf');
@@ -225,13 +245,6 @@ sub write {
             $logger->warn("Removing empty dir $dir");
             rmdir $dir;
         }
-    }
-    else {
-        $service_path = $args{file_path};
-
-        $logger->debug("writing unit to $service_path");
-        # mouse super() does not work...
-        $self->SUPER::write(%args, file_path => $service_path);
     }
 }
 

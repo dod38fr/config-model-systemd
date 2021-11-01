@@ -2,7 +2,7 @@ package Config::Model::Backend::Systemd ;
 
 use strict;
 use warnings;
-use 5.010;
+use 5.020;
 use Mouse ;
 use Log::Log4perl qw(get_logger :levels);
 use Path::Tiny 0.086;
@@ -100,6 +100,23 @@ sub read_systemd_units {
             objet => $self->node,
             error => "Missing systemd unit to work on. This may be passed as 3rd argument to cme",
         );
+    }
+
+    if ($app ne 'systemd-user' and $select_unit =~ $filter) {
+        my $unit_type = $1;
+        if ($app eq 'systemd') {
+            Config::Model::Exception::User->throw(
+                objet => $self->node,
+                error => "With 'systemd' app, unit name should not specify '$unit_type'. "
+                ." Use 'systemd-$unit_type' app if you want to act only on $select_unit",
+            );
+        }
+        elsif ($app ne 'systemd-$unit_type') {
+            Config::Model::Exception::User->throw(
+                objet => $self->node,
+                error => "Unit name $select_unit does not match app $app"
+            );
+        }
     }
 
     if ($select_unit ne '*') {

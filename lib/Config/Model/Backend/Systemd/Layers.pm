@@ -18,7 +18,7 @@ sub default_directories {
             '/usr/lib/systemd/user/'
         );
     }
-    elsif ($app eq 'systemd') {
+    elsif ($app !~ /file$/) {
         @layers = (
             # paths documented by systemd-system.conf man page
             '/etc/systemd/system.conf.d/',
