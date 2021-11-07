@@ -432,8 +432,8 @@ $meta_root->load(
                                  choice=0,1,2,3,none,realtime,best-effort,idle'
 );
 
-# these warping instructions are used for most services. Serives are
-# disables when a service file is a symlink to /dev/null
+# these warping instructions are used for most services. Services are
+# disabled when a service file is a symlink to /dev/null
 my $common_warp = qq!warp follow:disable="- disable" rules:\$disable level=hidden - - !;
 
 foreach my $service (@service_list) {
