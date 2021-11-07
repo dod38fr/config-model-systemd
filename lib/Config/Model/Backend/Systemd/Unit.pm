@@ -80,6 +80,7 @@ sub read {
     my $cwd = $args{root} || path('.');
 
     # load layers for this service
+    my $found_unit = 0;
     foreach my $layer ($self->default_directories) {
         my $local_root = $layer =~ m!^/! ? $root : $cwd;
         my $layer_dir = $local_root->child($layer);
@@ -90,12 +91,17 @@ sub read {
 
         $user_logger->warn("Reading unit '$unit_type' '$unit_name' from '$layer_file'.");
         $self->load_ini_file(%args, file_path => $layer_file);
+        $found_unit++;
 
         # TODO: may also need to read files in
         # $unit_name.'.'.$unit_type.'.d' to get all default values
         # (e.g. /lib/systemd/system/rc-local.service.d/debian.conf)
     }
     $self->node->instance->layered_stop;
+
+    if (not $found_unit) {
+        $user_logger->warn("Could not find unit files for $unit_type name $unit_name");
+    }
 
     # now read editable file (files that can be edited with systemctl edit <unit>.<type>
     # for systemd -> /etc/ systemd/system/unit.type.d/override.conf
