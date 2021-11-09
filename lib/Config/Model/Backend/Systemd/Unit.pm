@@ -158,6 +158,11 @@ sub load_data {
             ) if $check eq 'yes';
             $data = $data->[-1];
         }
+        # remove this translation after Config::Model 2.146
+        if ($leaf_object->value_type eq 'boolean') {
+            $data = 'yes' if $data eq 'on';
+            $data = 'no'  if $data eq 'off';
+        }
         $leaf_object->store(value =>  $data, check => $check);
     } ;
 
