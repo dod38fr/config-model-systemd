@@ -178,10 +178,6 @@ sub load_data {
         # read accepted elements
         foreach my $elt (sort keys %$data_ref) {
             my $unit_data = $data_ref->{$elt}; # extract relevant data
-
-            # force creation of element (can be removed with Config::Model 2.086)
-            my $obj = $node->fetch_element(name => $elt, check => $check);
-
             $scanner->scan_element($unit_data, $node,$elt) ;
         }
     };
