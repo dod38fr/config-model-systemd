@@ -21,6 +21,8 @@ no warnings qw/experimental::postderef experimental::signatures/;
 my @service_list = qw/service socket timer/;
 my @list = qw/exec kill resource-control unit/;
 
+my $unknown_param_msg = "Unexpected systemd parameter. Please contact cme author to update systemd model.";
+
 # Override the default class name
 # Please remove the old generated model if a class name is changed.
 my %map = (
@@ -199,7 +201,7 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
         $meta_root->load( steps => [
             qq!class:$config_class!,
             q!generated_by="parseman.pl from systemd doc"!,
-            qq!accept:".*" type=leaf value_type=uniline warn="Unknown parameter"!
+            qq!accept:".*" type=leaf value_type=uniline warn="$unknown_param_msg"!
         ]);
     }
     my $step = "class:$config_class element:$element";
@@ -350,7 +352,7 @@ sub move_deprecated_element ($meta_root, $from, $to) {
         # common Unit class
         $meta_root->load(steps => [
             "class:$unit_class include=Systemd::Section::Unit",
-            'accept:".*" type=leaf value_type=uniline warn="Unknown parameter"'
+            'accept:".*" type=leaf value_type=uniline warn="$unknown_param_msg"'
         ]);
     }
 
@@ -405,7 +407,7 @@ foreach my $config_class (keys $data->{class}->%*) {
         qq!copyright:0="2010-2016 Lennart Poettering and others"!,
         qq!copyright:1="2016 Dominique Dumont"!,
         qq!license="LGPLv2.1+"!,
-        qq!accept:".*" type=leaf value_type=uniline warn="Unknown parameter"!,
+        qq!accept:".*" type=leaf value_type=uniline warn="$unknown_param_msg"!,
     ]);
 }
 
@@ -453,7 +455,7 @@ foreach my $service (@service_list) {
               accept:".*"
                 type=leaf
                 value_type=uniline
-                warn="Unknown parameter" - -!
+                warn="$unknown_param_msg" - -!
         );
     }
 
