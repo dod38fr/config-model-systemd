@@ -6,8 +6,11 @@ use Path::Tiny;
 
 use Test::More;
 use Test::File::Contents;
+use Test::Log::Log4perl;
 use Config::Model qw/cme/;
 use Config::Model::Tester::Setup qw/init_test setup_test_dir/;
+
+$::_use_log4perl_to_warn =1;
 
 my ($model, $trace) = init_test();
 
@@ -29,12 +32,28 @@ ok($inst,"Created instance") ;
 
 my $root = $inst -> config_root ;
 
-my $dump =  $root->dump_tree (mode => 'full');
+my $dump;
+{
+    my $xp = Test::Log::Log4perl->expect(
+        ignore_priority => "info",
+        [
+            'User',
+            warn => qr/Loading/,
+            warn => qr/Reading/,
+            warn =>  qr/Unexpected systemd parameter/
+        ]
+    );
+    $dump = $root->dump_tree (mode => 'full');
+}
+ok($dump,"Created dump") ;
+
 print "First dump:\n",$dump if $trace ;
 
 $root -> load("service:transmission-daemon Unit After:<you") ;
+ok(1,"loaded data") ;
 
 $inst->write_back;
+ok(1,"wrote data back") ;
 
 my $service_dot_d = $wr_root->child('etc/systemd/system/transmission-daemon.service.d');
 
@@ -53,6 +72,7 @@ ok(! $service_dot_d->exists, "unneeded dir was removed");
 
 done_testing;
 
+__END__
 __DATA__
 
 [Unit]
@@ -67,6 +87,8 @@ ExecStop=/bin/kill -s STOP $MAINPID
 ExecReload=/bin/kill -s HUP $MAINPID
 # test conversion of on to no
 NoNewPrivileges=on
+# test accepted parameters
+DummyParam=dummy
 
 [Install]
 WantedBy=multi-user.target
