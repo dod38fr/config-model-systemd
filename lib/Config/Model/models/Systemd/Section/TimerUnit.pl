@@ -8,7 +8,7 @@ return [
       {
         'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'Unknown parameter'
+        'warn' => '$unknown_param_msg'
       }
     ],
     'element' => [

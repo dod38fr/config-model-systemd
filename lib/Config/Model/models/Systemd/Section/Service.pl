@@ -8,7 +8,7 @@ return [
       {
         'type' => 'leaf',
         'value_type' => 'uniline',
-        'warn' => 'Unknown parameter'
+        'warn' => 'Unexpected systemd parameter. Please contact cme author to update systemd model.'
       }
     ],
     'class_description' => 'A unit configuration file whose name ends in
