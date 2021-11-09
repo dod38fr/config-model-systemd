@@ -65,7 +65,8 @@ Type=notify
 ExecStart=/usr/bin/transmission-daemon -f --log-error
 ExecStop=/bin/kill -s STOP $MAINPID
 ExecReload=/bin/kill -s HUP $MAINPID
-NoNewPrivileges=true
+# test conversion of on to no
+NoNewPrivileges=on
 
 [Install]
 WantedBy=multi-user.target
