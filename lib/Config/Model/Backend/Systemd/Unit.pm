@@ -32,7 +32,7 @@ sub get_unit_info ($self, $file_path) {
     }
 
     # fallback to app type when file is name without unit type
-    $unit_type ||= $app_type if $app_type and $app_type ne 'user';
+    $unit_type ||= $app_type if ($app_type and $app_type ne 'user');
 
     Config::Model::Exception::User->throw(
         object => $self,
@@ -51,10 +51,8 @@ sub get_unit_info ($self, $file_path) {
     return ($unit_name, $unit_type);
 }
 
-sub read {
-    my $self = shift ;
-    my %args = @_ ;
-
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
+sub read ($self, %args) {
     # enable 2 styles of comments (gh #1)
     $args{comment_delimiter} = "#;";
 
@@ -127,6 +125,7 @@ sub read {
         $logger->debug("reading unit $unit_type name $unit_name from $service_path");
         $self->load_ini_file(%args, file_path => $service_path);
     }
+    return 1;
 }
 
 sub load_ini_file {
@@ -136,15 +135,13 @@ sub load_ini_file {
 
     my $res = $self->SUPER::read( %args );
     die "failed ". $args{file_path}." read" unless $res;
+    return;
 }
 
 # overrides call to node->load_data
-sub load_data {
-    my $self = shift;
-    my %args = @_ ; # data, check, split_reg
-
+sub load_data ($self, %args) {
     my $check = $args{check};
-    my $data = $args{data} ;
+    my $data  = $args{data} ;
 
     my $disp_leaf = sub {
         my ($scanner, $data, $node,$element_name,$index, $leaf_object) = @_ ;
@@ -204,12 +201,10 @@ sub load_data {
     ) ;
 
     $scan->scan_node($data, $self->node) ;
+    return;
 }
 
-sub write {
-    my $self = shift ;
-    my %args = @_ ;
-
+sub write ($self, %args) {
     # args are:
     # root       => './my_test',  # fake root directory, userd for tests
     # config_dir => /etc/foo',    # absolute path
@@ -253,6 +248,7 @@ sub write {
             rmdir $dir;
         }
     }
+    return 1;
 }
 
 sub _write_leaf{

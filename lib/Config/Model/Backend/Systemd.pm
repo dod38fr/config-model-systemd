@@ -10,6 +10,9 @@ use Path::Tiny 0.086;
 extends 'Config::Model::Backend::Any';
 with 'Config::Model::Backend::Systemd::Layers';
 
+use feature qw/postderef signatures/;
+no warnings qw/experimental::postderef experimental::signatures/;
+
 my $logger = get_logger("Backend::Systemd");
 my $user_logger = get_logger("User");
 
@@ -38,22 +41,19 @@ sub get_backend_arg {
     return $ba;
 }
 
-sub read {
-    my $self = shift ;
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
+sub read ($self, @args) {
     my $app = $self->instance->application;
 
     if ($app =~ /file/) {
-        $self->read_systemd_files(@_);
+        return $self->read_systemd_files(@args);
     }
     else {
-        $self->read_systemd_units(@_);
+        return $self->read_systemd_units(@args);
     }
 }
 
-sub read_systemd_files {
-    my $self = shift ;
-    my %args = @_ ;
-
+sub read_systemd_files ($self, %args) {
     # args are:
     # root       => './my_test',  # fake root directory, used for tests
     # config_dir => /etc/foo',    # absolute path
@@ -78,12 +78,10 @@ sub read_systemd_files {
         $logger->debug("registering unit $unit_type name $service_name from file name");
         $self->node->load(step => qq!$unit_type:"$service_name"!, check => $args{check} ) ;
     }
+    return 1;
 }
 
-sub read_systemd_units {
-    my $self = shift ;
-    my %args = @_ ;
-
+sub read_systemd_units ($self, %args) {
     # args are:
     # root       => './my_test',  # fake root directory, used for tests
     # config_dir => /etc/foo',    # absolute path
@@ -195,10 +193,7 @@ sub read_systemd_units {
     return 1 ;
 }
 
-sub write {
-    my $self = shift ;
-    my %args = @_ ;
-
+sub write ($self, %args) {
     # args are:
     # root       => './my_test',  # fake root directory, userd for tests
     # config_dir => /etc/foo',    # absolute path
