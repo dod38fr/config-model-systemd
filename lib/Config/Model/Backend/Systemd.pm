@@ -98,7 +98,7 @@ sub read_systemd_units {
     if (not $select_unit) {
         Config::Model::Exception::User->throw(
             objet => $self->node,
-            error => "Missing systemd unit to work on. This may be passed as 3rd argument to cme",
+            error => "Missing systemd unit to work on. This must be passed as 3rd argument to cme",
         );
     }
 
