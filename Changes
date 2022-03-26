@@ -2,6 +2,12 @@
 
 0.250.1 2022-03-26
 
+  Model update:
+    * update model from systemd 250 documentation
+
+  Other Changes:
+    * dist.ini: update copyright year
+
 0.249.1 2021-11-12
 
   For this release, I've reorganised the cme applications provided by this
