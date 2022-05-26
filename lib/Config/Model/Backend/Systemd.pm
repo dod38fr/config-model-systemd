@@ -87,7 +87,6 @@ sub read_systemd_units ($self, %args) {
     # config_dir => /etc/foo',    # absolute path
     # config_file       => 'foo.conf',   # file name
     # file_path  => './my_test/etc/foo/foo.conf'
-    # io_handle  => $io           # IO::File object
     # check      => yes|no|skip
 
     my $app = $self->instance->application;
