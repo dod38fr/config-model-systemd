@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+0.251.1 2022-05-28
+
+  Model update:
+    * update model from systemd 251 documentation
+
 0.250.1 2022-03-26
 
   Model update:
