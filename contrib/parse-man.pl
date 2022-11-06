@@ -117,7 +117,10 @@ sub parse_xml ($list, $map) {
         $desc =~ s/\n{3,}/\n\n/g;
 
         foreach my $term_elt ($elt->children('term')) {
-            my $varname = $term_elt->first_child('varname')->text;
+            my $var_elt = $term_elt->first_child('varname');
+            next unless $var_elt;
+
+            my $varname = $var_elt->text;
             my ($name, $extra_info) = $varname =~ /C<([\w-]+)=([^>]*)>/ ;
 
             next unless defined $name;
