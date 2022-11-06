@@ -142,7 +142,13 @@ sub parse_xml ($list, $map) {
             $set_config_class->($1) ;
         }
     };
-    my $turn_to_pod_c = sub { my $t = $_->text(); $_->set_text("C<$t>");};
+    my $turn_to_pod_c = sub {
+        my $t = $_->text();
+        # takes care of constant embedded in literal blocks
+        return if $t =~ /^C</;
+        $_->set_text($t =~ /[<>]/ ? "C<< $t >>" : "C<$t>");
+    };
+
     my $twig = XML::Twig->new (
         twig_handlers => {
             'refsect1/title' => $parse_sub_title,
