@@ -51,8 +51,7 @@ sub get_unit_info ($self, $file_path) {
     return ($unit_name, $unit_type);
 }
 
-## no critic (Subroutines::ProhibitBuiltinHomonyms)
-sub read ($self, %args) {
+around read => sub ($orig, $self, %args) {
     # enable 2 styles of comments (gh #1)
     $args{comment_delimiter} = "#;";
 
@@ -67,7 +66,7 @@ sub read ($self, %args) {
         # allow non-existent file to let user start from scratch
         return 1 unless  $args{file_path}->exists;
 
-        return $self->load_ini_file(%args);
+        return $self->load_ini_file($orig, %args);
     }
 
     my ($unit_name, $unit_type) = $self->get_unit_info($args{file_path});
@@ -88,7 +87,7 @@ sub read ($self, %args) {
         next unless $layer_file->exists;
 
         $user_logger->warn("Reading unit '$unit_type' '$unit_name' from '$layer_file'.");
-        $self->load_ini_file(%args, file_path => $layer_file);
+        $self->load_ini_file($orig, %args, file_path => $layer_file);
         $found_unit++;
 
         # TODO: may also need to read files in
@@ -123,20 +122,18 @@ sub read ($self, %args) {
     }
     elsif ($service_path->exists) {
         $logger->debug("reading unit $unit_type name $unit_name from $service_path");
-        $self->load_ini_file(%args, file_path => $service_path);
+        $self->load_ini_file($orig, %args, file_path => $service_path);
     }
     return 1;
-}
+};
 
-sub load_ini_file {
-    my ($self, %args) = @_ ;
-
+sub load_ini_file ($self, $orig_read, %args) {
     $logger->debug("opening file '".$args{file_path}."' to read");
 
-    my $res = $self->SUPER::read( %args );
+    my $res = $self->$orig_read( %args );
     die "failed ". $args{file_path}." read" unless $res;
     return;
-}
+};
 
 # overrides call to node->load_data
 sub load_data ($self, %args) {
@@ -204,7 +201,7 @@ sub load_data ($self, %args) {
     return;
 }
 
-sub write ($self, %args) {
+around 'write' => sub ($orig, $self, %args) {
     # args are:
     # root       => './my_test',  # fake root directory, userd for tests
     # config_dir => /etc/foo',    # absolute path
@@ -230,8 +227,7 @@ sub write ($self, %args) {
         $service_path = $args{file_path};
 
         $logger->debug("writing unit to $service_path");
-        # mouse super() does not work...
-        $self->SUPER::write(%args, file_path => $service_path);
+        $self->$orig(%args, file_path => $service_path);
     }
     else {
         my $dir = $args{file_path}->parent->child("$unit_name.$unit_type.d");
@@ -239,8 +235,7 @@ sub write ($self, %args) {
         $service_path = $dir->child('override.conf');
 
         $logger->debug("writing unit to $service_path");
-        # mouse super() does not work...
-        $self->SUPER::write(%args, file_path => $service_path);
+        $self->$orig(%args, file_path => $service_path);
 
         if (scalar $dir->children == 0) {
             # remove empty dir
@@ -249,17 +244,16 @@ sub write ($self, %args) {
         }
     }
     return 1;
-}
+};
 
-sub _write_leaf{
-    my ($self, $args, $node, $elt)  = @_ ;
+around _write_leaf => sub ($orig, $self, $args, $node, $elt) {
     # must skip disable element which cannot be hidden :-(
     if ($elt eq 'disable') {
         return '';
     } else {
-        return $self->SUPER::_write_leaf($args, $node, $elt);
+        return $self->$orig($args, $node, $elt);
     }
-}
+};
 
 no Mouse ;
 __PACKAGE__->meta->make_immutable ;
