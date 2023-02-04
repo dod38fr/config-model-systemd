@@ -14,6 +14,12 @@ extends 'Config::Model::Backend::IniFile';
 
 with 'Config::Model::Backend::Systemd::Layers';
 
+has _has_system_file => (
+    is => 'rw',
+    isa => 'Bool',
+    default => 0,
+);
+
 my $logger = get_logger("Backend::Systemd::Unit");
 my $user_logger = get_logger("User");
 
@@ -72,13 +78,20 @@ around read => sub ($orig, $self, %args) {
     my ($unit_name, $unit_type) = $self->get_unit_info($args{file_path});
     my $app = $self->instance->application;
 
+    my @default_directories;
+    if ($app !~ /-user$/ or not $args{file_path}->exists) {
+        # this user file may overrides an existing service file
+        # so we don't read these default files
+        @default_directories = $self->default_directories;
+    }
+
     $self->node->instance->layered_start;
     my $root = $args{root} || path('/');
     my $cwd = $args{root} || path('.');
 
     # load layers for this service
     my $found_unit = 0;
-    foreach my $layer ($self->default_directories) {
+    foreach my $layer (@default_directories) {
         my $local_root = $layer =~ m!^/! ? $root : $cwd;
         my $layer_dir = $local_root->child($layer);
         next unless $layer_dir->is_dir;
@@ -96,7 +109,10 @@ around read => sub ($orig, $self, %args) {
     }
     $self->node->instance->layered_stop;
 
-    if (not $found_unit) {
+    if ($found_unit) {
+        $self->_has_system_file(1);
+    }
+    else {
         $user_logger->warn("Could not find unit files for $unit_type name $unit_name");
     }
 
@@ -106,7 +122,8 @@ around read => sub ($orig, $self, %args) {
     # for local file -> $args{filexx}
 
     my $service_path;
-    if ($app =~ /-user$/) {
+    if ($app =~ /-user$/ and $args{file_path}->exists) {
+        # this use file may override an existing service file
         $service_path = $args{file_path} ;
     }
     else {
@@ -219,7 +236,11 @@ around 'write' => sub ($orig, $self, %args) {
 
     my $app = $self->instance->application;
     my $service_path;
-    if ($app =~  /-(user|file)$/) {
+
+    # check if service has files in $self->default_directories
+    # yes -> use a a file on $unit_name.$unit_type.d directry
+    # no -> create a  $args{file_path} file
+    if ($app =~  /-(user|file)$/ and not $self->_has_system_file) {
         $service_path = $args{file_path};
 
         $logger->debug("writing unit to $service_path");
