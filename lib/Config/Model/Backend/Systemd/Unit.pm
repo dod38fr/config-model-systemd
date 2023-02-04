@@ -105,10 +105,6 @@ around read => sub ($orig, $self, %args) {
     # for user -> ~/.local/systemd/user/*.conf
     # for local file -> $args{filexx}
 
-    # TODO: document limitations (can't read arbitrary files in /etc/
-    # systemd/system/unit.type.d/ and
-    # ~/.local/systemd/user/unit.type.d/*.conf
-
     my $service_path;
     if ($app =~ /-user$/) {
         $service_path = $args{file_path} ;
@@ -296,5 +292,11 @@ This method write systemd configuration data.
 
 When the service is disabled, the target configuration file is
 replaced by a link to C</dev/null>.
+
+=head1 LIMITATIONS
+
+Unit backend cannot read or write arbitrary files in
+C</etc/systemd/system/unit.type.d/> and
+C< ~/.config/systemd/user/unit.type.d/*.conf>.
 
 =cut
