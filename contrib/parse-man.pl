@@ -13,6 +13,8 @@ use Path::Tiny;
 use Config::Model::Itself 2.012;
 use Config::Model::Exception;
 use Getopt::Long;
+use Text::Wrap;
+$Text::Wrap::columns = 120;
 
 use experimental qw/postderef signatures/ ;
 no warnings qw/experimental::postderef experimental::signatures/;
@@ -426,7 +428,7 @@ foreach my $cdata ($data->{element}->@*) {
     my $obj = setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $supersedes);
 
     $desc =~ s/ +$//gm;
-    $obj->fetch_element("description")->store($desc);
+    $obj->fetch_element("description")->store(wrap('','',$desc));
 }
 
 say "Tweaking systemd model...";
