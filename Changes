@@ -40,13 +40,13 @@
     - systemd-service: applies to one system service 
       e.g. "cme edit systemd transmission-daemon.service"
     - systemd-timer: applies to one system timer 
-    - systemd-socker: applies to one system socker 
+    - systemd-socket: applies to one system socket
 
   * For service developers:
     - systemd-service-file: applies to one system service file.
       e.g. "cme edit systemd ./src/transmission-daemon.service"
     - systemd-timer-file: applies to one system timer file
-    - systemd-socker-file: applies to one system socker file
+    - systemd-socket-file: applies to one system socket file
 
   * For users:
     - systemd-user: applies to all user service
