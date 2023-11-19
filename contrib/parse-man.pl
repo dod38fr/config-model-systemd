@@ -98,7 +98,7 @@ sub parse_xml ($list, $map) {
             return $condition_variable->($t, $elt);
         }
 
-        my @para_text = map {$_->text} $elt->first_child('listitem')->children('para');
+        my @para_text = map {$_->text} $elt->first_child('listitem')->children(qr/para|programlisting/);
         my $desc = join("\n\n", @para_text);
 
         # detect deprecated param and what replaces them
