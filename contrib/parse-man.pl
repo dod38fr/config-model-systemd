@@ -410,6 +410,9 @@ foreach my $config_class (keys $data->{class}->%*) {
     $desc_text.="\nThis configuration class was generated from systemd documentation.\n"
         ."by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-man.pl>\n";
 
+    # detect verbatim parts setup with programlisting tag
+    $desc_text =~ s/^\+-\+/    /gm;
+
     my $steps = "class:$config_class class_description";
     $meta_root->grab(step => $steps, autoadd => 1)->store($desc_text);
 
