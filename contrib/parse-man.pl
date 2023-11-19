@@ -290,8 +290,8 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
 
         die "Error in $config_class: cannot find the values of $element enum type from «$desc»\n"
             unless @choices;
-        push @log, "enum choices are '".join("', '", @choices)."'";
-        push @load_extra, 'choice='.join(',',@choices);
+        push @log, "enum choices are '".join("', '", sort @choices)."'";
+        push @load_extra, 'choice='.join(',',sort @choices);
     }
 
 
