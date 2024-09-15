@@ -163,7 +163,13 @@ sub parse_xml ($list, $map) {
             'option' => $turn_to_pod_c,
             'filename' => $turn_to_pod_c,
             'constant' => $turn_to_pod_c,
-            ulink => sub {my $url = $_->{att}{url}; my $t = $_->text();$_->set_text("L<$t|$url>"); },
+            ulink => sub {
+                my $url = $_->{att}{url};
+                my $t = $_->text();
+                $t =~ s/^[\s\n]+//;
+                $t =~ s/[\s\n]+$//;
+                $_->set_text("L<$t|$url>");
+            },
             # this also remove the indentation of programlisting
             # element,
             'para' => sub { $_->subs_text(qr/\n\s+/,"\n"); 1;},
