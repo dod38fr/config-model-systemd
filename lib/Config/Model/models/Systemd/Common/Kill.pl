@@ -107,7 +107,7 @@ C<SIGHUP> to remaining processes immediately
 after sending the signal configured with
 C<KillSignal>. This is useful to indicate to
 shells and shell-like programs that their connection has been
-severed. Takes a boolean value. Defaults to "no".
+severed. Takes a boolean value. Defaults to C<no>.
 ',
         'type' => 'leaf',
         'value_type' => 'boolean',
@@ -126,7 +126,7 @@ processes of the service around. When disabled, a
 C<KillMode> of C<control-group>
 or C<mixed> service will not restart if
 processes from prior services exist within the control group.
-Takes a boolean value. Defaults to "yes".
+Takes a boolean value. Defaults to C<yes>.
 ',
         'type' => 'leaf',
         'value_type' => 'boolean',
@@ -162,7 +162,7 @@ C<WatchdogSec>). Defaults to C<SIGABRT>.
         'value_type' => 'uniline'
       }
     ],
-    'generated_by' => 'parse-man.pl from systemd 254 doc',
+    'generated_by' => 'parse-man.pl from systemd 256 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Common::Kill'
   }
