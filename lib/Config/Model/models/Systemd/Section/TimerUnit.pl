@@ -130,7 +130,7 @@ are allowed.
 
 interval is a time span with the default unit of seconds, but other
 units may be specified, see
-L<systemd.time(5)>.
+L<systemd.time(7)>.
 The special value C<infinity> can be used to limit the total number of start
 attempts, even if they happen at large time intervals.
 Defaults to C<DefaultStartLimitIntervalSec> in manager configuration file, and may
@@ -171,7 +171,7 @@ are allowed.
 
 interval is a time span with the default unit of seconds, but other
 units may be specified, see
-L<systemd.time(5)>.
+L<systemd.time(7)>.
 The special value C<infinity> can be used to limit the total number of start
 attempts, even if they happen at large time intervals.
 Defaults to C<DefaultStartLimitIntervalSec> in manager configuration file, and may
