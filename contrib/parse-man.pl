@@ -110,7 +110,9 @@ sub parse_xml ($list, $map) {
 
         # apply substitution only on variable names (FooBar=). The regexp must test
         # for capital letter and C<..> to avoid breaking URL parameters
-        $desc =~ s/C<([A-Z]\w+)=>/C<$1>/g;
+        # But C<Foo>=C<bar> must be kept, hence the 2 regexps with negative and positive lookahead
+        $desc =~ s/C<([A-Z]\w+)=>(?!C<)/C<$1>/g;
+        $desc =~ s/C<([A-Z]\w+)=>(?=C<)/C<$1>=/g;
 
         # detect verbatim parts setup with programlisting tag
         $desc =~ s/^\+-\+/    /gm;
