@@ -99,7 +99,7 @@ around read => sub ($orig, $self, %args) {
         my $layer_file = $layer_dir->child($unit_name.'.'.$unit_type);
         next unless $layer_file->exists;
 
-        $user_logger->warn("Reading unit '$unit_type' '$unit_name' from '$layer_file'.");
+        $user_logger->info("Reading unit '$unit_type' '$unit_name' from '$layer_file'.");
         $self->load_ini_file($orig, %args, file_path => $layer_file);
         $found_unit++;
 
@@ -113,7 +113,7 @@ around read => sub ($orig, $self, %args) {
         $self->_has_system_file(1);
     }
     else {
-        $user_logger->warn("Could not find unit files for $unit_type name $unit_name");
+        $user_logger->info("Could not find unit files for $unit_type name $unit_name");
     }
 
     # now read editable file (files that can be edited with systemctl edit <unit>.<type>
@@ -225,7 +225,7 @@ around 'write' => sub ($orig, $self, %args) {
     if ($self->node->grab_value('disable')) {
         my $fp = $args{file_path};
         if ($fp->realpath ne '/dev/null') {
-            $user_logger->warn("symlinking file $fp to /dev/null");
+            $user_logger->info("symlinking file $fp to /dev/null");
             $fp->remove;
             symlink ('/dev/null', $fp->stringify);
         }
@@ -256,7 +256,7 @@ around 'write' => sub ($orig, $self, %args) {
 
         if (scalar $dir->children == 0) {
             # remove empty dir
-            $logger->warn("Removing empty dir $dir");
+            $logger->info("Removing empty dir $dir");
             rmdir $dir;
         }
     }
