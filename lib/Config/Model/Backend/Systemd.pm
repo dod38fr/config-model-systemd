@@ -24,7 +24,7 @@ has config_dir => (
 has 'annotation' => ( is => 'ro', isa => 'Bool', default => 1 );
 
 # TODO: accepts other systemd suffixes
-my @service_types = qw/service socket/;
+my @service_types = qw/service socket timer/;
 my $joined_types = join('|', @service_types);
 my $filter = qr/\.($joined_types)(\.d)?$/;
 
@@ -156,6 +156,7 @@ sub read_systemd_units ($self, %args) {
     $self->config_dir($dir);
     my $found = 0;
     foreach my $file ($dir->children($filter) ) {
+        $logger->trace("Scanning unit dir $dir with filter $filter");
         my ($unit_type,$dot_d) = ($file =~ $filter);
         my $file_name = $file->basename();
         my $unit_name = $file->basename($filter);
