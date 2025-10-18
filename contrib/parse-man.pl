@@ -469,6 +469,13 @@ $meta_root->load(
                                  choice=0,1,2,3,none,realtime,best-effort,idle'
 );
 
+# doc for Exec/SetLoginEnvironment is misleading
+$meta_root->load(
+    '! class:Systemd::Common::Exec
+       element:SetLoginEnvironment upstream_default~'
+);
+
+
 # these warping instructions are used for most services. Services are
 # disabled when a service file is a symlink to /dev/null
 my $common_warp = qq!warp follow:disable="- disable" rules:\$disable level=hidden - - !;
