@@ -310,6 +310,19 @@ sub setup_element ($meta_root, $config_class, $element, $desc, $extra_info, $sup
         push @load_extra, "upstream_default=$1" ;
     }
 
+    if ($value_type eq 'enum' and $desc =~ /Defaults? (?:value )?(?:to|is) (\w+)\./) {
+        my $v = ($1 =~ s/true|on/yes/r);
+        $v =~ s/false|off/no/;
+        push @load_extra, "upstream_default=$v" ;
+    }
+
+    if ($value_type eq 'boolean' and $desc =~ /Defaults? (?:value )?(?:to|is) (C<)?(true|on|yes)>?\./) {
+        push @load_extra, "upstream_default=yes" ;
+    }
+    if ($value_type eq 'boolean' and $desc =~ /Defaults? (?:value )?(?:to|is) (C<)?(false|off|no)>?\./) {
+        push @load_extra, "upstream_default=no" ;
+    }
+
     if ($supersedes) {
         push @load_extra, "status=deprecated";
 
