@@ -13,11 +13,12 @@ return [
         'warn' => 'Unexpected systemd parameter. Please contact cme author to update systemd model.'
       }
     ],
+    'description' => {
+      'disable' => 'When true, cme will disable a configuration file supplied by the vendor by placing place a symlink to /dev/null with the same filename as the vendor configuration file. See L<systemd-system.conf> for details.'
+    },
     'element' => [
       'disable',
       {
-        'description' => 'When true, cme will disable a configuration file supplied by the vendor by placing place a symlink to /dev/null with the same filename as the vendor configuration file. See L<systemd-system.conf> for details.',
-        'summary' => 'disable configuration file supplied by the vendor',
         'type' => 'leaf',
         'upstream_default' => '0',
         'value_type' => 'boolean'
@@ -25,56 +26,17 @@ return [
       'Timer',
       {
         'config_class_name' => 'Systemd::Section::Timer',
-        'type' => 'warped_node',
-        'warp' => {
-          'follow' => {
-            'disable' => '- disable'
-          },
-          'rules' => [
-            {
-              'apply' => {
-                'level' => 'hidden'
-              },
-              'when' => '$disable'
-            }
-          ]
-        }
+        'type' => 'warped_node'
       },
       'Unit',
       {
         'config_class_name' => 'Systemd::Section::TimerUnit',
-        'type' => 'warped_node',
-        'warp' => {
-          'follow' => {
-            'disable' => '- disable'
-          },
-          'rules' => [
-            {
-              'apply' => {
-                'level' => 'hidden'
-              },
-              'when' => '$disable'
-            }
-          ]
-        }
+        'type' => 'warped_node'
       },
       'Install',
       {
         'config_class_name' => 'Systemd::Section::Install',
-        'type' => 'warped_node',
-        'warp' => {
-          'follow' => {
-            'disable' => '- disable'
-          },
-          'rules' => [
-            {
-              'apply' => {
-                'level' => 'hidden'
-              },
-              'when' => '$disable'
-            }
-          ]
-        }
+        'type' => 'warped_node'
       }
     ],
     'generated_by' => 'parse-man.pl from systemd doc',
@@ -84,6 +46,26 @@ return [
       'auto_delete' => '1',
       'backend' => 'Systemd::Unit',
       'file' => '&index.timer'
+    },
+    'summary' => {
+      'disable' => 'disable configuration file supplied by the vendor'
+    },
+    'warp' => {
+      'Install' => {
+        'follow' => {
+          'disable' => '- disable'
+        },
+        'rules' => [
+          {
+            'apply' => {
+              'level' => 'hidden'
+            },
+            'when' => '$disable'
+          }
+        ]
+      },
+      'Timer' => '*Install',
+      'Unit' => '*Install'
     }
   }
 ]

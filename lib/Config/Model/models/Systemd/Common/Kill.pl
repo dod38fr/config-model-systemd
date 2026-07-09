@@ -41,10 +41,20 @@ by L<parse-man.pl|https://github.com/dod38fr/config-model-systemd/contrib/parse-
       '2010-2016 Lennart Poettering and others',
       '2016 Dominique Dumont'
     ],
-    'element' => [
-      'KillMode',
-      {
-        'description' => 'Specifies how processes of this unit shall be killed. One of
+    'description' => {
+      'FinalKillSignal' => 'Specifies which signal to send to remaining
+processes after a timeout if C<SendSIGKILL>
+is enabled. The signal configured here should be one that is
+not typically caught and processed by services (C<SIGTERM>
+is not suitable). Developers can find it useful to use this to
+generate a coredump to troubleshoot why a service did not
+terminate upon receiving the initial C<SIGTERM>
+signal. This can be achieved by configuring C<LimitCORE>
+and setting C<FinalKillSignal> to either
+C<SIGQUIT> or C<SIGABRT>.
+Defaults to C<SIGKILL>.
+',
+      'KillMode' => 'Specifies how processes of this unit shall be killed. One of
 C<control-group>, C<mixed>, C<process>,
 C<none>.
 
@@ -78,12 +88,7 @@ option). See L<kill(2)>
 for more information.
 
 Defaults to C<control-group>.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
-      'KillSignal',
-      {
-        'description' => 'Specifies which signal to use when stopping a service. This controls the signal that
+      'KillSignal' => 'Specifies which signal to use when stopping a service. This controls the signal that
 is sent as first step of shutting down a unit (see above), and is usually followed by
 C<SIGKILL> (see above and below). For a list of valid signals, see
 L<signal(7)>.
@@ -91,26 +96,43 @@ Defaults to C<SIGTERM>.
 
 Note that, right after sending the signal specified in this setting, systemd will always send
 C<SIGCONT>, to ensure that even suspended tasks can be terminated cleanly.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
-      'RestartKillSignal',
-      {
-        'description' => 'Specifies which signal to use when restarting a service. The same as
+      'RestartKillSignal' => 'Specifies which signal to use when restarting a service. The same as
 C<KillSignal> described above, with the exception that this setting is used in a
 restart job. Not set by default, and the value of C<KillSignal> is used.',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      },
-      'SendSIGHUP',
-      {
-        'description' => 'Specifies whether to send
+      'SendSIGHUP' => 'Specifies whether to send
 C<SIGHUP> to remaining processes immediately
 after sending the signal configured with
 C<KillSignal>. This is useful to indicate to
 shells and shell-like programs that their connection has been
 severed. Takes a boolean value. Defaults to C<no>.
 ',
+      'SendSIGKILL' => 'Specifies whether to send
+C<SIGKILL> (or the signal specified by
+C<FinalKillSignal>) to remaining processes
+after a timeout, if the normal shutdown procedure left
+processes of the service around. When disabled, a
+C<KillMode> of C<control-group>
+or C<mixed> service will not restart if
+processes from prior services exist within the control group.
+Takes a boolean value. Defaults to C<yes>.
+',
+      'WatchdogSignal' => 'Specifies which signal to use to terminate the
+service when the watchdog timeout expires (enabled through
+C<WatchdogSec>). Defaults to C<SIGABRT>.
+'
+    },
+    'element' => [
+      'KillMode',
+      {
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'KillSignal',
+      '*KillMode',
+      'RestartKillSignal',
+      '*KillMode',
+      'SendSIGHUP',
+      {
         'type' => 'leaf',
         'upstream_default' => 'no',
         'value_type' => 'boolean',
@@ -121,16 +143,6 @@ severed. Takes a boolean value. Defaults to C<no>.
       },
       'SendSIGKILL',
       {
-        'description' => 'Specifies whether to send
-C<SIGKILL> (or the signal specified by
-C<FinalKillSignal>) to remaining processes
-after a timeout, if the normal shutdown procedure left
-processes of the service around. When disabled, a
-C<KillMode> of C<control-group>
-or C<mixed> service will not restart if
-processes from prior services exist within the control group.
-Takes a boolean value. Defaults to C<yes>.
-',
         'type' => 'leaf',
         'upstream_default' => 'yes',
         'value_type' => 'boolean',
@@ -141,32 +153,13 @@ Takes a boolean value. Defaults to C<yes>.
       },
       'FinalKillSignal',
       {
-        'description' => 'Specifies which signal to send to remaining
-processes after a timeout if C<SendSIGKILL>
-is enabled. The signal configured here should be one that is
-not typically caught and processed by services (C<SIGTERM>
-is not suitable). Developers can find it useful to use this to
-generate a coredump to troubleshoot why a service did not
-terminate upon receiving the initial C<SIGTERM>
-signal. This can be achieved by configuring C<LimitCORE>
-and setting C<FinalKillSignal> to either
-C<SIGQUIT> or C<SIGABRT>.
-Defaults to C<SIGKILL>.
-',
         'type' => 'leaf',
         'value_type' => 'uniline'
       },
       'WatchdogSignal',
-      {
-        'description' => 'Specifies which signal to use to terminate the
-service when the watchdog timeout expires (enabled through
-C<WatchdogSec>). Defaults to C<SIGABRT>.
-',
-        'type' => 'leaf',
-        'value_type' => 'uniline'
-      }
+      '*FinalKillSignal'
     ],
-    'generated_by' => 'parse-man.pl from systemd 260 doc',
+    'generated_by' => 'parse-man.pl from systemd 261 doc',
     'license' => 'LGPLv2.1+',
     'name' => 'Systemd::Common::Kill'
   }
