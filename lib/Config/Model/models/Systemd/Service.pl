@@ -1,5 +1,7 @@
 use strict;
 use warnings;
+use v5.20;
+use utf8;
 
 return [
   {
@@ -29,9 +31,11 @@ return [
             'disable' => '- disable'
           },
           'rules' => [
-            '$disable',
             {
-              'level' => 'hidden'
+              'apply' => {
+                'level' => 'hidden'
+              },
+              'when' => '$disable'
             }
           ]
         }
@@ -45,9 +49,11 @@ return [
             'disable' => '- disable'
           },
           'rules' => [
-            '$disable',
             {
-              'level' => 'hidden'
+              'apply' => {
+                'level' => 'hidden'
+              },
+              'when' => '$disable'
             }
           ]
         }
@@ -61,9 +67,11 @@ return [
             'disable' => '- disable'
           },
           'rules' => [
-            '$disable',
             {
-              'level' => 'hidden'
+              'apply' => {
+                'level' => 'hidden'
+              },
+              'when' => '$disable'
             }
           ]
         }
@@ -80,4 +88,3 @@ return [
   }
 ]
 ;
-

@@ -1,5 +1,7 @@
 use strict;
 use warnings;
+use v5.20;
+use utf8;
 
 return [
   {
@@ -219,4 +221,3 @@ works just like the optional argument to systemctl reboot command.',
   }
 ]
 ;
-

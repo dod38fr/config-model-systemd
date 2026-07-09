@@ -1,5 +1,7 @@
 use strict;
 use warnings;
+use v5.20;
+use utf8;
 
 return [
   {
@@ -1649,4 +1651,3 @@ L<systemd-coredump(8)>.',
   }
 ]
 ;
-

@@ -1,5 +1,7 @@
 use strict;
 use warnings;
+use v5.20;
+use utf8;
 
 return [
   {
@@ -1327,4 +1329,3 @@ C<ExecStartPre> command cannot access socket file descriptors.',
   }
 ]
 ;
-

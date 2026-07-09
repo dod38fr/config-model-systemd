@@ -1,5 +1,7 @@
 use strict;
 use warnings;
+use v5.20;
+use utf8;
 
 return [
   {
@@ -5642,4 +5644,3 @@ leader. Defaults to C<init>.',
   }
 ]
 ;
-
