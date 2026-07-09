@@ -151,6 +151,41 @@ Example:
     [Service]
     BindNetworkInterface=vrf-mgmt
 ',
+      'CPUPressureThresholdSec' => "Sets the CPU pressure threshold time for CPU pressure monitor as configured via
+C<CPUPressureWatch>. Specifies the maximum CPU stall time before a CPU
+pressure event is signalled to the service, per 2s window. If not specified, defaults to the
+C<DefaultCPUPressureThresholdSec> setting in
+L<systemd-system.conf(5)>
+(which in turn defaults to 200ms). The specified value expects a time unit such as
+C<ms> or C<\x{3bc}s>, see
+L<systemd.time(7)> for
+details on the permitted syntax.",
+      'CPUPressureWatch' => 'Controls CPU pressure monitoring for invoked processes. Takes a boolean or one of
+C<auto> and C<skip>. If C<no>, tells the service not
+to watch for CPU pressure events, by setting the C<$CPU_PRESSURE_WATCH>
+environment variable to the literal string C</dev/null>. If C<yes>,
+tells the service to watch for CPU pressure events. This ensures the
+C<cpu.pressure> cgroup attribute file is accessible for
+reading and writing by the service\'s user. It then sets the C<$CPU_PRESSURE_WATCH>
+environment variable for processes invoked by the unit to the file system path to this file. The
+threshold information configured with C<CPUPressureThresholdSec> is encoded in
+the C<$CPU_PRESSURE_WRITE> environment variable. If the C<auto>
+value is set the protocol is enabled if CPU resource controls are configured for the unit (e.g. because
+C<CPUWeight> or C<CPUQuota> is set), and
+disabled otherwise. If set to C<skip> the logic is neither enabled, nor disabled and
+the two environment variables are not set.
+
+Note that services are free to use the two environment variables, but it is unproblematic if
+they ignore them. CPU pressure handling must be implemented individually in each service, and
+usually means different things for different software.
+
+Services implemented using
+L<sd-event(3)> may use
+L<sd_event_add_cpu_pressure(3)>
+to watch for and handle CPU pressure events.
+
+If not explicitly set, defaults to the C<DefaultCPUPressureWatch> setting in
+L<systemd-system.conf(5)>.',
       'CPUQuota' => 'This setting controls the C<cpu> controller in the unified hierarchy.
 
 Assign the specified CPU time quota to the processes executed. Takes a percentage value, suffixed with
@@ -178,6 +213,18 @@ L<Control Groups v2|https://docs.kernel.org/admin-guide/cgroup-v2.html> and
 L<CFS Scheduler|https://docs.kernel.org/scheduler/sched-design-CFS.html>.
 
 Example: C<CPUQuotaPeriodSec=10ms> to request that the CPU quota is measured in periods of 10ms.',
+      'CPUSetPartition' => 'Sets the C<cpuset> partition type for the executed processes. Takes one
+of C<member>, C<root>, or C<isolated>. This setting
+controls the C<cpuset.cpus.partition> cgroup attribute.
+
+When set to C<member>, the cpuset operates in normal mode.
+C<root> creates a partition root, which can further divide CPUs among child cgroups.
+C<isolated> provides full CPU isolation, useful for real-time workloads that
+require dedicated CPU resources without interference from other processes.
+Defaults to the kernel default, which is C<member>. For more details about this
+control group attribute, see L<Control Groups v2|https://docs.kernel.org/admin-guide/cgroup-v2.html>.
+
+This setting requires C<AllowedCPUs> to also be set.',
       'CPUWeight' => 'These settings control the C<cpu> controller in the unified hierarchy.
 
 These options accept an integer value or the special string "idle":
@@ -355,6 +402,41 @@ discover the correct originating device backing the file system of the specified
 correctly only for simpler cases, where the file system is directly placed on a partition or
 physical block device, or where simple 1:1 encryption using dm-crypt/LUKS is used. This discovery
 does not cover complex storage and in particular RAID and volume management storage devices.',
+      'IOPressureThresholdSec' => "Sets the IO pressure threshold time for IO pressure monitor as configured via
+C<IOPressureWatch>. Specifies the maximum IO stall time before an IO
+pressure event is signalled to the service, per 2s window. If not specified, defaults to the
+C<DefaultIOPressureThresholdSec> setting in
+L<systemd-system.conf(5)>
+(which in turn defaults to 200ms). The specified value expects a time unit such as
+C<ms> or C<\x{3bc}s>, see
+L<systemd.time(7)> for
+details on the permitted syntax.",
+      'IOPressureWatch' => 'Controls IO pressure monitoring for invoked processes. Takes a boolean or one of
+C<auto> and C<skip>. If C<no>, tells the service not
+to watch for IO pressure events, by setting the C<$IO_PRESSURE_WATCH>
+environment variable to the literal string C</dev/null>. If C<yes>,
+tells the service to watch for IO pressure events. This enables IO accounting for the
+service, and ensures the C<io.pressure> cgroup attribute file is accessible for
+reading and writing by the service\'s user. It then sets the C<$IO_PRESSURE_WATCH>
+environment variable for processes invoked by the unit to the file system path to this file. The
+threshold information configured with C<IOPressureThresholdSec> is encoded in
+the C<$IO_PRESSURE_WRITE> environment variable. If the C<auto>
+value is set the protocol is enabled if IO accounting is anyway enabled for the unit (e.g. because
+C<IOWeight> or C<IODeviceWeight> is set), and
+disabled otherwise. If set to C<skip> the logic is neither enabled, nor disabled and
+the two environment variables are not set.
+
+Note that services are free to use the two environment variables, but it is unproblematic if
+they ignore them. IO pressure handling must be implemented individually in each service, and
+usually means different things for different software.
+
+Services implemented using
+L<sd-event(3)> may use
+L<sd_event_add_io_pressure(3)>
+to watch for and handle IO pressure events.
+
+If not explicitly set, defaults to the C<DefaultIOPressureWatch> setting in
+L<systemd-system.conf(5)>.',
       'IOReadBandwidthMax' => 'These settings control the C<io> controller in the unified hierarchy.
 
 Set the per-device overall block I/O bandwidth maximum limit for the executed processes, if the unified
@@ -673,8 +755,8 @@ the two environment variables are not set.
 Note that services are free to use the two environment variables, but it is unproblematic if
 they ignore them. Memory pressure handling must be implemented individually in each service, and
 usually means different things for different software. For further details on memory pressure
-handling see L<Memory Pressure Handling in
-systemd|https://systemd.io/MEMORY_PRESSURE>.
+handling see L<Resource Pressure Handling in
+systemd|https://systemd.io/PRESSURE>.
 
 Services implemented using
 L<sd-event(3)> may use
@@ -718,12 +800,15 @@ the startup and shutdown phases. Using C<StartupMemoryZSwapMax> allows prioritiz
 boot-up and shutdown differently than during normal runtime.',
       'MemoryZSwapWriteback' => 'This setting controls the C<memory> controller in the unified hierarchy.
 
-Takes a boolean argument. When true, pages stored in the Zswap cache are permitted to be
-written to the backing storage, false otherwise. Defaults to true. This allows disabling
-writeback of swap pages for IO-intensive applications, while retaining the ability to store
-compressed pages in Zswap. See the kernel\'s
+Takes a boolean argument. Defaults to true if C<DefaultMemoryZSwapWriteback>
+is not set. When true, pages stored in the Zswap cache are permitted to be
+written to the backing storage, false otherwise. This allows disabling writeback of swap pages for
+IO-intensive applications, while retaining the ability to store compressed pages in Zswap. See the kernel\'s
 L<Zswap|https://docs.kernel.org/admin-guide/mm/zswap.html> documentation
-for more details.',
+for more details.
+
+The system default for this setting may be controlled with C<DefaultMemoryZSwapWriteback>
+in L<systemd-system.conf(5)>.',
       'NFTSet' => 'This setting provides a method for integrating dynamic cgroup, user and group IDs into
 firewall rules with L<NFT|https://netfilter.org/projects/nftables/index.html>
 sets. The benefit of using this setting is to be able to use the IDs as selectors in firewall rules
@@ -750,7 +835,7 @@ systemctl daemon-reload can be used to refill the sets.
 
 Example:
 
-    [Unit]
+    [Service]
     NFTSet=cgroup:inet:filter:my_service user:inet:filter:serviceuser
 
 
@@ -773,6 +858,26 @@ Corresponding NFT rules:
     }
     }
 ',
+      'OOMRules' => 'Takes a space-separated list of OOM ruleset names. The rulesets are defined in
+C<.oomrule> files placed in
+C</etc/systemd/oomd/rules.d/>,
+C</run/systemd/oomd/rules.d/>,
+C</usr/local/lib/systemd/oomd/rules.d/>, or
+C</usr/lib/systemd/oomd/rules.d/>. When set,
+L<systemd-oomd.service(8)>
+will monitor this unit\'s cgroup and evaluate the specified rulesets against it.
+Each ruleset defines conditions (such as memory pressure or swap usage thresholds) and an action
+to take when those conditions are met. See
+L<oomd.conf(5)> for
+details on the available ruleset options.
+
+Setting this property will also result in C<After> and
+C<Wants> dependencies on C<systemd-oomd.service> unless
+C<DefaultDependencies=no>.
+
+Defaults to an empty list, which means no rulesets are applied. Note that each monitored
+cgroup incurs a per-interval walk of its descendant cgroup tree, so monitoring very large numbers of
+cgroups via C<OOMRules> may have a measurable performance impact.',
       'RestrictNetworkInterfaces' => 'Takes a list of space-separated network interface names. This option restricts the network
 interfaces that processes of this unit can use. By default, processes can only use the network interfaces
 listed (allow-list). If the first character of the rule is C<~>, the effect is inverted:
@@ -1002,7 +1107,6 @@ L<systemd-system.conf(5)>.'
       'MemoryZSwapWriteback',
       {
         'type' => 'leaf',
-        'upstream_default' => 'yes',
         'value_type' => 'boolean',
         'write_as' => [
           'no',
@@ -1016,6 +1120,16 @@ L<systemd-system.conf(5)>.'
       },
       'StartupAllowedMemoryNodes',
       '*AllowedMemoryNodes',
+      'CPUSetPartition',
+      {
+        'choice' => [
+          'isolated',
+          'member',
+          'root'
+        ],
+        'type' => 'leaf',
+        'value_type' => 'enum'
+      },
       'TasksAccounting',
       {
         'type' => 'leaf',
@@ -1147,6 +1261,11 @@ L<systemd-system.conf(5)>.'
         'type' => 'leaf',
         'value_type' => 'enum'
       },
+      'OOMRules',
+      {
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
       'MemoryPressureWatch',
       {
         'choice' => [
@@ -1165,6 +1284,50 @@ L<systemd-system.conf(5)>.'
         'value_type' => 'enum'
       },
       'MemoryPressureThresholdSec',
+      {
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'CPUPressureWatch',
+      {
+        'choice' => [
+          'auto',
+          'no',
+          'skip',
+          'yes'
+        ],
+        'replace' => {
+          '0' => 'no',
+          '1' => 'yes',
+          'false' => 'no',
+          'true' => 'yes'
+        },
+        'type' => 'leaf',
+        'value_type' => 'enum'
+      },
+      'CPUPressureThresholdSec',
+      {
+        'type' => 'leaf',
+        'value_type' => 'uniline'
+      },
+      'IOPressureWatch',
+      {
+        'choice' => [
+          'auto',
+          'no',
+          'skip',
+          'yes'
+        ],
+        'replace' => {
+          '0' => 'no',
+          '1' => 'yes',
+          'false' => 'no',
+          'true' => 'yes'
+        },
+        'type' => 'leaf',
+        'value_type' => 'enum'
+      },
+      'IOPressureThresholdSec',
       {
         'type' => 'leaf',
         'value_type' => 'uniline'

@@ -14,7 +14,7 @@ return [
       }
     ],
     'description' => {
-      'FailureAction' => 'Configure the action to take when the unit stops and enters a failed state or
+      'FailureAction' => "Configure the action to take when the unit stops and enters a failed state or
 inactive state.  Takes one of C<none>, C<reboot>,
 C<reboot-force>, C<reboot-immediate>, C<poweroff>,
 C<poweroff-force>, C<poweroff-immediate>, C<exit>,
@@ -23,6 +23,16 @@ C<kexec>, C<kexec-force>, C<halt>,
 C<halt-force> and C<halt-immediate>. In system mode, all options are
 allowed. In user mode, only C<none>, C<exit>, and
 C<exit-force> are allowed. Both options default to C<none>.
+
+These actions are tied to the unit's state transitions and fire only when the unit actually
+transitions out of an C<active> or C<activating> state. As a
+consequence, C<Condition\x{2026}=> and C<Assert\x{2026}=> directives that fail do
+not trigger C<SuccessAction> or
+C<FailureAction>: they prevent activation in the first place, so no state transition
+occurs. By contrast, the C<ExecCondition> directive in
+L<systemd.service(5)>
+runs as part of activation, so an C<ExecCondition> skip will
+trigger C<SuccessAction>.
 
 If C<none> is set, no action will be triggered. C<reboot> causes a
 reboot following the normal shutdown procedure (i.e. equivalent to systemctl
@@ -44,7 +54,7 @@ overridden with
 C<FailureActionExitStatus>/C<SuccessActionExitStatus>, see below.
 C<soft-reboot> will trigger a userspace reboot operation.
 C<soft-reboot-force> does that too, but does not go through the shutdown transaction
-beforehand.',
+beforehand.",
       'RebootArgument' => 'Configure the optional argument for the
 L<reboot(2)> system call if
 C<StartLimitAction> or C<FailureAction> is a reboot action. This

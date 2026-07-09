@@ -53,7 +53,7 @@ for services where C<Type> is set to C<dbus>. It is recommended to
 always set this property if known to make it easy to map the service name to the D-Bus destination.
 In particular, systemctl service-log-level/service-log-target verbs make use of
 this.',
-      'ExecCondition' => 'Optional commands that are executed before the commands in
+      'ExecCondition' => "Optional commands that are executed before the commands in
 C<ExecStartPre>. Syntax is the same as for C<ExecStart>. Multiple
 command lines are allowed, regardless of the service type (i.e. C<Type>), and the
 commands are executed one after the other, serially.
@@ -65,10 +65,19 @@ C<ExecCondition> command exits with 255 or abnormally (e.g. timeout, killed by a
 signal, etc.), the unit will be considered failed (and remaining commands will be skipped). Exit code of 0 or
 those matching C<SuccessExitStatus> will continue execution to the next commands.
 
+Note that an C<ExecCondition> skip is not equivalent to a
+unit-level C<Condition\x{2026}=> or C<Assert\x{2026}=> check failing. Because
+C<ExecCondition> runs as part of the activation transition, a skip causes the unit to
+transition from C<active> to C<inactive>, and consequently
+C<SuccessAction> (see
+L<systemd.unit(5)>) will be
+honored. By contrast, C<Condition\x{2026}=> directives in the C<[Unit]> section
+prevent activation entirely and therefore do not trigger C<SuccessAction>.
+
 The same recommendations about not running long-running processes in C<ExecStartPre>
 also applies to C<ExecCondition>. C<ExecCondition> will also run the commands
 in C<ExecStopPost>, as part of stopping the service, in the case of any non-zero or abnormal
-exits, like the ones described above.',
+exits, like the ones described above.",
       'ExecReload' => 'Commands to execute to trigger a configuration reload in the service. This setting
 may take multiple command lines, following the same scheme as described for
 C<ExecStart> above. Use of this setting is optional. Specifier and environment
@@ -258,14 +267,40 @@ details.
 For further information on the file descriptor store see the L<File Descriptor
 Store|https://systemd.io/FILE_DESCRIPTOR_STORE> overview.',
       'FileDescriptorStorePreserve' => "Takes one of C<no>, C<yes>,
-C<restart> and controls when to release the service's file descriptor store
-(i.e. when to close the contained file descriptors, if any). If set to C<no> the
-file descriptor store is automatically released when the service is stopped; if
-C<restart> (the default) it is kept around as long as the unit is neither inactive
-nor failed, or a job is queued for the service, or the service is expected to be restarted. If
-C<yes> the file descriptor store is kept around until the unit is removed from
-memory (i.e. is not referenced anymore and inactive). The latter is useful to keep entries in the
-file descriptor store pinned until the service manager exits.
+C<restart>, C<on-success> and controls when to release the
+service's file descriptor store (i.e. when to close the contained file descriptors, if any). If set
+to C<no> the file descriptor store is automatically released when the service is
+stopped; if C<restart> (the default) it is kept around as long as the unit is
+neither inactive nor failed, or a job is queued for the service, or the service is expected to be
+restarted. If C<yes> the file descriptor store is kept around and garbage
+collection of the unit is disabled. The latter is useful to keep entries in the file descriptor
+store pinned until the unit is removed, the service manager exits, or the file descriptors get
+C<EPOLLHUP> or C<EPOLLERR>. If C<on-success>
+the behaviour is identical to C<yes>, except that the file descriptor store is
+discarded if the unit enters the permanent C<failed> state (i.e. once all automated
+restart attempts driven by C<Restart> have been exhausted). The store is preserved
+across the transitionary failed states that precede each individual auto-restart attempt.
+
+When set to C<yes> or C<on-success>, and the service is
+itself running under another service manager (e.g. a service of C<user\@.service>,
+or a payload inside
+L<systemd-nspawn(1)>),
+file descriptors pushed into the store are also forwarded one level up via the enveloping manager's
+C<\$NOTIFY_SOCKET>, tagged with the originating unit id, so that they are preserved
+across restarts of the inner manager and handed back to the originating unit when it is started
+again. For this to take effect, the enveloping unit must itself enable
+C<FileDescriptorStoreMax> and a non-C<no>/C<restart>
+value for C<FileDescriptorStorePreserve>.
+See the L<File Descriptor Store|https://systemd.io/FILE_DESCRIPTOR_STORE>
+overview for details.
+
+Setting this to C<yes> or C<on-success> also ensures the
+file descriptor store is kept loaded across a C<kexec>-based reboot on kernels
+supporting the L<Live Update Orchestrator|https://docs.kernel.org/userspace-api/liveupdate.html>,
+so that compatible file descriptors (such as L<memfd_create(2)>)
+are preserved and handed back to the service on the other side. See the L<File Descriptor
+Store|https://systemd.io/FILE_DESCRIPTOR_STORE> overview for
+details.
 
 Use systemctl clean --what=fdstore \x{2026} to release the file descriptor store
 explicitly.",
@@ -952,6 +987,7 @@ may be used to enable automatic watchdog notification support.
       {
         'choice' => [
           'no',
+          'on-success',
           'restart',
           'yes'
         ],

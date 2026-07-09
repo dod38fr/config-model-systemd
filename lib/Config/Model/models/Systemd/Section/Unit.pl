@@ -208,6 +208,16 @@ Files (including directories) with names that match certain patterns are
 generally ignored. This includes names that start with a C<.> or
 end with a C<.ignore>.
 
+When unit aliasing is introduced during reload/reexec (e.g., converting
+C<b.service> to a symlink pointing to C<a.service>), the running
+state of the canonical unit (C<a.service>) is preserved. The old serialized state
+of the now-aliased unit is migrated to a new stub orphaned unit to prevent stale data from
+corrupting the canonical unit's live state. Dependencies referencing the alias name are automatically
+resolved to the canonical unit, and the dependency graph is rebuilt from unit files, ensuring
+consistency. If the now-aliased unit had resources such as running processes, they will now be tracked
+under the new orphaned unit. Once all resources are gone (e.g. all processes have exited) the orphaned
+unit will be garbage collected automatically.
+
 The unit file format is covered by the
 L<Interface
 Portability and Stability Promise|https://systemd.io/PORTABILITY_AND_STABILITY/>.
@@ -362,12 +372,14 @@ into.",
       'AssertFileIsExecutable' => '*AssertACPower',
       'AssertFileNotEmpty' => '*AssertACPower',
       'AssertFirstBoot' => '*AssertACPower',
+      'AssertFraction' => '*AssertACPower',
       'AssertGroup' => '*AssertACPower',
       'AssertHost' => '*AssertACPower',
       'AssertIOPressure' => '*AssertACPower',
       'AssertKernelCommandLine' => '*AssertACPower',
       'AssertKernelModuleLoaded' => '*AssertACPower',
       'AssertKernelVersion' => '*AssertACPower',
+      'AssertMachineTag' => '*AssertACPower',
       'AssertMemory' => '*AssertACPower',
       'AssertMemoryPressure' => '*AssertACPower',
       'AssertNeedsUpdate' => '*AssertACPower',
@@ -417,7 +429,12 @@ C<inactive-or-failed>: in this case, the unit is unloaded even if the unit is in
 C<failed> state, and thus an explicitly resetting of the C<failed> state is
 not necessary. Note that if this mode is used unit results (such as exit codes, exit signals, consumed
 resources, \x{2026}) are flushed out immediately after the unit completed, except for what is stored in the logging
-subsystem. Defaults to C<inactive>.",
+subsystem. Defaults to C<inactive>.
+
+Since v261, if C<FileDescriptorStorePreserve> is set to C<yes>,
+and the unit has file descriptors stored, garbage collection will be disabled until the unit is
+removed, the service manager exits, or the file descriptors get C<EPOLLHUP> or
+C<EPOLLERR>.",
       'ConditionACPower' => 'Check whether the system has AC power, or is exclusively battery powered at the
 time of activation of the unit. This takes a boolean argument. If set to C<true>,
 the condition will hold only if at least one AC connector of the system is connected to a power
@@ -626,6 +643,30 @@ be re-run during the next system startup.
 If the C<systemd.condition_first_boot=> option is specified on the kernel
 command line (taking a boolean), it will override the result of this condition check, taking
 precedence over C</etc/machine-id> existence checks.',
+      'ConditionFraction' => "C<ConditionFraction> may be used to enable a unit on a stable,
+pseudo-random subset of a fleet of machines. It is primarily useful for staged rollouts: the same
+unit (or drop-in) is distributed to every machine in a fleet, but only the configured fraction of
+them will actually have it enabled. The decision is derived locally from the machine ID (see
+L<machine-id(5)>), so
+it requires no central coordination and is stable over time: a given machine always lands on the
+same side of the threshold.
+
+The argument consists of an optional tag followed by a percentage,
+separated by whitespace, for example C<30%> or
+C<myrollout 30%>. The percentage may include up to two decimal places (e.g.
+C<0.5%>). The condition is satisfied on approximately the configured percentage of
+all machines; C<0%> matches no machine and C<100%> matches every
+machine.
+
+The optional tag is an arbitrary string (not containing whitespace) that is mixed into the
+derivation, so that independent rollouts select independent subsets of the
+fleet. Without it, all untagged C<ConditionFraction> checks would select the very
+same machines (the same machines would always be picked first). Use distinct tags for unrelated
+rollouts, and a shared tag to deliberately target the same machines across several units.
+
+The test may be negated by prepending an exclamation mark, in which case it is satisfied on the
+complementary fraction of machines (e.g. C<!myrollout 30%> matches the other \x{2248}70%).
+If the machine ID cannot be determined, the condition fails.",
       'ConditionGroup' => 'C<ConditionGroup> is similar to C<ConditionUser>
 but verifies that the service manager\'s real or effective group, or any of its auxiliary groups,
 match the specified group or GID. This setting does not support the special value
@@ -664,6 +705,17 @@ are supported by a kernel, because of the widespread practice of backporting dri
 fixes from newer upstream kernels into older versions provided by distributions. Hence, this check
 is inherently unportable and should not be used for units which may be used on different
 distributions.',
+      'ConditionMachineTag' => 'C<ConditionMachineTag> may be used to match against the tags
+assigned to the local machine. Machine tags are short labels that classify and group machines for
+management purposes; they are configured in the C<TAGS> field of
+L<machine-info(5)> and
+may be queried and changed with the tags command of
+L<hostnamectl(1)>. The
+argument is a single tag pattern, which is compared against each of the configured tags using
+shell-style globbing (C<*>, C<?>, C<[]>). The
+condition is satisfied if at least one of the configured tags matches the pattern. The test may be
+negated by prepending an exclamation mark, in which case it is satisfied if none of the configured
+tags matches.',
       'ConditionMemory' => 'Verify that the specified amount of system memory is available to the current
 system. Takes a memory size in bytes as argument, optionally prefixed with a comparison operator
 C<< < >>, C<< <= >>, C<=> (or C<==>),
@@ -1299,6 +1351,8 @@ of C<Requires>.'
       '*ConditionFirmware',
       'ConditionHost',
       '*ConditionFirmware',
+      'ConditionFraction',
+      '*ConditionFirmware',
       'ConditionKernelCommandLine',
       '*ConditionFirmware',
       'ConditionKernelVersion',
@@ -1383,6 +1437,8 @@ of C<Requires>.'
       '*ConditionPathExists',
       'ConditionOSRelease',
       '*ConditionPathExists',
+      'ConditionMachineTag',
+      '*ConditionPathExists',
       'ConditionMemoryPressure',
       '*ConditionPathExists',
       'ConditionCPUPressure',
@@ -1399,6 +1455,8 @@ of C<Requires>.'
       'AssertVirtualization',
       '*AssertArchitecture',
       'AssertHost',
+      '*AssertArchitecture',
+      'AssertFraction',
       '*AssertArchitecture',
       'AssertKernelCommandLine',
       '*AssertArchitecture',
@@ -1455,6 +1513,8 @@ of C<Requires>.'
       'AssertCPUFeature',
       '*AssertArchitecture',
       'AssertOSRelease',
+      '*AssertArchitecture',
+      'AssertMachineTag',
       '*AssertArchitecture',
       'AssertMemoryPressure',
       '*AssertArchitecture',

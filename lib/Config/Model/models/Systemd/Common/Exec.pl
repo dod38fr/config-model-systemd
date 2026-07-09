@@ -505,6 +505,10 @@ silently ignored. This option may be specified more than once in which case all 
 If the empty string is assigned to this option, the list of files to read is reset, all prior assignments
 have no effect.
 
+Note that shell variables such as C<$HOME> are not expanded in this path.
+Use C<%>-specifiers instead; for example, C<%h> expands to the
+user\'s home directory.
+
 The files listed with this directive will be read shortly before the process is executed (more
 specifically, after all processes from a previous unit state terminated. This means you can generate these
 files in one unit state, and read it with this option in the next. The files are read from the file
@@ -1679,7 +1683,10 @@ It is recommended to enable this setting for all long-running services (in parti
 network-facing ones), to ensure they cannot get access to private user data, unless the services
 actually require access to the user\'s private data. This setting is implied if
 C<DynamicUser> is set. This setting cannot ensure protection in all cases. In
-general it has the same limitations as C<ReadOnlyPaths>, see below.',
+general it has the same limitations as C<ReadOnlyPaths>, see below.
+
+Note that this setting provides no protection if home directories are placed at a non-standard
+location, i.e. outside of the hierarchies listed above.',
       'ProtectHostname' => 'Takes a boolean argument or C<private>. If enabled, sets up a new UTS
 namespace for the executed processes. If enabled, a hostname can be optionally specified following a
 colon (e.g. C<yes:foo> or C<private:host.example.com>), and the
@@ -2073,7 +2080,16 @@ C<Restart>, and manual restart means the one triggered by systemctl restart
 foo.service. If set to C<yes>, then the directories are not removed when the service is
 stopped. Note that since the runtime directory C</run/> is a mount point of
 C<tmpfs>, then for system services the directories specified in
-C<RuntimeDirectory> are removed when the system is rebooted.',
+C<RuntimeDirectory> are removed when the system is rebooted.
+
+If C<DynamicUser> is used together with
+C<RuntimeDirectoryPreserve> set to values other than C<no>, the logic
+is slightly altered: the C<RuntimeDirectory> directories are created below
+C</run/private/>, which is a host directory made inaccessible to unprivileged
+users, which ensures that access to these directories cannot be gained through dynamic user ID
+recycling. Symbolic links are created to hide this difference in behaviour. Both from the
+perspective of the host and from inside the unit, the relevant directories hence always appear
+directly below C</run/>.',
       'SELinuxContext' => 'Set the SELinux security context of the executed process. If set, this will override the
 automated domain transition. However, the policy still needs to authorize the transition. This directive is
 ignored if SELinux is disabled. If prefixed by C<->, failing to set the SELinux
