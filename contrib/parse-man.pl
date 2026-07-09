@@ -10,7 +10,7 @@ use lib 'lib';
 
 use XML::Twig;
 use Path::Tiny;
-use Config::Model::Itself 2.012;
+use Config::Model::Itself 2.031;
 use Config::Model::Exception;
 use Getopt::Long;
 use Text::Wrap;
@@ -484,7 +484,13 @@ $meta_root->load(
 
 # these warping instructions are used for most services. Services are
 # disabled when a service file is a symlink to /dev/null
-my $common_warp = qq!warp follow:disable="- disable" rules:\$disable level=hidden - - !;
+my $common_warp = q!
+    warp
+      follow:disable="- disable"
+      rules:0
+        when="$disable"
+        apply
+          level=hidden - - - !;
 
 foreach my $service (@service_list) {
     my $name = ucfirst($service);
