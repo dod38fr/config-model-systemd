@@ -1,0 +1,6 @@
+This commit is a bad idea.
+
+The change in Config::Model has too many side effects and the warning
+has been degraded to info. Which breaks the test changes done in this commit.
+
+This will be reverted
